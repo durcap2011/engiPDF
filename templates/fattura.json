@@ -1,0 +1,422 @@
+{
+  "version": 1,
+  "name": "Fattura Template",
+  "page": {
+    "width": 210,
+    "height": 297,
+    "unit": "mm",
+    "margins": { "top": 20, "right": 20, "bottom": 20, "left": 20 }
+  },
+  "defaultFont": "helvetica",
+  "elements": [
+    {
+      "id": "header-line",
+      "type": "rectangle",
+      "x": 20,
+      "y": 20,
+      "width": 170,
+      "height": 0.5,
+      "fill": [0, 0, 0]
+    },
+    {
+      "id": "azienda",
+      "type": "text",
+      "x": 20,
+      "y": 25,
+      "width": 85,
+      "height": 8,
+      "text": "{{ azienda.nome }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 14,
+        "color": [0, 0, 0],
+        "align": "left"
+      }
+    },
+    {
+      "id": "azienda-indirizzo",
+      "type": "text",
+      "x": 20,
+      "y": 33,
+      "width": 85,
+      "height": 6,
+      "text": "{{ azienda.indirizzo }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0.4, 0.4, 0.4],
+        "align": "left"
+      }
+    },
+    {
+      "id": "titolo",
+      "type": "text",
+      "x": 20,
+      "y": 50,
+      "width": 170,
+      "height": 12,
+      "text": "FATTURA N. {{ fattura.numero }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 22,
+        "color": [0, 0, 0],
+        "align": "center"
+      }
+    },
+    {
+      "id": "data",
+      "type": "text",
+      "x": 20,
+      "y": 65,
+      "width": 170,
+      "height": 6,
+      "text": "Data: {{ fattura.data }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0.3, 0.3, 0.3],
+        "align": "center"
+      }
+    },
+    {
+      "id": "separator-1",
+      "type": "line",
+      "x": 20,
+      "y": 78,
+      "width": 170,
+      "height": 0,
+      "color": [0.8, 0.8, 0.8],
+      "lineWidth": 0.3
+    },
+    {
+      "id": "cliente-label",
+      "type": "text",
+      "x": 20,
+      "y": 85,
+      "width": 40,
+      "height": 6,
+      "text": "Cliente:",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 11,
+        "color": [0, 0, 0],
+        "align": "left"
+      }
+    },
+    {
+      "id": "cliente-nome",
+      "type": "text",
+      "x": 60,
+      "y": 85,
+      "width": 130,
+      "height": 6,
+      "text": "{{ cliente.nome }} {{ cliente.cognome }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 11,
+        "color": [0, 0, 0],
+        "align": "left"
+      }
+    },
+    {
+      "id": "cliente-indirizzo",
+      "type": "text",
+      "x": 60,
+      "y": 92,
+      "width": 130,
+      "height": 6,
+      "text": "{{ cliente.indirizzo }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0.3, 0.3, 0.3],
+        "align": "left"
+      }
+    },
+    {
+      "id": "separator-2",
+      "type": "line",
+      "x": 20,
+      "y": 110,
+      "width": 170,
+      "height": 0,
+      "color": [0.8, 0.8, 0.8],
+      "lineWidth": 0.3
+    },
+    {
+      "id": "table-header-bg",
+      "type": "rectangle",
+      "x": 20,
+      "y": 120,
+      "width": 170,
+      "height": 10,
+      "fill": [0.2, 0.2, 0.2]
+    },
+    {
+      "id": "table-header-desc",
+      "type": "text",
+      "x": 22,
+      "y": 122,
+      "width": 90,
+      "height": 6,
+      "text": "Descrizione",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 10,
+        "color": [1, 1, 1],
+        "align": "left"
+      }
+    },
+    {
+      "id": "table-header-qta",
+      "type": "text",
+      "x": 115,
+      "y": 122,
+      "width": 30,
+      "height": 6,
+      "text": "Q.tà",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 10,
+        "color": [1, 1, 1],
+        "align": "center"
+      }
+    },
+    {
+      "id": "table-header-prezzo",
+      "type": "text",
+      "x": 150,
+      "y": 122,
+      "width": 40,
+      "height": 6,
+      "text": "Prezzo",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 10,
+        "color": [1, 1, 1],
+        "align": "right"
+      }
+    },
+    {
+      "id": "row1-desc",
+      "type": "text",
+      "x": 22,
+      "y": 138,
+      "width": 90,
+      "height": 6,
+      "text": "Prodotto A",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "left"
+      }
+    },
+    {
+      "id": "row1-qta",
+      "type": "text",
+      "x": 115,
+      "y": 138,
+      "width": 30,
+      "height": 6,
+      "text": "2",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "center"
+      }
+    },
+    {
+      "id": "row1-prezzo",
+      "type": "text",
+      "x": 150,
+      "y": 138,
+      "width": 40,
+      "height": 6,
+      "text": "€ 100,00",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "right"
+      }
+    },
+    {
+      "id": "row2-desc",
+      "type": "text",
+      "x": 22,
+      "y": 150,
+      "width": 90,
+      "height": 6,
+      "text": "Prodotto B",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "left"
+      }
+    },
+    {
+      "id": "row2-qta",
+      "type": "text",
+      "x": 115,
+      "y": 150,
+      "width": 30,
+      "height": 6,
+      "text": "5",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "center"
+      }
+    },
+    {
+      "id": "row2-prezzo",
+      "type": "text",
+      "x": 150,
+      "y": 150,
+      "width": 40,
+      "height": 6,
+      "text": "€ 250,00",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "right"
+      }
+    },
+    {
+      "id": "row3-desc",
+      "type": "text",
+      "x": 22,
+      "y": 162,
+      "width": 90,
+      "height": 6,
+      "text": "Prodotto C",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "left"
+      }
+    },
+    {
+      "id": "row3-qta",
+      "type": "text",
+      "x": 115,
+      "y": 162,
+      "width": 30,
+      "height": 6,
+      "text": "1",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "center"
+      }
+    },
+    {
+      "id": "row3-prezzo",
+      "type": "text",
+      "x": 150,
+      "y": 162,
+      "width": 40,
+      "height": 6,
+      "text": "€ 50,00",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 10,
+        "color": [0, 0, 0],
+        "align": "right"
+      }
+    },
+    {
+      "id": "separator-3",
+      "type": "line",
+      "x": 20,
+      "y": 180,
+      "width": 170,
+      "height": 0,
+      "color": [0, 0, 0],
+      "lineWidth": 0.5
+    },
+    {
+      "id": "totale-label",
+      "type": "text",
+      "x": 110,
+      "y": 188,
+      "width": 40,
+      "height": 8,
+      "text": "TOTALE:",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 14,
+        "color": [0, 0, 0],
+        "align": "right"
+      }
+    },
+    {
+      "id": "totale-value",
+      "type": "text",
+      "x": 150,
+      "y": 188,
+      "width": 40,
+      "height": 8,
+      "text": "€ {{ totale }}",
+      "style": {
+        "font": "helvetica",
+        "weight": "bold",
+        "size": 14,
+        "color": [0, 0.4, 0],
+        "align": "right"
+      }
+    },
+    {
+      "id": "footer-line",
+      "type": "rectangle",
+      "x": 20,
+      "y": 275,
+      "width": 170,
+      "height": 0.3,
+      "fill": [0.8, 0.8, 0.8]
+    },
+    {
+      "id": "footer-text",
+      "type": "text",
+      "x": 20,
+      "y": 278,
+      "width": 170,
+      "height": 5,
+      "text": "Pagina 1 di 1",
+      "style": {
+        "font": "helvetica",
+        "weight": "normal",
+        "size": 8,
+        "color": [0.6, 0.6, 0.6],
+        "align": "center"
+      }
+    }
+  ]
+}
