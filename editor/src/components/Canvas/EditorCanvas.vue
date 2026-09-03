@@ -21,14 +21,36 @@ const canvasStyle = computed(() => ({
   transformOrigin: '0 0'
 }))
 
+function mmToPx(mm: number): number {
+  return mm * MM_TO_PX
+}
+
+const horizontalMarks = computed(() => {
+  const result: { px: number; mm: number; major: boolean }[] = []
+  for (let mm = 0; mm <= store.document.page.width; mm += 1) {
+    if (mm % 5 !== 0) continue
+    const major = mm % 10 === 0
+    result.push({ px: mmToPx(mm), mm, major })
+  }
+  return result
+})
+
+const verticalMarks = computed(() => {
+  const result: { px: number; mm: number; major: boolean }[] = []
+  for (let mm = 0; mm <= store.document.page.height; mm += 1) {
+    if (mm % 5 !== 0) continue
+    const major = mm % 10 === 0
+    result.push({ px: mmToPx(mm), mm, major })
+  }
+  return result
+})
+
 function handleWheel(e: WheelEvent) {
   e.preventDefault()
   if (e.ctrlKey || e.metaKey) {
-    // Zoom
     const delta = e.deltaY > 0 ? 0.9 : 1.1
     zoom.value = Math.min(Math.max(zoom.value * delta, 0.2), 5)
   } else {
-    // Pan
     panX.value -= e.deltaX
     panY.value -= e.deltaY
   }
@@ -81,7 +103,64 @@ onUnmounted(() => {
   >
     <div class="canvas-bg"></div>
     <div :style="canvasStyle" class="canvas-content">
-      <PageArtboard :width="pageWidthPx" :height="pageHeightPx" />
+      <div class="ruler-and-page">
+        <div class="page-row">
+          <div class="ruler-vertical" :style="{ height: pageHeightPx + 'px' }">
+            <svg :width="20" :height="pageHeightPx">
+              <line x1="19" y1="0" x2="19" :y2="pageHeightPx" stroke="#888" stroke-width="1" />
+              <template v-for="mark in verticalMarks" :key="'v' + mark.mm">
+                <line
+                  :x1="mark.major ? 0 : 12"
+                  :y1="mark.px"
+                  x2="19"
+                  :y2="mark.px"
+                  stroke="#888"
+                  stroke-width="1"
+                />
+                <text
+                  v-if="mark.major"
+                  x="10"
+                  :y="mark.px - 3"
+                  fill="#999"
+                  font-size="9"
+                  font-family="monospace"
+                  writing-mode="vertical-rl"
+                  transform="rotate(180deg)"
+                  transform-origin="center"
+                >{{ mark.mm / 10 }}</text>
+              </template>
+            </svg>
+          </div>
+
+          <div class="page-column">
+            <div class="ruler-horizontal" :style="{ width: pageWidthPx + 'px' }">
+              <svg :width="pageWidthPx" :height="20">
+                <line x1="0" y1="19" :x2="pageWidthPx" y2="19" stroke="#888" stroke-width="1" />
+                <template v-for="mark in horizontalMarks" :key="'h' + mark.mm">
+                  <line
+                    :x1="mark.px"
+                    :y1="mark.major ? 0 : 12"
+                    :x2="mark.px"
+                    y2="19"
+                    stroke="#888"
+                    stroke-width="1"
+                  />
+                  <text
+                    v-if="mark.major"
+                    :x="mark.px + 3"
+                    y="11"
+                    fill="#999"
+                    font-size="10"
+                    font-family="monospace"
+                  >{{ mark.mm / 10 }}</text>
+                </template>
+              </svg>
+            </div>
+
+            <PageArtboard :width="pageWidthPx" :height="pageHeightPx" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -112,5 +191,40 @@ onUnmounted(() => {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.ruler-and-page {
+  display: inline-block;
+}
+
+.page-row {
+  display: flex;
+}
+
+.ruler-vertical {
+  width: 20px;
+  background: #2a2a3e;
+  border-right: 1px solid #444;
+  overflow: hidden;
+}
+
+.ruler-vertical svg {
+  display: block;
+}
+
+.page-column {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.ruler-horizontal {
+  height: 20px;
+  background: #2a2a3e;
+  border-bottom: 1px solid #444;
+  overflow: hidden;
+}
+
+.ruler-horizontal svg {
+  display: block;
 }
 </style>

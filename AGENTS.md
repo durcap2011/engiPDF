@@ -1,13 +1,19 @@
 # AGENTS.md
 
+## General Rules
+
+If they do not already exist, create both functional documentation (guide.md) and technical documentation (technical_documentation.md).
+I want both documents to be extremely detailed. The functional documentation must avoid technical details and explain the features in simple terms, focusing on how to use them. The technical documentation, on the other hand, should go into technical depth, also explaining the reasoning behind certain design and implementation choices.
+At the end of every operation you perform, you must always update these two documentation files whenever necessary.
+
 ## Project Structure
 
-Two-part system: Vue 3 editor + pure PHP PDF generator. No external PDF libraries.
+Two-part system: Vue 3 web editor + pure PHP PDF generator. No external PDF libraries.
 
 ```
 engiPDF/
 ├── editor/    # Vue 3 + TypeScript + Vite + Pinia
-├── engine/    # PHP 8.2+ native PDF writer
+├── engine/    # PHP 8.2+ native PDF writer (PSR-4 autoload: EngiPDF\)
 └── templates/ # JSON template files
 ```
 
@@ -26,31 +32,42 @@ npx vue-tsc --noEmit # Type check only
 ```bash
 cd engine
 composer install
-php test_hello.php    # Basic PDF test
-php test_template.php # Invoice template test
-php test_fonts.php    # Font rendering test
-php test_lista.php    # List rendering test
+php test_hello.php           # Basic PDF test
+php test_template.php        # Invoice template test
+php test_fonts.php           # Font rendering test
+php test_font_resolve.php    # Font alias resolution test
+php test_lista.php           # List rendering test
+php test_lista_annidata.php  # Nested list rendering test
 ```
 
 ## Architecture
 
 - **Contract**: JSON template defines elements (text, rectangle, line, list, image) with mm coordinates
 - **Conversion**: Editor uses mm, engine converts to PDF points (`mm * 72 / 25.4`)
-- **Fonts**: 14 Type1 fonts (Helvetica, Times, Courier + variants) + TTF embedding
-- **Font aliases**: arial→helvetica, sans-serif→helvetica, times-new-roman→times, monospace→courier
 - **Coordinate origin**: Editor top-left, PDF bottom-left (flipped in renderer)
+- **Fonts**: 14 Type1 fonts (Helvetica, Times, Courier + variants) + TTF embedding via FontManager
+- **Font aliases**: arial/helv/sans-serif→helvetica, times-new-roman/serif/georgia/bookman→times, monospace/courier-new/mono→courier
+- **Font key format**: PDF font objects use `family:weight:style` (e.g., `helvetica:bold:normal`)
+- **Placeholder syntax**: `{{ var }}`, `{{ oggetto.proprieta }}`, filters: `currency`, `date:"d/m/Y"`, `number:N`
+- **List bullets**: circle, square, dash, diamond, arrow, number (rendered as PDF drawing primitives; number renders as circle)
+- **Image support**: base64 data URL stored in template JSON, embedded in PDF
 
 ## Key Files
 
-- `editor/src/types/index.ts` — All TypeScript interfaces
-- `editor/src/stores/editorStore.ts` — Pinia store with undo/redo
-- `editor/src/utils/measureContent.ts` — Auto-size text/lists
-- `editor/src/utils/getDefaultElement.ts` — Element factory
-- `engine/src/PdfWriter/PdfDocument.php` — PDF binary writer
-- `engine/src/PdfWriter/PdfPage.php` — Drawing primitives
-- `engine/src/Font/FontManager.php` — Font resolution + TTF
-- `engine/src/Renderer/PdfRenderer.php` — Template→PDF renderer
-- `engine/src/Template/PlaceholderResolver.php` — `{{ var }}` syntax
+**Editor (TypeScript)**
+- `editor/src/types/index.ts` — All TypeScript interfaces (Document, Element, TextStyle, etc.)
+- `editor/src/stores/editorStore.ts` — Pinia store with undo/redo (50 levels), element CRUD
+- `editor/src/utils/measureContent.ts` — Canvas API text/list measurement for auto-sizing
+- `editor/src/utils/getDefaultElement.ts` — Element factory (no `id` field—store generates UUID)
+- `editor/src/utils/bulletTypes.ts` — Bullet type definitions (circle, square, dash, diamond, arrow, number)
+
+**Engine (PHP)**
+- `engine/src/PdfWriter/PdfDocument.php` — PDF binary writer (Header→Body→Xref→Trailer)
+- `engine/src/PdfWriter/PdfPage.php` — Drawing primitives (text, rectangle, line, circle, polygon, image)
+- `engine/src/Font/FontManager.php` — Type1 resolution + TTF registration + PDF object allocation
+- `engine/src/Renderer/PdfRenderer.php` — Template→PDF renderer (handles all element types)
+- `engine/src/Template/PlaceholderResolver.php` — `{{ }}` syntax with filters
+- `engine/src/Template/TemplateLoader.php` — Template file loader
 
 ## Conventions
 
@@ -62,6 +79,7 @@ php test_lista.php    # List rendering test
 - **Double-click**: Inline editing for text and list elements
 - **Resize handles**: 8 handles (4 corners + 4 edges) on selected elements
 - **Grid snap**: Default 1mm, configurable
+- **Undo/redo**: 50 levels, JSON serialization
 
 ## Gotchas
 
@@ -70,3 +88,7 @@ php test_lista.php    # List rendering test
 - PDF font objects use `family:weight:style` key format
 - List items support nested children via `items` array
 - Image stored as base64 data URL in template JSON
+- TTF fonts: register via `$template['fonts']` in JSON, engine embeds with FlateDecode
+- Weight normalization: frontend "600"/"700"/"800"/"900" → engine "bold"
+- `measureContent.ts` uses a FONT_MAP for Canvas API measurement; if adding new fonts, update both FontManager.php and this map
+- `engine/src/Layout/` directory exists but is empty (placeholder for future layout features)
