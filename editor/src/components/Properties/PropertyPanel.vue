@@ -8,6 +8,8 @@ const store = useEditorStore()
 
 const selected = computed(() => store.getSelectedElement())
 const imageFileInput = ref<HTMLInputElement | null>(null)
+const expandedHeader = ref<number | null>(null)
+const expandedCell = ref<number | null>(null)
 
 function update(key: string, value: unknown) {
   if (!selected.value) return
@@ -99,6 +101,66 @@ function setPageSize(width: number, height: number) {
   store.updatePage({ width, height })
 }
 
+function addTableColumn() {
+  if (!selected.value || selected.value.type !== 'table') return
+  const cols = [...(selected.value as any).columns]
+  cols.push({ width: 50, header: `Colonna ${cols.length + 1}`, headerStyle: { font: 'helvetica', weight: 'bold', style: 'normal', size: 10, color: [0, 0, 0], align: 'center' } })
+  const rows = (selected.value as any).rows.map((r: any) => ({
+    ...r,
+    cells: [...r.cells, { text: '', style: {} }]
+  }))
+  update('columns', cols)
+  update('rows', rows)
+}
+
+function removeTableColumn(idx: number) {
+  if (!selected.value || selected.value.type !== 'table') return
+  const cols = (selected.value as any).columns.filter((_: any, i: number) => i !== idx)
+  if (cols.length < 1) return
+  const rows = (selected.value as any).rows.map((r: any) => ({
+    ...r,
+    cells: r.cells.filter((_: any, i: number) => i !== idx)
+  }))
+  update('columns', cols)
+  update('rows', rows)
+}
+
+function updateTableHeader(colIdx: number, text: string) {
+  if (!selected.value || selected.value.type !== 'table') return
+  const cols = (selected.value as any).columns.map((c: any, i: number) => {
+    if (i !== colIdx) return c
+    return { ...c, header: text }
+  })
+  update('columns', cols)
+}
+
+function updateTableHeaderStyle(colIdx: number, key: string, value: unknown) {
+  if (!selected.value || selected.value.type !== 'table') return
+  const cols = (selected.value as any).columns.map((c: any, i: number) => {
+    if (i !== colIdx) return c
+    return { ...c, headerStyle: { ...c.headerStyle, [key]: value } }
+  })
+  update('columns', cols)
+}
+
+function updateTableDefaultStyle(key: string, value: unknown) {
+  if (!selected.value || selected.value.type !== 'table') return
+  update('cellStyle', { ...(selected.value as any).cellStyle, [key]: value })
+}
+
+function updateTableCellStyle(colIdx: number, key: string, value: unknown) {
+  if (!selected.value || selected.value.type !== 'table') return
+  const rows = (selected.value as any).rows.map((r: any, ri: number) => {
+    if (ri !== 0) return r
+    const newCells = r.cells.map((c: any, ci: number) => {
+      if (ci !== colIdx) return c
+      return { ...c, style: { ...c.style, [key]: value } }
+    })
+    return { ...r, cells: newCells }
+  })
+  update('rows', rows)
+}
+
 function rgbToHex(color: number[]): string {
   const r = Math.round(color[0] * 255).toString(16).padStart(2, '0')
   const g = Math.round(color[1] * 255).toString(16).padStart(2, '0')
@@ -153,6 +215,26 @@ function hexToRgb(hex: string): [number, number, number] {
           :value="store.document.page.height"
           @input="updatePage('height', +($event.target as HTMLInputElement).value)"
           min="50" max="1000" step="1"
+        />
+        <span class="unit">mm</span>
+      </div>
+      <div class="field-row">
+        <label>Header</label>
+        <input
+          type="number"
+          :value="store.document.page.headerHeight"
+          @input="updatePage('headerHeight', +($event.target as HTMLInputElement).value)"
+          min="0" max="100" step="1"
+        />
+        <span class="unit">mm</span>
+      </div>
+      <div class="field-row">
+        <label>Footer</label>
+        <input
+          type="number"
+          :value="store.document.page.footerHeight"
+          @input="updatePage('footerHeight', +($event.target as HTMLInputElement).value)"
+          min="0" max="100" step="1"
         />
         <span class="unit">mm</span>
       </div>
@@ -414,6 +496,178 @@ function hexToRgb(hex: string): [number, number, number] {
           @change="onImageFileChange"
         />
       </template>
+
+      <!-- Tabella -->
+      <template v-if="selected.type === 'table'">
+        <!-- Nome tabella -->
+        <div class="field-row">
+          <label>Nome</label>
+          <input type="text" :value="(selected as any).name" @input="update('name', ($event.target as HTMLInputElement).value)" placeholder="es. articoli" />
+        </div>
+
+        <!-- Colonne -->
+        <div class="field-group">
+          <div class="field-row">
+            <label>Colonne</label>
+            <span class="col-count">{{ (selected as any).columns?.length }}</span>
+            <button class="small-btn" @click="addTableColumn">+</button>
+            <button class="small-btn" @click="removeTableColumn((selected as any).columns.length - 1)" :disabled="(selected as any).columns?.length <= 1">−</button>
+          </div>
+        </div>
+
+        <!-- Intestazioni colonne -->
+        <div class="field-group">
+          <label class="group-label">Intestazioni</label>
+          <div v-for="(col, colIdx) in (selected as any).columns" :key="colIdx" class="header-editor">
+            <div class="header-row" @click="expandedHeader = expandedHeader === colIdx ? null : colIdx">
+              <span class="header-label">Col {{ colIdx + 1 }}: {{ col.header }}</span>
+              <span class="expand-arrow">{{ expandedHeader === colIdx ? '▾' : '▸' }}</span>
+            </div>
+            <div v-if="expandedHeader === colIdx" class="header-detail">
+              <div class="field-row">
+                <label>Testo</label>
+                <input type="text" :value="col.header" @input="updateTableHeader(colIdx, ($event.target as HTMLInputElement).value)" />
+              </div>
+              <div class="field-row">
+                <label>Larghezza</label>
+                <input type="number" :value="col.width" @input="updateTableHeaderStyle(colIdx, 'width', +($event.target as HTMLInputElement).value)" min="10" max="200" step="5" />
+                <span class="unit">peso</span>
+              </div>
+              <div class="field-row">
+                <label>Font</label>
+                <select :value="col.headerStyle?.font" @change="updateTableHeaderStyle(colIdx, 'font', ($event.target as HTMLSelectElement).value)">
+                  <option value="helvetica">Helvetica</option>
+                  <option value="arial">Arial</option>
+                  <option value="times">Times</option>
+                  <option value="courier">Courier</option>
+                </select>
+              </div>
+              <div class="field-row">
+                <label>Dim.</label>
+                <input type="number" :value="col.headerStyle?.size" @input="updateTableHeaderStyle(colIdx, 'size', +($event.target as HTMLInputElement).value)" min="4" max="72" step="1" />
+                <span class="unit">pt</span>
+              </div>
+              <div class="field-row">
+                <label>Stile</label>
+                <div class="style-toggles">
+                  <button class="style-toggle" :class="{ active: col.headerStyle?.weight === 'bold' }" @click="updateTableHeaderStyle(colIdx, 'weight', col.headerStyle?.weight === 'bold' ? 'normal' : 'bold')" title="Grassetto">B</button>
+                  <button class="style-toggle italic" :class="{ active: col.headerStyle?.style === 'italic' }" @click="updateTableHeaderStyle(colIdx, 'style', col.headerStyle?.style === 'italic' ? 'normal' : 'italic')" title="Corsivo">I</button>
+                </div>
+              </div>
+              <div class="field-row">
+                <label>Allinea</label>
+                <div class="style-toggles">
+                  <button class="style-toggle" :class="{ active: col.headerStyle?.align === 'left' }" @click="updateTableHeaderStyle(colIdx, 'align', 'left')">L</button>
+                  <button class="style-toggle" :class="{ active: col.headerStyle?.align === 'center' }" @click="updateTableHeaderStyle(colIdx, 'align', 'center')">C</button>
+                  <button class="style-toggle" :class="{ active: col.headerStyle?.align === 'right' }" @click="updateTableHeaderStyle(colIdx, 'align', 'right')">R</button>
+                </div>
+              </div>
+              <div class="field-row">
+                <label>Colore</label>
+                <input type="color" :value="rgbToHex(col.headerStyle?.color || [0,0,0])" @input="updateTableHeaderStyle(colIdx, 'color', hexToRgb(($event.target as HTMLInputElement).value))" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stile celle dati per colonna -->
+        <div class="field-group">
+          <label class="group-label">Stile celle dati (per colonna)</label>
+          <div v-for="(col, colIdx) in (selected as any).columns" :key="'cell-' + colIdx" class="header-editor">
+            <div class="header-row" @click="expandedCell = expandedCell === colIdx ? null : colIdx">
+              <span class="header-label">Col {{ colIdx + 1 }}: {{ col.header }}</span>
+              <span class="expand-arrow">{{ expandedCell === colIdx ? '▾' : '▸' }}</span>
+            </div>
+            <div v-if="expandedCell === colIdx" class="header-detail">
+              <div class="field-row">
+                <label>Font</label>
+                <select :value="(selected as any).rows?.[0]?.cells?.[colIdx]?.style?.font || (selected as any).cellStyle?.font" @change="updateTableCellStyle(colIdx, 'font', ($event.target as HTMLSelectElement).value)">
+                  <option value="helvetica">Helvetica</option>
+                  <option value="arial">Arial</option>
+                  <option value="times">Times</option>
+                  <option value="courier">Courier</option>
+                </select>
+              </div>
+              <div class="field-row">
+                <label>Dim.</label>
+                <input type="number" :value="(selected as any).rows?.[0]?.cells?.[colIdx]?.style?.size || (selected as any).cellStyle?.size" @input="updateTableCellStyle(colIdx, 'size', +($event.target as HTMLInputElement).value)" min="4" max="72" step="1" />
+                <span class="unit">pt</span>
+              </div>
+              <div class="field-row">
+                <label>Stile</label>
+                <div class="style-toggles">
+                  <button class="style-toggle" :class="{ active: (selected as any).rows?.[0]?.cells?.[colIdx]?.style?.weight === 'bold' }" @click="updateTableCellStyle(colIdx, 'weight', (selected as any).rows?.[0]?.cells?.[colIdx]?.style?.weight === 'bold' ? 'normal' : 'bold')" title="Grassetto">B</button>
+                  <button class="style-toggle italic" :class="{ active: (selected as any).rows?.[0]?.cells?.[colIdx]?.style?.style === 'italic' }" @click="updateTableCellStyle(colIdx, 'style', (selected as any).rows?.[0]?.cells?.[colIdx]?.style?.style === 'italic' ? 'normal' : 'italic')" title="Corsivo">I</button>
+                </div>
+              </div>
+              <div class="field-row">
+                <label>Allinea</label>
+                <div class="style-toggles">
+                  <button class="style-toggle" :class="{ active: ((selected as any).rows?.[0]?.cells?.[colIdx]?.style?.align || (selected as any).cellStyle?.align) === 'left' }" @click="updateTableCellStyle(colIdx, 'align', 'left')">L</button>
+                  <button class="style-toggle" :class="{ active: ((selected as any).rows?.[0]?.cells?.[colIdx]?.style?.align || (selected as any).cellStyle?.align) === 'center' }" @click="updateTableCellStyle(colIdx, 'align', 'center')">C</button>
+                  <button class="style-toggle" :class="{ active: ((selected as any).rows?.[0]?.cells?.[colIdx]?.style?.align || (selected as any).cellStyle?.align) === 'right' }" @click="updateTableCellStyle(colIdx, 'align', 'right')">R</button>
+                </div>
+              </div>
+              <div class="field-row">
+                <label>Colore</label>
+                <input type="color" :value="rgbToHex((selected as any).rows?.[0]?.cells?.[colIdx]?.style?.color || (selected as any).cellStyle?.color || [0,0,0])" @input="updateTableCellStyle(colIdx, 'color', hexToRgb(($event.target as HTMLInputElement).value))" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stile celle dati (default) -->
+        <div class="field-group">
+          <label class="group-label">Stile celle dati (default)</label>
+          <div class="field-row">
+            <label>Font</label>
+            <select :value="(selected as any).cellStyle?.font" @change="updateTableDefaultStyle('font', ($event.target as HTMLSelectElement).value)">
+              <option value="helvetica">Helvetica</option>
+              <option value="arial">Arial</option>
+              <option value="times">Times</option>
+              <option value="courier">Courier</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label>Dim.</label>
+            <input type="number" :value="(selected as any).cellStyle?.size" @input="updateTableDefaultStyle('size', +($event.target as HTMLInputElement).value)" min="4" max="72" step="1" />
+            <span class="unit">pt</span>
+          </div>
+          <div class="field-row">
+            <label>Allinea</label>
+            <div class="style-toggles">
+              <button class="style-toggle" :class="{ active: (selected as any).cellStyle?.align === 'left' }" @click="updateTableDefaultStyle('align', 'left')">L</button>
+              <button class="style-toggle" :class="{ active: (selected as any).cellStyle?.align === 'center' }" @click="updateTableDefaultStyle('align', 'center')">C</button>
+              <button class="style-toggle" :class="{ active: (selected as any).cellStyle?.align === 'right' }" @click="updateTableDefaultStyle('align', 'right')">R</button>
+            </div>
+          </div>
+          <div class="field-row">
+            <label>Colore</label>
+            <input type="color" :value="rgbToHex((selected as any).cellStyle?.color || [0,0,0])" @input="updateTableDefaultStyle('color', hexToRgb(($event.target as HTMLInputElement).value))" />
+          </div>
+        </div>
+
+        <!-- Bordi -->
+        <div class="field-row">
+          <label>Colore bordi</label>
+          <input type="color" :value="rgbToHex((selected as any).borderColor || [0,0,0])" @input="update('borderColor', hexToRgb(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Spessore</label>
+          <input type="number" :value="(selected as any).borderWidth" @input="update('borderWidth', +($event.target as HTMLInputElement).value)" min="0" max="5" step="0.1" />
+          <span class="unit">mm</span>
+        </div>
+
+        <!-- Ripeti intestazione -->
+        <div class="field-row checkbox-row">
+          <label>Ripeti intestazione</label>
+          <input
+            type="checkbox"
+            :checked="(selected as any).repeatHeader"
+            @change="update('repeatHeader', ($event.target as HTMLInputElement).checked)"
+          />
+        </div>
+      </template>
     </div>
 
     <div v-else class="panel-section empty">
@@ -664,5 +918,110 @@ textarea {
   background: #4A90D9;
   border-color: #4A90D9;
   color: #fff;
+}
+
+.checkbox-row {
+  justify-content: flex-start;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4A90D9;
+  cursor: pointer;
+}
+
+.small-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f3460;
+  border: 1px solid #1a1a4e;
+  color: #eee;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.small-btn:hover {
+  background: #1a4a7a;
+}
+
+.small-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.col-count {
+  font-size: 13px;
+  color: #eee;
+  min-width: 16px;
+  text-align: center;
+}
+
+.group-label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 8px 0 4px 0;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #0f3460;
+}
+
+.header-editor {
+  margin-bottom: 4px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: #0a1a3a;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header-row:hover {
+  background: #0f2a4a;
+}
+
+.header-label {
+  font-size: 11px;
+  color: #ccc;
+}
+
+.expand-arrow {
+  font-size: 10px;
+  color: #888;
+}
+
+.header-detail {
+  padding: 6px 4px;
+  background: #0a1530;
+  border-radius: 0 0 3px 3px;
+  margin-top: 2px;
+}
+
+.header-detail .field-row {
+  margin-bottom: 4px;
+}
+
+input[type="text"] {
+  flex: 1;
+  background: #0f3460;
+  border: 1px solid #1a1a4e;
+  color: #eee;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  min-width: 0;
 }
 </style>

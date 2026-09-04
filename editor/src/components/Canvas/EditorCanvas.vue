@@ -203,6 +203,7 @@ onUnmounted(() => {
 
 .ruler-vertical {
   width: 20px;
+  margin-top: 20px;
   background: #2a2a3e;
   border-right: 1px solid #444;
   overflow: hidden;

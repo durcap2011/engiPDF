@@ -11,11 +11,13 @@ export interface PageSettings {
   height: number
   unit: 'mm' | 'pt' | 'px'
   margins: { top: number; right: number; bottom: number; left: number }
+  headerHeight: number
+  footerHeight: number
 }
 
 export type RGB = [number, number, number]
 
-export type ElementType = 'text' | 'image' | 'list' | 'rectangle' | 'line'
+export type ElementType = 'text' | 'image' | 'list' | 'rectangle' | 'line' | 'table'
 
 export interface BaseElement {
   id: string
@@ -84,13 +86,44 @@ export interface LineElement extends BaseElement {
   lineWidth: number
 }
 
-export type Element = TextElement | ImageElement | ListElement | RectangleElement | LineElement
+export interface TableColumn {
+  width: number
+  header: string
+  headerStyle: TextStyle
+}
+
+export interface TableCell {
+  text: string
+  style: Partial<TextStyle>
+}
+
+export interface TableRow {
+  cells: TableCell[]
+}
+
+export interface TableElement extends BaseElement {
+  type: 'table'
+  name: string
+  columns: TableColumn[]
+  rows: TableRow[]
+  repeatHeader: boolean
+  headerStyle: TextStyle
+  cellStyle: TextStyle
+  borderColor: RGB
+  borderWidth: number
+  mode: 'static' | 'dynamic'
+  dynamicConfig?: { repeatField: string; columns: { field: string; header: string }[] }
+}
+
+export type Element = TextElement | ImageElement | ListElement | RectangleElement | LineElement | TableElement
 
 export const DEFAULT_PAGE: PageSettings = {
   width: 210,
   height: 297,
   unit: 'mm',
-  margins: { top: 20, right: 20, bottom: 20, left: 20 }
+  margins: { top: 20, right: 20, bottom: 20, left: 20 },
+  headerHeight: 0,
+  footerHeight: 0
 }
 
 export const MM_TO_PT = 72 / 25.4

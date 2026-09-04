@@ -8,6 +8,7 @@ import RectangleElement from '../../elements/RectangleElement.vue'
 import LineElement from '../../elements/LineElement.vue'
 import ListElement from '../../elements/ListElement.vue'
 import ImageElement from '../../elements/ImageElement.vue'
+import TableElement from '../../elements/TableElement.vue'
 
 const props = defineProps<{
   element: Element
@@ -207,6 +208,11 @@ const resizeCursors: Record<ResizeDir, string> = {
       @update="(items) => store.updateElement(element.id, { items })"
     />
     <ImageElement v-else-if="element.type === 'image'" :element="element" />
+    <TableElement
+      v-else-if="element.type === 'table'"
+      :element="element"
+      @update="(data) => store.updateElement(element.id, data)"
+    />
 
     <!-- Maniglie di resize -->
     <template v-if="selected && !isDragging">

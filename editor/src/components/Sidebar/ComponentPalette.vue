@@ -4,6 +4,7 @@ const components = [
   { type: 'rectangle' as const, label: 'Rettangolo', icon: '▭', desc: 'Forma rettangolare' },
   { type: 'line' as const, label: 'Linea', icon: '—', desc: 'Linea retta' },
   { type: 'list' as const, label: 'Lista', icon: '☰', desc: 'Lista puntata/numerata' },
+  { type: 'table' as const, label: 'Tabella', icon: '⊞', desc: 'Tabella con intestazioni' },
   { type: 'image' as const, label: 'Immagine', icon: '🖼', desc: 'Immagine JPEG' },
 ]
 

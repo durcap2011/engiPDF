@@ -10,30 +10,71 @@ $loader = new TemplateLoader();
 $renderer = new PdfRenderer();
 
 // Carica template
-$template = $loader->loadFromFile(__DIR__ . '/../templates/fattura.json');
+$template = $loader->loadFromFile(__DIR__ . '/../templates/template_tabella.json');
 
 // Dati di esempio
 $data = [
-    'fattura' => [
-        'numero' => '2026/001',
-        'data' => '02/09/2026',
+    'nome' => 'Azienda XYZ S.r.l.',
+    'tabella' => [
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
+        ['Laptop ASUS', '2', '899.00', '1798.00'],
+        ['Mouse Logitech', '5', '29.90', '149.50'],
+        ['Tastiera Meccanica', '3', '79.00', '237.00'],
+        ['Monitor 27"', '1', '349.00', '349.00'],
     ],
-    'cliente' => [
-        'nome' => 'Mario',
-        'cognome' => 'Rossi',
-        'indirizzo' => 'Via Roma 10, Milano',
-    ],
-    'azienda' => [
-        'nome' => 'engiPDF S.r.l.',
-        'indirizzo' => 'Via Dante 5, Torino',
-    ],
-    'totale' => '1.400,00',
 ];
 
 // Renderizza
 $pdf = $renderer->render($template, $data);
 
-$outputPath = __DIR__ . '/test_fattura.pdf';
+$outputPath = __DIR__ . '/test_template.pdf';
 file_put_contents($outputPath, $pdf);
 
 echo "Fattura PDF generata: $outputPath\n";

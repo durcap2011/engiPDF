@@ -42,16 +42,40 @@ class PdfPage
         string $weight = 'normal',
         string $style = 'normal'
     ): self {
-        $escaped = addcslashes($text, '()\\');
         $fontRef = $this->resolveFontRef($font, $weight, $style);
+        $encoded = $this->encodePdfString($text);
 
         $this->stream .= "BT\n";
         $this->stream .= "/$fontRef {$size} Tf\n";
         $this->stream .= "{$color[0]} {$color[1]} {$color[2]} rg\n";
         $this->stream .= "$x $y Td\n";
-        $this->stream .= "($escaped) Tj\n";
+        $this->stream .= "$encoded Tj\n";
         $this->stream .= "ET\n";
         return $this;
+    }
+
+    private function encodePdfString(string $text): string
+    {
+        if (!mb_check_encoding($text, 'UTF-8')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1');
+        }
+
+        $hasNonAscii = false;
+        for ($i = 0; $i < strlen($text); $i++) {
+            if (ord($text[$i]) > 127) {
+                $hasNonAscii = true;
+                break;
+            }
+        }
+
+        if ($hasNonAscii) {
+            $latin1 = mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
+            $escaped = addcslashes($latin1, '()\\');
+            return "($escaped)";
+        }
+
+        $escaped = addcslashes($text, '()\\');
+        return "($escaped)";
     }
 
     public function rectangle(

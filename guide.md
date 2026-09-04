@@ -45,6 +45,7 @@ Elenco dei componenti disponibili per il trascinamento sull'area di editing:
 | **Rettangolo** | Forma rettangolare con colore di riempimento e bordo opzionali |
 | **Linea** | Linea orizzontale con colore e spessore personalizzabili |
 | **Lista** | Lista puntata o numerata con supporto all'annidamento |
+| **Tabella** | Tabella con intestazioni e righe dati, supporto a placeholder |
 | **Immagine** | Area per immagini (supporta formati JPG, PNG, SVG tramite upload) |
 
 **Come inserire un componente**: trascina il componente desiderato dalla palette e rilascialo sull'area di editing. L'elemento verrà posizionato con snap alla griglia più vicina.
@@ -71,6 +72,8 @@ Mostra e permette di modificare le proprietà dell'elemento selezionato o della 
 - Formato carta (A4, A3, Letter, personalizzato)
 - Dimensioni (larghezza × altezza in mm)
 - Margini (top, right, bottom, left)
+- **Header**: altezza area intestazione in mm (default: 0)
+- **Footer**: altezza area piè di pagina in mm (default: 0)
 
 **Proprietà dell'elemento** (variano per tipo):
 - Posizione (x, y in mm)
@@ -148,6 +151,17 @@ Area per immagini:
 - **Modalità adattamento**: contain, cover, stretch
 - **Doppio clic** per cambiare immagine
 
+### Tabella
+Tabella con intestazioni e righe dati:
+- **Nome**: identificativo della tabella, usato come placeholder per i dati (`{{ nome }}`)
+- **Colonne**: numero configurabile, con larghezze proporzionali
+- **Intestazioni**: testo e stile individuali per colonna (font, dimensione, grassetto, corsivo, colore, allineamento)
+- **Stile celle dati**: impostazioni di default applicabili a tutte le celle
+- **Righe dati**: ogni cella può avere uno stile diverso (allineamento, grassetto, etc.)
+- **Ripeti intestazione**: checkbox per ripetere la prima riga su ogni nuova pagina
+- **Dati dinamici**: passare un array PHP con lo stesso nome della tabella per popolare le righe
+- **Paginazione automatica**: quando la tabella supera l'area disponibile tra header e footer, viene automaticamente spezzata su più pagine con ripetizione dell'intestazione
+
 ---
 
 ## Righelli
@@ -202,7 +216,9 @@ Il template è un file JSON con la seguente struttura:
     "width": 210,
     "height": 297,
     "unit": "mm",
-    "margins": { "top": 20, "right": 20, "bottom": 20, "left": 20 }
+    "margins": { "top": 20, "right": 20, "bottom": 20, "left": 20 },
+    "headerHeight": 15,
+    "footerHeight": 10
   },
   "defaultFont": "helvetica",
   "elements": [

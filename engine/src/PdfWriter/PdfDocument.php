@@ -9,6 +9,7 @@ class PdfDocument
 {
     private array $pages = [];
     private array $objects = [];
+    private array $images = [];
     private float $widthPt;
     private float $heightPt;
     private FontManager $fontManager;
@@ -46,6 +47,19 @@ class PdfDocument
         $this->fontManager->setNextObjNum($num + 1);
         $this->objects[$num] = $content;
         return $num;
+    }
+
+    public function registerImage(string $name, string $jpegData): int
+    {
+        $num = $this->fontManager->getNextObjNum();
+        $this->fontManager->setNextObjNum($num + 1);
+        $this->images[$name] = ['objNum' => $num, 'data' => $jpegData];
+        return $num;
+    }
+
+    public function getImages(): array
+    {
+        return $this->images;
     }
 
     public function getWidth(): float
@@ -101,7 +115,7 @@ class PdfDocument
                 $baseFont = $this->fontManager->resolveType1($family, $weight, $style);
                 $offsets[$objNum] = strlen($pdf);
                 $pdf .= "$objNum 0 obj\n";
-                $pdf .= "<< /Type /Font /Subtype /Type1 /BaseFont /$baseFont >>\n";
+                $pdf .= "<< /Type /Font /Subtype /Type1 /BaseFont /$baseFont /Encoding /WinAnsiEncoding >>\n";
                 $pdf .= "endobj\n";
             }
         }
@@ -118,11 +132,24 @@ class PdfDocument
                 $fontRes .= "/F_" . preg_replace('/[^a-zA-Z0-9]/', '_', $name) . " $objNum 0 R ";
             }
 
+            // Resources XObject (immagini)
+            $xObjRes = '';
+            foreach ($this->images as $imgName => $imgInfo) {
+                $safeName = preg_replace('/[^a-zA-Z0-9]/', '_', $imgName);
+                $xObjRes .= "/$safeName {$imgInfo['objNum']} 0 R ";
+            }
+
+            $resources = "<< /Font << $fontRes >>";
+            if ($xObjRes !== '') {
+                $resources .= " /XObject << $xObjRes >>";
+            }
+            $resources .= " >>";
+
             $offsets[$pageObjNum] = strlen($pdf);
             $pdf .= "$pageObjNum 0 obj\n";
             $pdf .= "<< /Type /Page /Parent 2 0 R\n";
             $pdf .= "   /MediaBox [0 0 {$this->widthPt} {$this->heightPt}]\n";
-            $pdf .= "   /Resources << /Font << $fontRes >> >>\n";
+            $pdf .= "   /Resources $resources\n";
             $pdf .= "   /Contents $contentObjNum 0 R >>\n";
             $pdf .= "endobj\n";
 
@@ -144,6 +171,20 @@ class PdfDocument
                 $pdf .= $content;
                 $pdf .= "\nendobj\n";
             }
+        }
+
+        // ---- Image XObjects ----
+        foreach ($this->images as $imgName => $imgInfo) {
+            $num = $imgInfo['objNum'];
+            $data = $imgInfo['data'];
+            $safeName = preg_replace('/[^a-zA-Z0-9]/', '_', $imgName);
+            $offsets[$num] = strlen($pdf);
+            $pdf .= "$num 0 obj\n";
+            $pdf .= "<< /Type /XObject /Subtype /Image /Width 1 /Height 1 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " . strlen($data) . " >>\n";
+            $pdf .= "stream\n";
+            $pdf .= $data;
+            $pdf .= "\nendstream\n";
+            $pdf .= "endobj\n";
         }
 
         // ---- Xref ----

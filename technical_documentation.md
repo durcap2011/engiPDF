@@ -114,32 +114,28 @@ interface EditorState {
 - `duplicateElement(id)`: crea copia con offset di 5mm
 - `moveElementUp/Down(id)`: riordina nello stack
 
-### Righelli (`HorizontalRuler.vue`, `VerticalRuler.vue`)
+### Righelli (inline in `EditorCanvas.vue`)
 
-I righelli sono componenti Vue che renderizzano SVG con tacche di scala sincronizzate con pan/zoom del canvas.
+I righelli sono implementati come SVG inline direttamente nel template di `EditorCanvas.vue`, non come componenti separati.
 
-**Architettura**:
-- Ogni righello è un componente indipendente con props `panX`/`panY` e `zoom`
-- Usa `ResizeObserver` per rilevare automaticamente le dimensioni del container
-- Il calcolo delle tacche avviene in un `computed` che determina la finestra visibile in mm
+**Layout CSS**:
+- Struttura `.ruler-and-page` → `.page-row` (flex orizzontale)
+- `.ruler-vertical`: 20px larghezza, `margin-top: 20px` per iniziare dall'inizio della pagina (sotto il righello orizzontale), altezza `pageHeightPx`
+- `.page-column`: contiene righello orizzontale (20px altezza) e `PageArtboard`
 
-**Algoritmo di rendering tacche**:
-1. Calcola il range di mm visibili: `visibleStartMm = -pan / (MM_TO_PX * zoom)` e `visibleEndMm = (containerSize - pan) / (MM_TO_PX * zoom)`
-2. Arrotonda ai 10mm multipli più vicini per i limiti
-3. Per ogni mm nel range, genera una tacca con:
-   - **Tacca maggiore** (numerata): ogni 10mm (1cm)
-   - **Tacca media**: ogni 5mm
-   - **Tacca minore**: ogni 1mm (esclusa se non multipla di 5)
+**Calcolo tacche**:
+- `horizontalMarks`: iterazione da 0 a `page.width` (mm), tacche ogni 5mm, maggiori ogni 10mm
+- `verticalMarks`: iterazione da 0 a `page.height` (mm), tacche ogni 5mm, maggiori ogni 10mm
+- Ogni mark: `{ px: number, mm: number, major: boolean }`
 
-**Posizionamento SVG**:
-- Le tacche maggiore si estendono dall'alto (orizzontale) o dal sinistro (verticale)
-- Le tacche minori partono dal bordo opposto
-- I numeri (solo per tacche maggiori) usano `writing-mode: vertical-rl` con `transform: rotate(180deg)` per il righello verticale
+**Rendering SVG**:
+- Righello verticale: SVG 20 × pageHeightPx, tacche con x1 variabile (0 maggiori, 12 minori), x2=19
+- Righello orizzontale: SVG pageWidthPx × 20, tacche con y1 variabile (0 maggiori, 12 minori), y2=19
+- I numeri (solo maggiori) usano `writing-mode: vertical-rl` con `transform: rotate(180deg)` per il verticale
 
-**Performance**:
-- I mark vengono ricalcolati solo quando cambiano `panX`/`panY`, `zoom` o `containerSize`
-- SVG rendering è hardware-accelerato dal browser
-- Nessuna reattività eccessiva grazie all'uso di `computed`
+**Sincronizzazione pan/zoom**:
+- I righelli sono figli di `.canvas-content` che applica la trasformazione CSS
+- Pan e zoom si applicano naturalmente senza calcoli aggiuntivi
 
 ### Sistema di Font
 
@@ -156,6 +152,13 @@ monospace/courier-new/mono → courier
 
 **Chiave font nel PDF**: `family:weight:style` (es. `helvetica:bold:normal`)
 
+**Encoding caratteri** (`PdfPage::encodePdfString()`):
+- I testi UTF-8 vengono convertiti in ISO-8859-1 (Latin-1) per le font Type1 standard
+- Le font Type1 dichiarano `/Encoding /WinAnsiEncoding` nel PDF per mappare correttamente i byte ai glifi
+- Supporta caratteri accentati europei: à è é ì ò ù ñ ü ä ö ß etc.
+- I caratteri parentesi `(`, `)` e backslash `\` vengono escaped correttamente
+- Per caratteri fuori dal range Latin-1 serve una font TTF personalizzata
+
 ### Placeholder System (`PlaceholderResolver.php`)
 
 Sintassi: `{{ variabile }}` o `{{ oggetto.proprieta }}`
@@ -168,6 +171,26 @@ Filtri disponibili:
 ### Element Factory (`getDefaultElement.ts`)
 
 Ogni tipo di elemento ha una factory che restituisce un oggetto con valori di default. **Importante**: la factory NON include il campo `id` — lo store lo genera automaticamente via `crypto.randomUUID()`.
+
+### Tabella (`TableElement`)
+
+**Interfaccia TypeScript**:
+- `name: string` — nome tabella, usato come placeholder per i dati dinamici (`{{ nome }}`)
+- `columns: TableColumn[]` — colonne con `width` (peso relativo), `header` (testo), `headerStyle` (TextStyle completo per intestazione)
+- `rows: TableRow[]` — righe template (di default 1 riga vuota), ogni cella è un `TableCell` con `text` e `style` (override parziale)
+- `repeatHeader: boolean` — ripete l'intestazione su ogni nuova pagina
+- `headerStyle: TextStyle` — stile di default per intestazioni
+- `cellStyle: TextStyle` — stile di default per celle dati
+- `borderColor / borderWidth` — proprietà bordi
+
+**Rendering PDF** (`PdfRenderer::renderTable()`):
+1. Se `name` è impostato e `$data[$name]` è un array, le righe vengono popolate dai dati esterni
+2. Ogni header usa il suo `headerStyle` individuale (font, peso, allineamento, colore, etc.)
+3. Ogni cella dati merge lo stile di default con l'override per-cella (`cell.style`)
+4. Supporta placeholder `{{ }}` in intestazioni e celle
+5. Le larghezze colonne sono proporzionali al peso relativo
+6. La tabella viene automaticamente spezzata su più pagine quando supera l'area utilizzabile
+7. L'intestazione viene ripetuta su ogni nuova pagina (se `repeatHeader` è true)
 
 ---
 
@@ -212,6 +235,21 @@ Il PDF viene scritto byte-per-byte senza librerie esterne:
 
 Il `PdfRenderer` converte le coordinate Y: `y_pdf = pageHeight_pt - y_mm × MM_TO_PT - height_mm × MM_TO_PT`
 
+### Area Utilizzabile e Paginazione
+
+Il `PdfRenderer` calcola un'area utilizzabile per pagina basata su header e footer:
+
+```php
+$contentTop = pageHeight - headerHeight;    // Limite superiore area contenuto
+$contentBottom = footerHeight;              // Limite inferiore area contenuto
+```
+
+- **Header**: area fissa in cima a ogni pagina (altezza specificata in `page.headerHeight`)
+- **Footer**: area fissa in fondo a ogni pagina (altezza specificata in `page.footerHeight`)
+- **Area contenuto**: spazio tra header e footer dove vengono posizionati gli elementi
+- **Paginazione**: quando un elemento (tabella) supera l'area disponibile, viene creata una nuova pagina
+- **Ripetizione intestazione**: le tabelle con `repeatHeader: true` ripetono l'intestazione su ogni nuova pagina
+
 ### Font Manager (`FontManager.php`)
 
 Gestisce 14 font Type1 integrati + font TTF personalizzati:
@@ -228,11 +266,24 @@ Gestisce 14 font Type1 integrati + font TTF personalizzati:
 
 ### Rendering Immagini
 
-Le immagini vengono embeddate nel PDF come:
-- Decodifica Base64 dal data URL
-- Determinazione automatica del tipo (JPEG, PNG)
-- Flusso binario raw (JPEG) o con filter per PNG
-- Calcolo proporzioni per `fit` (contain/cover/stretch)
+Le immagini vengono embeddate nel PDF come XObject Image:
+
+1. **Data URL parsing**: estrazione formato e dati grezzi dal data URL base64 (`data:image/TYPE;base64,...`)
+2. **Formato supportato**:
+   - **JPEG/JPG**: dati binari direttamente embeddati con filtro `/DCTDecode`
+   - **PNG**: conversione in JPEG tramite GD library (`imagecreatefrompng` → `imagejpeg` con qualità 90%)
+3. **Registrazione**: i dati JPEG vengono registrati nel `PdfDocument` tramite `registerImage()`
+4. **XObject**: durante il render del PDF, viene creato un oggetto XObject Image con `/Filter /DCTDecode`
+5. **Risorsa pagina**: l'XObject viene aggiunto alla risorsa `/XObject` di ogni pagina
+6. **Rendering**: `$page->image($x, $y, $w, $h, $imageName)` disegna l'immagine con `cm` matrix + `Do`
+
+**Flusso PDF generato**:
+```
+q
+{width} 0 0 {height} {x} {y} cm
+/{imageName} Do
+Q
+```
 
 ---
 
@@ -262,12 +313,12 @@ Le immagini vengono embeddate nel PDF come:
 
 ### Righelli - Scelte Progettuali
 
-1. **Componenti separati**: `HorizontalRuler` e `VerticalRuler` sono indipendenti, posizionati nella griglia CSS del canvas wrapper
-2. **ResizeObserver**: i righelli si adattano automaticamente alle dimensioni del container, non richiedono props di dimensione
-3. **Calcolo computed**: le tacche vengono ricalcolate solo al cambio di pan/zoom/dimensione, non ad ogni frame
-4. **SVG rendering**: le tacche sono linee SVG, non elementi DOM, per performance ottimali
-5. **Sincronizzazione**: pan e zoom sono reactive refs condivisi tra canvas e righelli
-6. **Angolo di intersezione**: un div vuoto nello spazio dove i due righelli si incontrano, con sfondo coerente
+1. **Implementazione inline**: i righelli sono SVG direttamente in `EditorCanvas.vue`, non componenti separati
+2. **Allineamento verticale**: il righello verticale ha `margin-top: 20px` per iniziare dall'inizio della pagina
+3. **Altezza pagina**: il righello verticale ha altezza `pageHeightPx`, uguale alla pagina
+4. **Calcolo computed**: le tacche vengono ricalcolate solo al cambio di dimensioni pagina
+5. **SVG rendering**: le tacche sono linee SVG, non elementi DOM, per performance ottimali
+6. **Sincronizzazione**: pan e zoom si applicano naturalmente grazie alla struttura DOM
 
 ### Auto-sizing degli Elementi
 
