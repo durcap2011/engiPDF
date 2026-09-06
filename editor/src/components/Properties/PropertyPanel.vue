@@ -2,14 +2,21 @@
 import { computed, ref } from 'vue'
 import { useEditorStore } from '../../stores/editorStore'
 import { BULLET_TYPES } from '../../utils/bulletTypes'
+import { flattenSampleData } from '../../utils/fieldOptions'
 import type { ListItem } from '../../types'
 
 const store = useEditorStore()
 
 const selected = computed(() => store.getSelectedElement())
+const multiSelected = computed(() => store.selectedIds.length > 1)
 const imageFileInput = ref<HTMLInputElement | null>(null)
 const expandedHeader = ref<number | null>(null)
 const expandedCell = ref<number | null>(null)
+const customField = ref<Record<string, boolean>>({})
+
+const fieldOptions = computed(() => {
+  return flattenSampleData(store.document.sampleData || {})
+})
 
 function update(key: string, value: unknown) {
   if (!selected.value) return
@@ -23,7 +30,12 @@ function updateStyle(key: string, value: unknown) {
 }
 
 function updatePage(key: string, value: unknown) {
-  store.updatePage({ [key]: value })
+  store.updatePageSettings({ [key]: value })
+}
+
+function updateMargin(side: string, value: number) {
+  const current = store.activePage.settings.margins
+  store.updatePageSettings({ margins: { ...current, [side]: value } })
 }
 
 function updateItems(idx: number, text: string) {
@@ -98,8 +110,28 @@ const pageFormats = [
 ]
 
 function setPageSize(width: number, height: number) {
-  store.updatePage({ width, height })
+  store.updatePageSettings({ width, height })
 }
+
+function copyHeaderFrom(sourcePageId: string) {
+  if (!sourcePageId) {
+    store.updatePageSettings({ headerSourcePageId: undefined })
+    return
+  }
+  store.copyHeaderFooterFromPage(sourcePageId, store.activePage.id, 'header')
+}
+
+function copyFooterFrom(sourcePageId: string) {
+  if (!sourcePageId) {
+    store.updatePageSettings({ footerSourcePageId: undefined })
+    return
+  }
+  store.copyHeaderFooterFromPage(sourcePageId, store.activePage.id, 'footer')
+}
+
+const availablePages = computed(() => {
+  return store.document.pages.filter(p => p.id !== store.activePage.id)
+})
 
 function addTableColumn() {
   if (!selected.value || selected.value.type !== 'table') return
@@ -161,6 +193,11 @@ function updateTableCellStyle(colIdx: number, key: string, value: unknown) {
   update('rows', rows)
 }
 
+function updateTableDefaultCellStyle(key: string, value: unknown) {
+  if (!selected.value || selected.value.type !== 'table') return
+  update('cellStyle', { ...(selected.value as any).cellStyle, [key]: value })
+}
+
 function rgbToHex(color: number[]): string {
   const r = Math.round(color[0] * 255).toString(16).padStart(2, '0')
   const g = Math.round(color[1] * 255).toString(16).padStart(2, '0')
@@ -178,6 +215,161 @@ function hexToRgb(hex: string): [number, number, number] {
     Math.round(b * 100) / 100
   ]
 }
+
+function toHex(color: number[]): string {
+  return rgbToHex(color)
+}
+
+function fromHex(hex: string): [number, number, number] {
+  return hexToRgb(hex)
+}
+
+function tryUpdateData(value: string) {
+  try {
+    const data = JSON.parse(value)
+    if (Array.isArray(data)) {
+      update('data', data)
+    }
+  } catch {}
+}
+
+function toggleShowIf(enabled: boolean) {
+  if (!selected.value) return
+  if (enabled) {
+    update('showIf', { field: '', op: 'eq', value: '' })
+  } else {
+    update('showIf', undefined)
+  }
+}
+
+function updateShowIf(key: string, value: unknown) {
+  if (!selected.value || !(selected.value as any).showIf) return
+  const current = { ...(selected.value as any).showIf }
+  current[key] = value
+  update('showIf', current)
+}
+
+function toggleStyleIf(enabled: boolean) {
+  if (!selected.value) return
+  if (enabled) {
+    update('styleIf', [{ field: '', op: 'eq', value: '', then: { fill: [0, 0.6, 0] } }])
+  } else {
+    update('styleIf', undefined)
+  }
+}
+
+function updateStyleIfRule(idx: number, key: string, value: unknown) {
+  if (!selected.value || !(selected.value as any).styleIf) return
+  const rules = [...(selected.value as any).styleIf]
+  rules[idx] = { ...rules[idx], [key]: value }
+  update('styleIf', rules)
+}
+
+function updateStyleIfThen(idx: number, key: string, value: unknown) {
+  if (!selected.value || !(selected.value as any).styleIf) return
+  const rules = [...(selected.value as any).styleIf]
+  rules[idx] = { ...rules[idx], then: { ...rules[idx].then, [key]: value } }
+  update('styleIf', rules)
+}
+
+function addStyleIfRule() {
+  if (!selected.value) return
+  const current = (selected.value as any).styleIf || []
+  update('styleIf', [...current, { field: '', op: 'eq', value: '', then: { fill: [0, 0.6, 0] } }])
+}
+
+function removeStyleIfRule(idx: number) {
+  if (!selected.value || !(selected.value as any).styleIf) return
+  const rules = [...(selected.value as any).styleIf]
+  rules.splice(idx, 1)
+  update('styleIf', rules.length > 0 ? rules : undefined)
+}
+
+function formatPreview(value: unknown): string {
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'string') return `"${value}"`
+  if (Array.isArray(value)) return `Array[${value.length}]`
+  return String(value)
+}
+
+function onShowIfFieldChange(e: Event) {
+  const val = (e.target as HTMLSelectElement).value
+  if (val === '__custom__') {
+    customField.value = { ...customField.value, showIf: true }
+    updateShowIf('field', '')
+  } else {
+    customField.value = { ...customField.value, showIf: false }
+    updateShowIf('field', val)
+  }
+}
+
+function onStyleIfFieldChange(idx: number, e: Event) {
+  const val = (e.target as HTMLSelectElement).value
+  const key = `styleIf_${idx}`
+  if (val === '__custom__') {
+    customField.value = { ...customField.value, [key]: true }
+    updateStyleIfRule(idx, 'field', '')
+  } else {
+    customField.value = { ...customField.value, [key]: false }
+    updateStyleIfRule(idx, 'field', val)
+  }
+}
+
+function toggleChecklistItem(idx: number) {
+  if (!selected.value || selected.value.type !== 'checklist') return
+  const items = [...(selected.value as any).items]
+  items[idx] = { ...items[idx], checked: !items[idx].checked }
+  update('items', items)
+}
+
+function updateChecklistItemText(idx: number, text: string) {
+  if (!selected.value || selected.value.type !== 'checklist') return
+  const items = [...(selected.value as any).items]
+  items[idx] = { ...items[idx], text }
+  update('items', items)
+}
+
+function addChecklistItem() {
+  if (!selected.value || selected.value.type !== 'checklist') return
+  const items = [...(selected.value as any).items, { text: 'Nuova voce', checked: false }]
+  update('items', items)
+}
+
+function removeChecklistItem(idx: number) {
+  if (!selected.value || selected.value.type !== 'checklist') return
+  const items = [...(selected.value as any).items]
+  items.splice(idx, 1)
+  update('items', items)
+}
+
+function selectRadioItem(idx: number) {
+  if (!selected.value || selected.value.type !== 'radio') return
+  const items = (selected.value as any).items.map((item: any, i: number) => ({
+    ...item,
+    selected: i === idx
+  }))
+  update('items', items)
+}
+
+function updateRadioItemText(idx: number, text: string) {
+  if (!selected.value || selected.value.type !== 'radio') return
+  const items = [...(selected.value as any).items]
+  items[idx] = { ...items[idx], text }
+  update('items', items)
+}
+
+function addRadioItem() {
+  if (!selected.value || selected.value.type !== 'radio') return
+  const items = [...(selected.value as any).items, { text: 'Nuova opzione', selected: false }]
+  update('items', items)
+}
+
+function removeRadioItem(idx: number) {
+  if (!selected.value || selected.value.type !== 'radio') return
+  const items = [...(selected.value as any).items]
+  items.splice(idx, 1)
+  update('items', items)
+}
 </script>
 
 <template>
@@ -193,7 +385,7 @@ function hexToRgb(hex: string): [number, number, number] {
             v-for="fmt in pageFormats"
             :key="fmt.label"
             class="format-toggle"
-            :class="{ active: store.document.page.width === fmt.width && store.document.page.height === fmt.height }"
+            :class="{ active: store.activePage.settings.width === fmt.width && store.activePage.settings.height === fmt.height }"
             @click="setPageSize(fmt.width, fmt.height)"
           >{{ fmt.label }}</button>
         </div>
@@ -202,7 +394,7 @@ function hexToRgb(hex: string): [number, number, number] {
         <label>Larghezza</label>
         <input
           type="number"
-          :value="store.document.page.width"
+          :value="store.activePage.settings.width"
           @input="updatePage('width', +($event.target as HTMLInputElement).value)"
           min="50" max="1000" step="1"
         />
@@ -212,9 +404,49 @@ function hexToRgb(hex: string): [number, number, number] {
         <label>Altezza</label>
         <input
           type="number"
-          :value="store.document.page.height"
+          :value="store.activePage.settings.height"
           @input="updatePage('height', +($event.target as HTMLInputElement).value)"
           min="50" max="1000" step="1"
+        />
+        <span class="unit">mm</span>
+      </div>
+      <div class="field-row">
+        <label>Margine Su</label>
+        <input
+          type="number"
+          :value="store.activePage.settings.margins.top"
+          @input="updateMargin('top', +($event.target as HTMLInputElement).value)"
+          min="0" max="100" step="1"
+        />
+        <span class="unit">mm</span>
+      </div>
+      <div class="field-row">
+        <label>Margine Destra</label>
+        <input
+          type="number"
+          :value="store.activePage.settings.margins.right"
+          @input="updateMargin('right', +($event.target as HTMLInputElement).value)"
+          min="0" max="100" step="1"
+        />
+        <span class="unit">mm</span>
+      </div>
+      <div class="field-row">
+        <label>Margine Giù</label>
+        <input
+          type="number"
+          :value="store.activePage.settings.margins.bottom"
+          @input="updateMargin('bottom', +($event.target as HTMLInputElement).value)"
+          min="0" max="100" step="1"
+        />
+        <span class="unit">mm</span>
+      </div>
+      <div class="field-row">
+        <label>Margine Sinistra</label>
+        <input
+          type="number"
+          :value="store.activePage.settings.margins.left"
+          @input="updateMargin('left', +($event.target as HTMLInputElement).value)"
+          min="0" max="100" step="1"
         />
         <span class="unit">mm</span>
       </div>
@@ -222,7 +454,7 @@ function hexToRgb(hex: string): [number, number, number] {
         <label>Header</label>
         <input
           type="number"
-          :value="store.document.page.headerHeight"
+          :value="store.activePage.settings.headerHeight"
           @input="updatePage('headerHeight', +($event.target as HTMLInputElement).value)"
           min="0" max="100" step="1"
         />
@@ -232,16 +464,40 @@ function hexToRgb(hex: string): [number, number, number] {
         <label>Footer</label>
         <input
           type="number"
-          :value="store.document.page.footerHeight"
+          :value="store.activePage.settings.footerHeight"
           @input="updatePage('footerHeight', +($event.target as HTMLInputElement).value)"
           min="0" max="100" step="1"
         />
         <span class="unit">mm</span>
       </div>
+      <div class="field-row">
+        <label>Copia Header da</label>
+        <select :value="store.activePage.settings.headerSourcePageId || ''" @change="copyHeaderFrom(($event.target as HTMLSelectElement).value)">
+          <option value="">Nessuna</option>
+          <option v-for="page in availablePages" :key="page.id" :value="page.id">
+            Pagina {{ store.document.pages.indexOf(page) + 1 }}{{ page.name ? ' — ' + page.name : '' }}
+          </option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>Copia Footer da</label>
+        <select :value="store.activePage.settings.footerSourcePageId || ''" @change="copyFooterFrom(($event.target as HTMLSelectElement).value)">
+          <option value="">Nessuna</option>
+          <option v-for="page in availablePages" :key="page.id" :value="page.id">
+            Pagina {{ store.document.pages.indexOf(page) + 1 }}{{ page.name ? ' — ' + page.name : '' }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <!-- Proprietà Elemento Selezionato -->
-    <div v-if="selected" class="panel-section">
+    <div v-if="multiSelected" class="panel-section">
+      <h3 class="section-title">
+        {{ store.selectedIds.length }} elementi selezionati
+      </h3>
+    </div>
+
+    <div v-else-if="selected" class="panel-section">
       <h3 class="section-title">
         Proprietà — {{ selected.type }}
       </h3>
@@ -566,6 +822,10 @@ function hexToRgb(hex: string): [number, number, number] {
                 <label>Colore</label>
                 <input type="color" :value="rgbToHex(col.headerStyle?.color || [0,0,0])" @input="updateTableHeaderStyle(colIdx, 'color', hexToRgb(($event.target as HTMLInputElement).value))" />
               </div>
+              <div class="field-row">
+                <label>Sfondo</label>
+                <input type="color" :value="rgbToHex((selected as any).rows?.[0]?.cells?.[colIdx]?.style?.background || [1,1,1])" @input="updateTableCellStyle(colIdx, 'background', hexToRgb(($event.target as HTMLInputElement).value))" />
+              </div>
             </div>
           </div>
         </div>
@@ -643,7 +903,11 @@ function hexToRgb(hex: string): [number, number, number] {
           </div>
           <div class="field-row">
             <label>Colore</label>
-            <input type="color" :value="rgbToHex((selected as any).cellStyle?.color || [0,0,0])" @input="updateTableDefaultStyle('color', hexToRgb(($event.target as HTMLInputElement).value))" />
+            <input type="color" :value="rgbToHex((selected as any).cellStyle?.color || [0,0,0])" @input="updateTableDefaultCellStyle('color', hexToRgb(($event.target as HTMLInputElement).value))" />
+          </div>
+          <div class="field-row">
+            <label>Sfondo</label>
+            <input type="color" :value="rgbToHex((selected as any).cellStyle?.background || [1,1,1])" @input="updateTableDefaultCellStyle('background', hexToRgb(($event.target as HTMLInputElement).value))" />
           </div>
         </div>
 
@@ -668,6 +932,481 @@ function hexToRgb(hex: string): [number, number, number] {
           />
         </div>
       </template>
+
+      <template v-if="selected.type === 'ellipse'">
+        <div class="field-row">
+          <label>Riempimento</label>
+          <input type="color" :value="toHex(selected.fill || [0.9,0.9,0.9])" @input="update('fill', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Bordo</label>
+          <input type="color" :value="toHex(selected.stroke || [0,0,0])" @input="update('stroke', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Spessore bordo</label>
+          <input type="number" :value="selected.strokeWidth ?? 0.5" step="0.1" min="0" @input="update('strokeWidth', +($event.target as HTMLInputElement).value)" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'divider'">
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Spessore</label>
+          <input type="number" :value="selected.lineWidth" step="0.1" min="0.1" @input="update('lineWidth', +($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Stile</label>
+          <select :value="selected.lineStyle" @change="update('lineStyle', ($event.target as HTMLSelectElement).value)">
+            <option value="solid">Continuo</option>
+            <option value="dashed">Tratteggiato</option>
+            <option value="dotted">Punteggiato</option>
+          </select>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'signature'">
+        <div class="field-row">
+          <label>Etichetta</label>
+          <input type="text" :value="selected.label" @input="update('label', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'container'">
+        <div class="field-row">
+          <label>Riempimento</label>
+          <input type="color" :value="toHex(selected.fill || [1,1,1])" @input="update('fill', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Colore bordo</label>
+          <input type="color" :value="toHex(selected.borderColor)" @input="update('borderColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Spessore bordo</label>
+          <input type="number" :value="selected.borderWidth" step="0.1" min="0" @input="update('borderWidth', +($event.target as HTMLInputElement).value)" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'pageNumber'">
+        <div class="section-title">Stile testo</div>
+        <div class="field-row">
+          <label>Font</label>
+          <select :value="selected.style.font" @change="updateStyle('font', ($event.target as HTMLSelectElement).value)">
+            <option value="helvetica">Helvetica</option>
+            <option value="times">Times</option>
+            <option value="courier">Courier</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Dimensione</label>
+          <input type="number" :value="selected.style.size" min="1" @input="updateStyle('size', +($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.style.color)" @input="updateStyle('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Grassetto</label>
+          <input type="checkbox" :checked="selected.style.weight === 'bold'" @change="updateStyle('weight', ($event.target as HTMLInputElement).checked ? 'bold' : 'normal')" />
+        </div>
+        <div class="field-row">
+          <label>Allineamento</label>
+          <select :value="selected.style.align" @change="updateStyle('align', ($event.target as HTMLSelectElement).value)">
+            <option value="left">Sinistra</option>
+            <option value="center">Centro</option>
+            <option value="right">Destra</option>
+          </select>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'date'">
+        <div class="field-row">
+          <label>Formato</label>
+          <input type="text" :value="selected.format" @input="update('format', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="section-title">Stile testo</div>
+        <div class="field-row">
+          <label>Font</label>
+          <select :value="selected.style.font" @change="updateStyle('font', ($event.target as HTMLSelectElement).value)">
+            <option value="helvetica">Helvetica</option>
+            <option value="times">Times</option>
+            <option value="courier">Courier</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Dimensione</label>
+          <input type="number" :value="selected.style.size" min="1" @input="updateStyle('size', +($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.style.color)" @input="updateStyle('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Grassetto</label>
+          <input type="checkbox" :checked="selected.style.weight === 'bold'" @change="updateStyle('weight', ($event.target as HTMLInputElement).checked ? 'bold' : 'normal')" />
+        </div>
+        <div class="field-row">
+          <label>Allineamento</label>
+          <select :value="selected.style.align" @change="updateStyle('align', ($event.target as HTMLSelectElement).value)">
+            <option value="left">Sinistra</option>
+            <option value="center">Centro</option>
+            <option value="right">Destra</option>
+          </select>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'watermark'">
+        <div class="field-row">
+          <label>Testo</label>
+          <input type="text" :value="selected.text" @input="update('text', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Dimensione</label>
+          <input type="number" :value="selected.fontSize" min="1" @input="update('fontSize', +($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Rotazione</label>
+          <input type="number" :value="selected.rotation" step="1" @input="update('rotation', +($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Opacità</label>
+          <input type="range" min="0" max="1" step="0.05" :value="selected.opacity" @input="update('opacity', +($event.target as HTMLInputElement).value)" />
+          <span class="value-label">{{ Math.round(selected.opacity * 100) }}%</span>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'qrcode'">
+        <div class="field-row">
+          <label>Contenuto</label>
+          <input type="text" :value="selected.text" @input="update('text', ($event.target as HTMLInputElement).value)" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'stamp'">
+        <div class="field-row">
+          <label>Testo</label>
+          <input type="text" :value="selected.text" @input="update('text', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Preset</label>
+          <select :value="selected.preset" @change="update('preset', ($event.target as HTMLSelectElement).value)">
+            <option value="approved">APPROVATO</option>
+            <option value="confidential">RISERVATO</option>
+            <option value="draft">BOZZA</option>
+            <option value="paid">PAGATO</option>
+            <option value="urgent">URGENTE</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'quote'">
+        <div class="field-row">
+          <label>Citazione</label>
+          <input type="text" :value="selected.text" @input="update('text', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Autore</label>
+          <input type="text" :value="selected.author" @input="update('author', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore barra</label>
+          <input type="color" :value="toHex(selected.barColor)" @input="update('barColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="section-title">Stile testo</div>
+        <div class="field-row">
+          <label>Font</label>
+          <select :value="selected.style.font" @change="updateStyle('font', ($event.target as HTMLSelectElement).value)">
+            <option value="helvetica">Helvetica</option>
+            <option value="times">Times</option>
+            <option value="courier">Courier</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Dimensione</label>
+          <input type="number" :value="selected.style.size" min="1" @input="updateStyle('size', +($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.style.color)" @input="updateStyle('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'callout'">
+        <div class="field-row">
+          <label>Testo</label>
+          <input type="text" :value="selected.text" @input="update('text', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Stile</label>
+          <select :value="selected.style" @change="update('style', ($event.target as HTMLSelectElement).value)">
+            <option value="info">Info</option>
+            <option value="warning">Avviso</option>
+            <option value="error">Errore</option>
+            <option value="success">Successo</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Icona</label>
+          <input type="text" :value="selected.icon" @input="update('icon', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore sfondo</label>
+          <input type="color" :value="toHex(selected.bgColor)" @input="update('bgColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Colore bordo</label>
+          <input type="color" :value="toHex(selected.borderColor)" @input="update('borderColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'codeBlock'">
+        <div class="field-row">
+          <label>Codice</label>
+          <textarea :value="selected.text" @input="update('text', ($event.target as HTMLTextAreaElement).value)" rows="4"></textarea>
+        </div>
+        <div class="field-row">
+          <label>Linguaggio</label>
+          <input type="text" :value="selected.language" @input="update('language', ($event.target as HTMLInputElement).value)" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'progressBar'">
+        <div class="field-row">
+          <label>Valore</label>
+          <input type="range" min="0" max="100" :value="selected.value" @input="update('value', +($event.target as HTMLInputElement).value)" />
+          <span class="value-label">{{ selected.value }}%</span>
+        </div>
+        <div class="field-row">
+          <label>Etichetta</label>
+          <input type="text" :value="selected.label" @input="update('label', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Colore riempimento</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Colore sfondo</label>
+          <input type="color" :value="toHex(selected.bgColor)" @input="update('bgColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'icon'">
+        <div class="field-row">
+          <label>Icona</label>
+          <select :value="selected.name" @change="update('name', ($event.target as HTMLSelectElement).value)">
+            <option value="check">Check</option>
+            <option value="warning">Warning</option>
+            <option value="info">Info</option>
+            <option value="error">Error</option>
+            <option value="star">Stella</option>
+            <option value="heart">Cuore</option>
+            <option value="arrow">Freccia</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Colore</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'barcode'">
+        <div class="field-row">
+          <label>Contenuto</label>
+          <input type="text" :value="selected.text" @input="update('text', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Formato</label>
+          <select :value="selected.format" @change="update('format', ($event.target as HTMLSelectElement).value)">
+            <option value="code128">Code 128</option>
+            <option value="code39">Code 39</option>
+            <option value="ean13">EAN-13</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Mostra testo</label>
+          <input type="checkbox" :checked="selected.showText" @change="update('showText', ($event.target as HTMLInputElement).checked)" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'chart'">
+        <div class="field-row">
+          <label>Tipo</label>
+          <select :value="selected.chartType" @change="update('chartType', ($event.target as HTMLSelectElement).value)">
+            <option value="bar">Barre</option>
+            <option value="pie">Torta</option>
+            <option value="line">Linea</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Dati (JSON)</label>
+          <textarea :value="JSON.stringify(selected.data, null, 2)" @input="tryUpdateData(($event.target as HTMLTextAreaElement).value)" rows="4"></textarea>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'pageBreak'">
+        <div class="field-row">
+          <label>Interruzione pagina</label>
+          <span class="value-label">Forza il taglio pagina</span>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'dataRepeat'">
+        <div class="field-row">
+          <label>Campo dati</label>
+          <input type="text" :value="selected.repeatField" @input="update('repeatField', ($event.target as HTMLInputElement).value)" />
+        </div>
+        <div class="field-row">
+          <label>Direzione</label>
+          <select :value="selected.direction" @change="update('direction', ($event.target as HTMLSelectElement).value)">
+            <option value="vertical">Verticale</option>
+            <option value="horizontal">Orizzontale</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Spaziatura</label>
+          <input type="number" :value="selected.spacing" min="0" @input="update('spacing', +($event.target as HTMLInputElement).value)" />
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'checklist'">
+        <div class="section-title">Voci Checklist</div>
+        <div v-for="(item, idx) in selected.items" :key="idx" class="checklist-item-row">
+          <input type="checkbox" :checked="item.checked" @change="toggleChecklistItem(idx)" />
+          <input type="text" :value="item.text" @input="updateChecklistItemText(idx, ($event.target as HTMLInputElement).value)" />
+          <button class="remove-rule-btn" @click="removeChecklistItem(idx)">✕</button>
+        </div>
+        <button class="add-rule-btn" @click="addChecklistItem()">+ Aggiungi voce</button>
+        <div class="field-row">
+          <label>Dimensione</label>
+          <input type="number" :value="selected.size" min="6" max="72" @input="update('size', +($event.target as HTMLInputElement).value)" />
+          <span class="unit">pt</span>
+        </div>
+        <div class="field-row">
+          <label>Colore testo</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Colore spuntata</label>
+          <input type="color" :value="toHex(selected.checkedColor)" @input="update('checkedColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Spaziatura</label>
+          <input type="number" :value="selected.gap" min="0" max="20" step="0.5" @input="update('gap', +($event.target as HTMLInputElement).value)" />
+          <span class="unit">mm</span>
+        </div>
+      </template>
+
+      <template v-if="selected.type === 'radio'">
+        <div class="section-title">Voci Radio</div>
+        <div v-for="(item, idx) in selected.items" :key="idx" class="checklist-item-row">
+          <input type="radio" :name="'radio-' + selected.id" :checked="item.selected" @change="selectRadioItem(idx)" />
+          <input type="text" :value="item.text" @input="updateRadioItemText(idx, ($event.target as HTMLInputElement).value)" />
+          <button class="remove-rule-btn" @click="removeRadioItem(idx)">✕</button>
+        </div>
+        <button class="add-rule-btn" @click="addRadioItem()">+ Aggiungi opzione</button>
+        <div class="field-row">
+          <label>Dimensione</label>
+          <input type="number" :value="selected.size" min="6" max="72" @input="update('size', +($event.target as HTMLInputElement).value)" />
+          <span class="unit">pt</span>
+        </div>
+        <div class="field-row">
+          <label>Colore testo</label>
+          <input type="color" :value="toHex(selected.color)" @input="update('color', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Colore selezione</label>
+          <input type="color" :value="toHex(selected.selectedColor)" @input="update('selectedColor', fromHex(($event.target as HTMLInputElement).value))" />
+        </div>
+        <div class="field-row">
+          <label>Spaziatura</label>
+          <input type="number" :value="selected.gap" min="0" max="20" step="0.5" @input="update('gap', +($event.target as HTMLInputElement).value)" />
+          <span class="unit">mm</span>
+        </div>
+      </template>
+
+      <div class="section-title programmabilita-title">Programmabilità</div>
+        <div class="field-row">
+          <label>Condizione visibilità</label>
+          <input type="checkbox" :checked="!!selected.showIf" @change="toggleShowIf(($event.target as HTMLInputElement).checked)" />
+        </div>
+        <template v-if="selected.showIf">
+          <div class="field-row">
+            <label>Campo</label>
+            <select v-if="!customField['showIf']" :value="selected.showIf.field" @change="onShowIfFieldChange($event)">
+              <option value="">-- Seleziona campo --</option>
+              <option v-for="opt in fieldOptions" :key="opt.path" :value="opt.path">
+                {{ opt.label }} → {{ formatPreview(opt.value) }}
+              </option>
+              <option value="__custom__">✏️ Personalizza...</option>
+            </select>
+            <input v-else type="text" :value="selected.showIf.field === '__custom__' ? '' : selected.showIf.field" placeholder="es. ordine.stato" @input="updateShowIf('field', ($event.target as HTMLInputElement).value)" />
+          </div>
+          <div class="field-row">
+            <label>Operatore</label>
+            <select :value="selected.showIf.op" @change="updateShowIf('op', ($event.target as HTMLSelectElement).value)">
+              <option value="eq">Uguale a</option>
+              <option value="neq">Diverso da</option>
+              <option value="gt">Maggiore di</option>
+              <option value="lt">Minore di</option>
+              <option value="gte">Maggiore o uguale</option>
+              <option value="lte">Minore o uguale</option>
+              <option value="empty">Vuoto</option>
+              <option value="notempty">Non vuoto</option>
+              <option value="contains">Contiene</option>
+            </select>
+          </div>
+          <div class="field-row" v-if="!['empty', 'notempty'].includes(selected.showIf.op)">
+            <label>Valore</label>
+            <input type="text" :value="selected.showIf.value" @input="updateShowIf('value', ($event.target as HTMLInputElement).value)" />
+          </div>
+        </template>
+        <div class="field-row">
+          <label>Stile condizionale</label>
+          <input type="checkbox" :checked="!!selected.styleIf?.length" @change="toggleStyleIf(($event.target as HTMLInputElement).checked)" />
+        </div>
+        <template v-if="selected.styleIf?.length">
+          <div v-for="(rule, idx) in selected.styleIf" :key="idx" class="style-if-rule">
+            <div class="field-row">
+              <label>Campo</label>
+              <select v-if="!customField['styleIf_' + idx]" :value="rule.field" @change="onStyleIfFieldChange(idx, $event)">
+                <option value="">-- Seleziona campo --</option>
+                <option v-for="opt in fieldOptions" :key="opt.path" :value="opt.path">
+                  {{ opt.label }} → {{ formatPreview(opt.value) }}
+                </option>
+                <option value="__custom__">✏️ Personalizza...</option>
+              </select>
+              <input v-else type="text" :value="rule.field === '__custom__' ? '' : rule.field" placeholder="es. ordine.stato" @input="updateStyleIfRule(idx, 'field', ($event.target as HTMLInputElement).value)" />
+            </div>
+            <div class="field-row">
+              <label>Valore</label>
+              <input type="text" :value="rule.value" @input="updateStyleIfRule(idx, 'value', ($event.target as HTMLInputElement).value)" />
+            </div>
+            <div class="field-row">
+              <label>Colore se vero</label>
+              <input type="color" :value="toHex((rule.then?.fill as any) || [0,0,0])" @input="updateStyleIfThen(idx, 'fill', fromHex(($event.target as HTMLInputElement).value) as any)" />
+            </div>
+            <button class="remove-rule-btn" @click="removeStyleIfRule(idx)">✕</button>
+          </div>
+          <button class="add-rule-btn" @click="addStyleIfRule()">+ Aggiungi regola</button>
+        </template>
+        <div class="field-row">
+          <label>Ripeti su tutte le pagine</label>
+          <input type="checkbox" :checked="!!selected.repeatOnAllPages" @change="update('repeatOnAllPages', ($event.target as HTMLInputElement).checked || undefined)" />
+        </div>
     </div>
 
     <div v-else class="panel-section empty">
@@ -706,6 +1445,12 @@ function hexToRgb(hex: string): [number, number, number] {
   margin-bottom: 10px;
   padding-bottom: 6px;
   border-bottom: 1px solid #0f3460;
+}
+
+.programmabilita-title {
+  color: #e94560;
+  border-bottom-color: #e94560;
+  margin-top: 8px;
 }
 
 .field-row {
@@ -1023,5 +1768,47 @@ input[type="text"] {
   border-radius: 3px;
   font-size: 12px;
   min-width: 0;
+}
+
+.style-if-rule {
+  background: #0a1530;
+  border-radius: 3px;
+  padding: 6px;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.remove-rule-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #e74c3c;
+  border: none;
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.add-rule-btn {
+  background: #1a4a8a;
+  border: 1px solid #2a6ac9;
+  color: #a0c4f0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.add-rule-btn:hover {
+  background: #2a6ac9;
+  color: white;
 }
 </style>

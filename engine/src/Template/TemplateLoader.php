@@ -24,8 +24,15 @@ class TemplateLoader
     {
         $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        if (!isset($data['version'], $data['page'], $data['elements'])) {
+        $hasPages = isset($data['pages']) && is_array($data['pages']);
+        $hasLegacy = isset($data['version'], $data['page'], $data['elements']);
+
+        if (!$hasPages && !$hasLegacy) {
             throw new \RuntimeException("Template JSON non valido: mancano campi obbligatori");
+        }
+
+        if ($hasPages && !isset($data['elements'])) {
+            $data['elements'] = [];
         }
 
         return $data;

@@ -9,13 +9,36 @@ import LineElement from '../../elements/LineElement.vue'
 import ListElement from '../../elements/ListElement.vue'
 import ImageElement from '../../elements/ImageElement.vue'
 import TableElement from '../../elements/TableElement.vue'
+import GroupElement from '../../elements/GroupElement.vue'
+import EllipseElement from '../../elements/EllipseElement.vue'
+import DividerElement from '../../elements/DividerElement.vue'
+import SignatureElement from '../../elements/SignatureElement.vue'
+import ContainerElement from '../../elements/ContainerElement.vue'
+import PageNumberElement from '../../elements/PageNumberElement.vue'
+import DateElement from '../../elements/DateElement.vue'
+import WatermarkElement from '../../elements/WatermarkElement.vue'
+import QrCodeElement from '../../elements/QrCodeElement.vue'
+import SpacerElement from '../../elements/SpacerElement.vue'
+import StampElement from '../../elements/StampElement.vue'
+import QuoteElement from '../../elements/QuoteElement.vue'
+import CalloutElement from '../../elements/CalloutElement.vue'
+import CodeBlockElement from '../../elements/CodeBlockElement.vue'
+import ProgressBarElement from '../../elements/ProgressBarElement.vue'
+import IconElement from '../../elements/IconElement.vue'
+import BarcodeElement from '../../elements/BarcodeElement.vue'
+import ChartElement from '../../elements/ChartElement.vue'
+import PageBreakElement from '../../elements/PageBreakElement.vue'
+import DataRepeatElement from '../../elements/DataRepeatElement.vue'
+import ChecklistElement from '../../elements/ChecklistElement.vue'
+import RadioElement from '../../elements/RadioElement.vue'
+import { evaluateShowIf, evaluateStyleIf } from '../../utils/conditionHelpers'
 
 const props = defineProps<{
   element: Element
   selected: boolean
 }>()
 
-const emit = defineEmits<{ select: [] }>()
+const emit = defineEmits<{ select: [event: MouseEvent] }>()
 
 const store = useEditorStore()
 const MM_TO_PX = 96 / 25.4
@@ -42,6 +65,17 @@ onUnmounted(() => {
   resizeObserver?.disconnect()
 })
 
+// --- Conditional visibility & style ---
+const sampleData = computed(() => store.document.sampleData || {})
+
+const isVisible = computed(() => {
+  return evaluateShowIf(props.element.showIf, sampleData.value as Record<string, unknown>)
+})
+
+const conditionalStyle = computed(() => {
+  return evaluateStyleIf(props.element.styleIf, sampleData.value as Record<string, unknown>)
+})
+
 // --- Drag ---
 const isDragging = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
@@ -58,6 +92,8 @@ const wrapperStyle = computed(() => {
   const dragX = isDragging.value ? dragOffset.value.x / MM_TO_PX : 0
   const dragY = isDragging.value ? dragOffset.value.y / MM_TO_PX : 0
   const isList = props.element.type === 'list'
+  const isHidden = store.isHidden(props.element.id)
+  const isLocked = store.isLocked(props.element.id)
 
   return {
     position: 'absolute' as const,
@@ -72,8 +108,10 @@ const wrapperStyle = computed(() => {
         ? '2px solid #4A90D9'
         : 'none',
     outlineOffset: '1px',
-    cursor: isDragging.value ? 'grabbing' : 'move',
+    cursor: isLocked ? 'not-allowed' : isDragging.value ? 'grabbing' : 'move',
     userSelect: 'none' as const,
+    opacity: isHidden ? 0.3 : 1,
+    pointerEvents: isLocked ? 'none' as const : 'auto' as const,
   }
 })
 
@@ -100,7 +138,14 @@ function onPointerDown(e: PointerEvent) {
         props.element.y + dragOffset.value.y / MM_TO_PX,
         store.gridSize
       )
-      store.updateElement(props.element.id, { x: newX, y: newY })
+      const dxMm = newX - props.element.x
+      const dyMm = newY - props.element.y
+
+      if (store.selectedIds.length > 1 && store.selectedIds.includes(props.element.id)) {
+        store.moveSelectedElements(dxMm, dyMm)
+      } else {
+        store.updateElement(props.element.id, { x: newX, y: newY })
+      }
     }
     isDragging.value = false
     window.removeEventListener('pointermove', onMove)
@@ -180,6 +225,8 @@ function onHandleDoubleClick() {
   store.autoFitElement(props.element.id)
 }
 
+const isOverflowing = computed(() => store.isElementOverflowing(props.element))
+
 const resizeCursors: Record<ResizeDir, string> = {
   n: 'ns-resize', s: 'ns-resize',
   e: 'ew-resize', w: 'ew-resize',
@@ -190,10 +237,11 @@ const resizeCursors: Record<ResizeDir, string> = {
 
 <template>
   <div
+    v-if="isVisible"
     ref="wrapperRef"
-    :style="wrapperStyle"
+    :style="{ ...wrapperStyle, ...conditionalStyle }"
     @pointerdown.stop="onPointerDown"
-    @click.stop="emit('select')"
+    @click.stop="emit('select', $event)"
   >
     <TextElement
       v-if="element.type === 'text'"
@@ -213,6 +261,34 @@ const resizeCursors: Record<ResizeDir, string> = {
       :element="element"
       @update="(data) => store.updateElement(element.id, data)"
     />
+    <GroupElement v-else-if="element.type === 'group'" :element="element" />
+    <EllipseElement v-else-if="element.type === 'ellipse'" :element="element" />
+    <DividerElement v-else-if="element.type === 'divider'" :element="element" />
+    <SignatureElement v-else-if="element.type === 'signature'" :element="element" />
+    <ContainerElement v-else-if="element.type === 'container'" :element="element" />
+    <PageNumberElement v-else-if="element.type === 'pageNumber'" :element="element" />
+    <DateElement v-else-if="element.type === 'date'" :element="element" />
+    <WatermarkElement v-else-if="element.type === 'watermark'" :element="element" />
+    <QrCodeElement v-else-if="element.type === 'qrcode'" :element="element" />
+    <SpacerElement v-else-if="element.type === 'spacer'" :element="element" />
+    <StampElement v-else-if="element.type === 'stamp'" :element="element" />
+    <QuoteElement v-else-if="element.type === 'quote'" :element="element" />
+    <CalloutElement v-else-if="element.type === 'callout'" :element="element" />
+    <CodeBlockElement v-else-if="element.type === 'codeBlock'" :element="element" />
+    <ProgressBarElement v-else-if="element.type === 'progressBar'" :element="element" />
+    <IconElement v-else-if="element.type === 'icon'" :element="element" />
+    <BarcodeElement v-else-if="element.type === 'barcode'" :element="element" />
+    <ChartElement v-else-if="element.type === 'chart'" :element="element" />
+    <PageBreakElement v-else-if="element.type === 'pageBreak'" :element="element" />
+    <DataRepeatElement v-else-if="element.type === 'dataRepeat'" :element="element" />
+    <ChecklistElement v-else-if="element.type === 'checklist'" :element="element" />
+    <RadioElement v-else-if="element.type === 'radio'" :element="element" />
+
+    <!-- Indicatore overflow -->
+    <div v-if="isOverflowing" class="overflow-indicator">
+      <span class="overflow-badge">Fuori pagina</span>
+      <button class="overflow-move-btn" @click.stop="store.moveElementToNextPage(element.id)" title="Sposta alla pagina successiva">→ Pagina+</button>
+    </div>
 
     <!-- Maniglie di resize -->
     <template v-if="selected && !isDragging">
@@ -282,4 +358,38 @@ const resizeCursors: Record<ResizeDir, string> = {
 .resize-handle.edge.s { bottom: -3px; }
 .resize-handle.edge.e { right: -3px; }
 .resize-handle.edge.w { left: -3px; }
+
+.overflow-indicator {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 20;
+}
+
+.overflow-badge {
+  background: #e94560;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.overflow-move-btn {
+  background: #4A90D9;
+  color: white;
+  border: none;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.overflow-move-btn:hover {
+  background: #357ABD;
+}
 </style>

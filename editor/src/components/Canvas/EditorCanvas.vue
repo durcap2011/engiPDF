@@ -13,8 +13,15 @@ const zoom = ref(1)
 const isPanning = ref(false)
 const lastMouse = ref({ x: 0, y: 0 })
 
-const pageWidthPx = computed(() => store.document.page.width * MM_TO_PX)
-const pageHeightPx = computed(() => store.document.page.height * MM_TO_PX)
+const PAGE_GAP = 40
+
+function getPageWidthPx(page: any): number {
+  return page.settings.width * MM_TO_PX
+}
+
+function getPageHeightPx(page: any): number {
+  return page.settings.height * MM_TO_PX
+}
 
 const canvasStyle = computed(() => ({
   transform: `translate(${panX.value}px, ${panY.value}px) scale(${zoom.value})`,
@@ -25,25 +32,27 @@ function mmToPx(mm: number): number {
   return mm * MM_TO_PX
 }
 
-const horizontalMarks = computed(() => {
+function getPageHorizontalMarks(page: any) {
   const result: { px: number; mm: number; major: boolean }[] = []
-  for (let mm = 0; mm <= store.document.page.width; mm += 1) {
+  const width = page.settings.width
+  for (let mm = 0; mm <= width; mm += 1) {
     if (mm % 5 !== 0) continue
     const major = mm % 10 === 0
     result.push({ px: mmToPx(mm), mm, major })
   }
   return result
-})
+}
 
-const verticalMarks = computed(() => {
+function getPageVerticalMarks(page: any) {
   const result: { px: number; mm: number; major: boolean }[] = []
-  for (let mm = 0; mm <= store.document.page.height; mm += 1) {
+  const height = page.settings.height
+  for (let mm = 0; mm <= height; mm += 1) {
     if (mm % 5 !== 0) continue
     const major = mm % 10 === 0
     result.push({ px: mmToPx(mm), mm, major })
   }
   return result
-})
+}
 
 function handleWheel(e: WheelEvent) {
   e.preventDefault()
@@ -78,8 +87,11 @@ function handleMouseUp() {
 function centerPage() {
   if (!canvasRef.value) return
   const rect = canvasRef.value.getBoundingClientRect()
-  panX.value = (rect.width - pageWidthPx.value * zoom.value) / 2
-  panY.value = (rect.height - pageHeightPx.value * zoom.value) / 2
+  const firstPage = store.document.pages[0]
+  if (!firstPage) return
+  const pageWidthPx = getPageWidthPx(firstPage)
+  panX.value = (rect.width - pageWidthPx * zoom.value) / 2
+  panY.value = 60
 }
 
 onMounted(() => {
@@ -100,64 +112,78 @@ onUnmounted(() => {
     @wheel.passive="handleWheel"
     @mousedown="handleMouseDown"
     @mousemove="handleMouseMove"
+    @click.self="store.clearSelection()"
   >
-    <div class="canvas-bg"></div>
+    <div class="canvas-bg" @click.self="store.clearSelection()"></div>
     <div :style="canvasStyle" class="canvas-content">
-      <div class="ruler-and-page">
-        <div class="page-row">
-          <div class="ruler-vertical" :style="{ height: pageHeightPx + 'px' }">
-            <svg :width="20" :height="pageHeightPx">
-              <line x1="19" y1="0" x2="19" :y2="pageHeightPx" stroke="#888" stroke-width="1" />
-              <template v-for="mark in verticalMarks" :key="'v' + mark.mm">
-                <line
-                  :x1="mark.major ? 0 : 12"
-                  :y1="mark.px"
-                  x2="19"
-                  :y2="mark.px"
-                  stroke="#888"
-                  stroke-width="1"
-                />
-                <text
-                  v-if="mark.major"
-                  x="10"
-                  :y="mark.px - 3"
-                  fill="#999"
-                  font-size="9"
-                  font-family="monospace"
-                  writing-mode="vertical-rl"
-                  transform="rotate(180deg)"
-                  transform-origin="center"
-                >{{ mark.mm / 10 }}</text>
-              </template>
-            </svg>
-          </div>
-
-          <div class="page-column">
-            <div class="ruler-horizontal" :style="{ width: pageWidthPx + 'px' }">
-              <svg :width="pageWidthPx" :height="20">
-                <line x1="0" y1="19" :x2="pageWidthPx" y2="19" stroke="#888" stroke-width="1" />
-                <template v-for="mark in horizontalMarks" :key="'h' + mark.mm">
+      <div
+        v-for="(page, pageIndex) in store.document.pages"
+        :key="page.id"
+        class="page-wrapper"
+        :style="{ marginTop: pageIndex === 0 ? '0' : PAGE_GAP + 'px' }"
+      >
+        <div class="ruler-and-page">
+          <div class="page-row">
+            <div class="ruler-vertical" :style="{ height: getPageHeightPx(page) + 'px' }">
+              <svg :width="20" :height="getPageHeightPx(page)">
+                <line x1="19" y1="0" x2="19" :y2="getPageHeightPx(page)" stroke="#888" stroke-width="1" />
+                <template v-for="mark in getPageVerticalMarks(page)" :key="'v' + page.id + mark.mm">
                   <line
-                    :x1="mark.px"
-                    :y1="mark.major ? 0 : 12"
-                    :x2="mark.px"
-                    y2="19"
+                    :x1="mark.major ? 0 : 12"
+                    :y1="mark.px"
+                    x2="19"
+                    :y2="mark.px"
                     stroke="#888"
                     stroke-width="1"
                   />
                   <text
                     v-if="mark.major"
-                    :x="mark.px + 3"
-                    y="11"
+                    x="10"
+                    :y="mark.px - 3"
                     fill="#999"
-                    font-size="10"
+                    font-size="9"
                     font-family="monospace"
+                    writing-mode="vertical-rl"
+                    transform="rotate(180deg)"
+                    transform-origin="center"
                   >{{ mark.mm / 10 }}</text>
                 </template>
               </svg>
             </div>
 
-            <PageArtboard :width="pageWidthPx" :height="pageHeightPx" />
+            <div class="page-column">
+              <div class="ruler-horizontal" :style="{ width: getPageWidthPx(page) + 'px' }">
+                <svg :width="getPageWidthPx(page)" :height="20">
+                  <line x1="0" y1="19" :x2="getPageWidthPx(page)" y2="19" stroke="#888" stroke-width="1" />
+                  <template v-for="mark in getPageHorizontalMarks(page)" :key="'h' + page.id + mark.mm">
+                    <line
+                      :x1="mark.px"
+                      :y1="mark.major ? 0 : 12"
+                      :x2="mark.px"
+                      y2="19"
+                      stroke="#888"
+                      stroke-width="1"
+                    />
+                    <text
+                      v-if="mark.major"
+                      :x="mark.px + 3"
+                      y="11"
+                      fill="#999"
+                      font-size="10"
+                      font-family="monospace"
+                    >{{ mark.mm / 10 }}</text>
+                  </template>
+                </svg>
+              </div>
+
+              <PageArtboard
+                :page="page"
+                :width="getPageWidthPx(page)"
+                :height="getPageHeightPx(page)"
+                :is-active="page.id === store.selectedPageId"
+                @select-page="store.selectPage(page.id)"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -191,6 +217,10 @@ onUnmounted(() => {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.page-wrapper {
+  display: inline-block;
 }
 
 .ruler-and-page {

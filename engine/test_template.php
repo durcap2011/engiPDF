@@ -14,6 +14,7 @@ $template = $loader->loadFromFile(__DIR__ . '/../templates/template_tabella.json
 
 // Dati di esempio
 $data = [
+    'timbro' => 'APPROVATO',
     'nome' => 'Azienda XYZ S.r.l.',
     'tabella' => [
         ['Laptop ASUS', '2', '899.00', '1798.00'],

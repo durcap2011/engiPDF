@@ -8,6 +8,7 @@ use EngiPDF\Font\FontManager;
 class PdfDocument
 {
     private array $pages = [];
+    private array $pageDimensions = [];
     private array $objects = [];
     private array $images = [];
     private float $widthPt;
@@ -24,11 +25,20 @@ class PdfDocument
         $this->fontManager = $fontManager ?? new FontManager();
     }
 
-    public function createPage(): PdfPage
+    public function createPage(?float $widthPt = null, ?float $heightPt = null): PdfPage
     {
         $page = new PdfPage($this);
         $this->pages[] = $page;
+        $this->pageDimensions[] = [
+            'width' => $widthPt ?? $this->widthPt,
+            'height' => $heightPt ?? $this->heightPt
+        ];
         return $page;
+    }
+
+    public function getPageDimensions(int $index): array
+    {
+        return $this->pageDimensions[$index] ?? ['width' => $this->widthPt, 'height' => $this->heightPt];
     }
 
     public function registerFont(string $name): void
@@ -145,10 +155,11 @@ class PdfDocument
             }
             $resources .= " >>";
 
+            $dims = $this->getPageDimensions($idx);
             $offsets[$pageObjNum] = strlen($pdf);
             $pdf .= "$pageObjNum 0 obj\n";
             $pdf .= "<< /Type /Page /Parent 2 0 R\n";
-            $pdf .= "   /MediaBox [0 0 {$this->widthPt} {$this->heightPt}]\n";
+            $pdf .= "   /MediaBox [0 0 {$dims['width']} {$dims['height']}]\n";
             $pdf .= "   /Resources $resources\n";
             $pdf .= "   /Contents $contentObjNum 0 R >>\n";
             $pdf .= "endobj\n";
