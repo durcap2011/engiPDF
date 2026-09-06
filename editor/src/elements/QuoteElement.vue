@@ -53,7 +53,7 @@ const style = computed(() => {
 
 .quote-author {
   font-size: 10px;
-  color: #888;
+  color: var(--text-tertiary);
   font-style: italic;
 }
 </style>

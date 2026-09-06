@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '../stores/editorStore'
 
+const { t } = useI18n()
 const store = useEditorStore()
 
 const pageElements = computed(() => {
@@ -12,13 +14,13 @@ const pageElements = computed(() => {
 
 function getElementLabel(el: any): string {
   switch (el.type) {
-    case 'text': return el.text?.substring(0, 30) || 'Testo'
-    case 'rectangle': return 'Rettangolo'
-    case 'line': return 'Linea'
-    case 'list': return `Lista (${el.items?.length || 0} item)`
-    case 'image': return 'Immagine'
-    case 'table': return el.name || 'Tabella'
-    case 'group': return `Gruppo (${el.children?.length || 0})`
+    case 'text': return el.text?.substring(0, 30) || t('element.text')
+    case 'rectangle': return t('element.rectangle')
+    case 'line': return t('element.line')
+    case 'list': return `${t('element.list')} (${el.items?.length || 0} ${t('element.items')})`
+    case 'image': return t('element.image')
+    case 'table': return el.name || t('element.table')
+    case 'group': return `${t('element.group')} (${el.children?.length || 0} ${t('element.children')})`
     default: return el.type
   }
 }
@@ -41,7 +43,7 @@ function getElementIcon(el: any): string {
   <div class="layers-panel">
     <div class="panel-scroll">
       <div class="panel-section">
-        <h3 class="section-title">Livelli</h3>
+        <h3 class="section-title">{{ t('layers.title') }}</h3>
         <div
           v-for="el in pageElements"
           :key="el.id"
@@ -77,7 +79,7 @@ function getElementIcon(el: any): string {
           </div>
         </div>
         <div v-if="pageElements.length === 0" class="empty-layers">
-          Nessun elemento
+          {{ t('layers.noElements') }}
         </div>
       </div>
     </div>
@@ -89,8 +91,8 @@ function getElementIcon(el: any): string {
   width: 160px;
   min-width: 160px;
   max-width: 160px;
-  background: #16213e;
-  border-right: 1px solid #0f3460;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-default);
   overflow: hidden;
 }
 
@@ -106,13 +108,14 @@ function getElementIcon(el: any): string {
 }
 
 .section-title {
-  font-size: 12px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #888;
+  letter-spacing: 1.2px;
+  color: var(--text-tertiary);
   margin-bottom: 10px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #0f3460;
+  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 600;
 }
 
 .layer-item {
@@ -120,19 +123,19 @@ function getElementIcon(el: any): string {
   align-items: center;
   gap: 4px;
   padding: 5px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s ease;
   margin-bottom: 1px;
 }
 
 .layer-item:hover {
-  background: #1a2a4a;
+  background: var(--bg-hover);
 }
 
 .layer-item.selected {
-  background: #0f3460;
-  outline: 1px solid #4A90D9;
+  background: var(--bg-active);
+  outline: 1px solid var(--border-accent);
 }
 
 .layer-item.hidden {
@@ -146,18 +149,24 @@ function getElementIcon(el: any): string {
 .layer-icon {
   width: 18px;
   text-align: center;
-  font-size: 12px;
-  color: #888;
+  font-size: 11px;
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
 .layer-label {
   flex: 1;
   font-size: 12px;
-  color: #ccc;
+  color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 400;
+}
+
+.layer-item.selected .layer-label {
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .layer-actions {
@@ -180,25 +189,26 @@ function getElementIcon(el: any): string {
   justify-content: center;
   background: transparent;
   border: none;
-  color: #888;
+  color: var(--text-tertiary);
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 0;
+  transition: all 0.15s ease;
 }
 
 .layer-btn:hover {
-  background: #0f3460;
-  color: #eee;
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .layer-btn.active {
-  color: #4A90D9;
+  color: var(--text-accent);
 }
 
 .empty-layers {
   text-align: center;
-  padding: 20px;
-  color: #666;
+  padding: 24px 16px;
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 </style>

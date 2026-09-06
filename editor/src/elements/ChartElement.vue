@@ -120,7 +120,7 @@ const pieData = computed(() => {
   align-items: center;
   gap: 3px;
   font-size: 8px;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .legend-color {

@@ -126,21 +126,21 @@ onUnmounted(() => {
           <div class="page-row">
             <div class="ruler-vertical" :style="{ height: getPageHeightPx(page) + 'px' }">
               <svg :width="20" :height="getPageHeightPx(page)">
-                <line x1="19" y1="0" x2="19" :y2="getPageHeightPx(page)" stroke="#888" stroke-width="1" />
+                <line x1="19" y1="0" x2="19" :y2="getPageHeightPx(page)" class="ruler-line" stroke-width="1" />
                 <template v-for="mark in getPageVerticalMarks(page)" :key="'v' + page.id + mark.mm">
                   <line
                     :x1="mark.major ? 0 : 12"
                     :y1="mark.px"
                     x2="19"
                     :y2="mark.px"
-                    stroke="#888"
+                    class="ruler-line"
                     stroke-width="1"
                   />
                   <text
                     v-if="mark.major"
                     x="10"
                     :y="mark.px - 3"
-                    fill="#999"
+                    class="ruler-label"
                     font-size="9"
                     font-family="monospace"
                     writing-mode="vertical-rl"
@@ -154,21 +154,21 @@ onUnmounted(() => {
             <div class="page-column">
               <div class="ruler-horizontal" :style="{ width: getPageWidthPx(page) + 'px' }">
                 <svg :width="getPageWidthPx(page)" :height="20">
-                  <line x1="0" y1="19" :x2="getPageWidthPx(page)" y2="19" stroke="#888" stroke-width="1" />
+                  <line x1="0" y1="19" :x2="getPageWidthPx(page)" y2="19" class="ruler-line" stroke-width="1" />
                   <template v-for="mark in getPageHorizontalMarks(page)" :key="'h' + page.id + mark.mm">
                     <line
                       :x1="mark.px"
                       :y1="mark.major ? 0 : 12"
                       :x2="mark.px"
                       y2="19"
-                      stroke="#888"
+                      class="ruler-line"
                       stroke-width="1"
                     />
                     <text
                       v-if="mark.major"
                       :x="mark.px + 3"
                       y="11"
-                      fill="#999"
+                      class="ruler-label"
                       font-size="10"
                       font-family="monospace"
                     >{{ mark.mm / 10 }}</text>
@@ -196,10 +196,10 @@ onUnmounted(() => {
   flex: 1;
   overflow: hidden;
   position: relative;
-  background: #1a1a2e;
+  background: var(--bg-canvas);
   background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    linear-gradient(var(--canvas-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--canvas-grid) 1px, transparent 1px);
   background-size: 20px 20px;
   cursor: grab;
 }
@@ -234,13 +234,21 @@ onUnmounted(() => {
 .ruler-vertical {
   width: 20px;
   margin-top: 20px;
-  background: #2a2a3e;
-  border-right: 1px solid #444;
+  background: var(--ruler-bg);
+  border-right: 1px solid var(--ruler-border);
   overflow: hidden;
 }
 
 .ruler-vertical svg {
   display: block;
+}
+
+.ruler-vertical :deep(.ruler-line) {
+  stroke: var(--ruler-mark);
+}
+
+.ruler-vertical :deep(.ruler-label) {
+  fill: var(--ruler-text);
 }
 
 .page-column {
@@ -250,12 +258,20 @@ onUnmounted(() => {
 
 .ruler-horizontal {
   height: 20px;
-  background: #2a2a3e;
-  border-bottom: 1px solid #444;
+  background: var(--ruler-bg);
+  border-bottom: 1px solid var(--ruler-border);
   overflow: hidden;
 }
 
 .ruler-horizontal svg {
   display: block;
+}
+
+.ruler-horizontal :deep(.ruler-line) {
+  stroke: var(--ruler-mark);
+}
+
+.ruler-horizontal :deep(.ruler-label) {
+  fill: var(--ruler-text);
 }
 </style>

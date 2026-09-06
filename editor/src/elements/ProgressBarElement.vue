@@ -47,7 +47,7 @@ const style = computed(() => {
 
 .progress-label {
   font-size: 9px;
-  color: #666;
+  color: var(--text-tertiary);
   text-align: center;
 }
 </style>

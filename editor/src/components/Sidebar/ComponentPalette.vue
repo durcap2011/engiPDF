@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface ComponentItem {
   type: string
@@ -109,11 +112,62 @@ function onDragStart(e: DragEvent, type: string) {
   e.dataTransfer?.setData('component-type', type)
   e.dataTransfer!.effectAllowed = 'copy'
 }
+
+const categoryLabelMap: Record<string, string> = {
+  shapes: 'palette.shapes',
+  text: 'palette.text',
+  data: 'palette.data',
+  media: 'palette.media',
+  layout: 'palette.layout',
+  dynamic: 'palette.dynamic',
+  style: 'palette.style',
+}
+
+const componentLabelMap: Record<string, string> = {
+  rectangle: 'palette.rectangle',
+  ellipse: 'palette.ellipse',
+  line: 'palette.line',
+  divider: 'palette.divider',
+  text: 'palette.textEl',
+  list: 'palette.list',
+  checklist: 'palette.checklist',
+  radio: 'palette.radio',
+  quote: 'palette.quote',
+  callout: 'palette.callout',
+  codeBlock: 'palette.codeBlock',
+  table: 'palette.table',
+  barcode: 'palette.barcode',
+  qrcode: 'palette.qrcode',
+  chart: 'palette.chart',
+  image: 'palette.image',
+  icon: 'palette.icon',
+  container: 'palette.container',
+  group: 'palette.group',
+  spacer: 'palette.spacer',
+  pageBreak: 'palette.pageBreak',
+  dataRepeat: 'palette.dataRepeat',
+  pageNumber: 'palette.pageNumber',
+  date: 'palette.date',
+  progressBar: 'palette.progressBar',
+  watermark: 'palette.watermark',
+  stamp: 'palette.stamp',
+  signature: 'palette.signature',
+}
+
+function getCategoryLabel(id: string): string {
+  const key = categoryLabelMap[id]
+  return key ? t(key) : id
+}
+
+function getComponentLabel(type: string): string {
+  const key = componentLabelMap[type]
+  return key ? t(key) : type
+}
 </script>
 
 <template>
   <div class="palette">
-    <h3 class="palette-title">Componenti</h3>
+    <h3 class="palette-title">{{ t('palette.title') }}</h3>
     <div
       v-for="cat in categories"
       :key="cat.id"
@@ -125,8 +179,8 @@ function onDragStart(e: DragEvent, type: string) {
         @click="toggleCategory(cat.id)"
       >
         <span class="category-icon">{{ cat.icon }}</span>
-        <span class="category-label">{{ cat.label }}</span>
-        <span class="category-arrow">{{ openCategories.has(cat.id) ? '▾' : '▸' }}</span>
+        <span class="category-label">{{ getCategoryLabel(cat.id) }}</span>
+        <svg class="category-arrow" :class="{ rotated: openCategories.has(cat.id) }" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <Transition name="accordion">
         <div v-show="openCategories.has(cat.id)" class="category-items">
@@ -138,7 +192,7 @@ function onDragStart(e: DragEvent, type: string) {
             @dragstart="onDragStart($event, comp.type)"
           >
             <span class="item-icon">{{ comp.icon }}</span>
-            <span class="item-label">{{ comp.label }}</span>
+            <span class="item-label">{{ getComponentLabel(comp.type) }}</span>
           </div>
         </div>
       </Transition>
@@ -149,23 +203,24 @@ function onDragStart(e: DragEvent, type: string) {
 <style scoped>
 .palette {
   width: 160px;
-  background: #16213e;
-  border-right: 1px solid #0f3460;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-default);
   padding: 12px 8px;
   overflow-y: auto;
 }
 
 .palette-title {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #666;
+  letter-spacing: 1.2px;
+  color: var(--text-tertiary);
   margin-bottom: 10px;
-  padding-left: 4px;
+  padding-left: 6px;
+  font-weight: 600;
 }
 
 .category {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .category-header {
@@ -176,10 +231,10 @@ function onDragStart(e: DragEvent, type: string) {
   padding: 6px 6px;
   border: none;
   background: transparent;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.15s;
-  color: #aaa;
+  transition: all 0.15s ease;
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -187,19 +242,20 @@ function onDragStart(e: DragEvent, type: string) {
 }
 
 .category-header:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ddd;
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .category-header.open {
-  color: #4fc3f7;
+  color: var(--text-accent);
 }
 
 .category-icon {
-  font-size: 12px;
+  font-size: 11px;
   width: 16px;
   text-align: center;
   flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .category-label {
@@ -208,45 +264,51 @@ function onDragStart(e: DragEvent, type: string) {
 }
 
 .category-arrow {
-  font-size: 10px;
-  color: #666;
-  transition: transform 0.2s;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.category-arrow.rotated {
+  transform: rotate(180deg);
 }
 
 .category-items {
-  padding-left: 4px;
+  padding-left: 2px;
 }
 
 .palette-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 6px 6px 22px;
-  border-radius: 5px;
+  padding: 6px 8px 6px 22px;
+  border-radius: var(--radius-sm);
   cursor: grab;
-  transition: background 0.15s;
+  transition: all 0.15s ease;
   margin-bottom: 1px;
 }
 
 .palette-item:hover {
-  background: #0f3460;
+  background: var(--bg-hover);
 }
 
 .palette-item:active {
   cursor: grabbing;
+  background: var(--bg-active);
 }
 
 .item-icon {
-  font-size: 14px;
-  width: 20px;
+  font-size: 13px;
+  width: 18px;
   text-align: center;
   flex-shrink: 0;
-  opacity: 0.7;
+  color: var(--text-tertiary);
 }
 
 .item-label {
   font-size: 12px;
   font-weight: 400;
+  color: var(--text-primary);
 }
 
 .accordion-enter-active,

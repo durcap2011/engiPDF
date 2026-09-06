@@ -14,13 +14,13 @@ defineProps<{
 .spacer-element {
   width: 100%;
   height: 100%;
-  border: 1px dashed rgba(128, 128, 128, 0.3);
+  border: 1px dashed var(--border-subtle);
   background: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 4px,
-    rgba(128, 128, 128, 0.05) 4px,
-    rgba(128, 128, 128, 0.05) 8px
+    var(--canvas-grid) 4px,
+    var(--canvas-grid) 8px
   );
 }
 </style>

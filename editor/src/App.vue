@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
 import { useEditorStore } from './stores/editorStore'
+import { useThemeStore } from './stores/themeStore'
 import ComponentPalette from './components/Sidebar/ComponentPalette.vue'
 import EditorCanvas from './components/Canvas/EditorCanvas.vue'
 import PropertyPanel from './components/Properties/PropertyPanel.vue'
@@ -9,6 +10,13 @@ import SearchReplace from './components/SearchReplace.vue'
 import LayersPanel from './components/LayersPanel.vue'
 
 const store = useEditorStore()
+const themeStore = useThemeStore()
+
+onMounted(() => {
+  themeStore.init()
+  document.addEventListener('keydown', handleKeydown)
+})
+onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 
 function handleKeydown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -54,9 +62,6 @@ function handleKeydown(e: KeyboardEvent) {
     store.toggleSearch()
   }
 }
-
-onMounted(() => document.addEventListener('keydown', handleKeydown))
-onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 </script>
 
 <template>
@@ -77,8 +82,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #1a1a2e;
-  color: #eee;
+  background: var(--bg-app);
+  color: var(--text-primary);
 }
 
 .app-body {

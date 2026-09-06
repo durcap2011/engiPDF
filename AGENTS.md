@@ -12,9 +12,10 @@ Two-part system: Vue 3 web editor + pure PHP PDF generator. No external PDF libr
 
 ```
 engiPDF/
-├── editor/    # Vue 3 + TypeScript + Vite + Pinia
+├── editor/    # Vue 3 + TypeScript + Vite + Pinia + vue-i18n
 ├── engine/    # PHP 8.2+ native PDF writer (PSR-4 autoload: EngiPDF\)
-└── templates/ # JSON template files
+├── templates/ # JSON template files
+└── template.md # Complete JSON reference with all 28 component types
 ```
 
 ## Commands
@@ -24,7 +25,7 @@ engiPDF/
 cd editor
 npm install
 npm run dev          # http://localhost:5173
-npm run build        # vue-tsc && vite build
+npm run build        # vue-tsc && vite build (type check + bundle)
 npx vue-tsc --noEmit # Type check only
 ```
 
@@ -37,7 +38,8 @@ php test_template.php   # Invoice template test
 
 ## Architecture
 
-- **Contract**: JSON template defines elements (text, rectangle, line, list, image, table, ellipse, divider, signature, container, pageNumber, date, watermark, qrcode, spacer, stamp, quote, callout, codeBlock, progressBar, icon, barcode, chart, pageBreak, dataRepeat, checklist, radio) with mm coordinates
+- **Contract**: JSON template defines elements with mm coordinates. See `template.md` for complete reference.
+- **28 element types**: text, image, list, rectangle, line, table, group, ellipse, divider, signature, container, pageNumber, date, watermark, qrcode, spacer, stamp, quote, callout, codeBlock, progressBar, icon, barcode, chart, pageBreak, dataRepeat, checklist, radio
 - **Multi-page**: Document contains `pages[]` array; each element has a `pageId` linking it to a page
 - **Conversion**: Editor uses mm, engine converts to PDF points (`mm * 72 / 25.4`)
 - **Coordinate origin**: Editor top-left, PDF bottom-left (flipped in renderer)
@@ -50,26 +52,48 @@ php test_template.php   # Invoice template test
 - **List bullets**: circle, square, dash, diamond, arrow, number (rendered as PDF drawing primitives; number renders as circle)
 - **Image support**: base64 data URL stored in template JSON, embedded in PDF
 
+## i18n (Internationalization)
+
+- **5 languages**: English (en), Italian (it), Spanish (es), German (de), French (fr)
+- **Library**: vue-i18n v10 (legacy mode disabled)
+- **Locale files**: `editor/src/i18n/locales/{en,it,es,de,fr}.ts`
+- **Plugin**: `editor/src/i18n/index.ts` exports `setLocale()` function
+- **Usage in components**: `import { useI18n } from 'vue-i18n'` then `const { t } = useI18n()`
+- **Persistence**: Language saved to localStorage key `engipdf-lang`
+- **Default language**: English (fallback)
+
+## Theme System
+
+- **Two themes**: Light (default) and Dark
+- **CSS variables**: 80+ tokens defined in `editor/src/styles/themes.css`
+- **Toggle**: Sun/moon icon in toolbar
+- **Persistence**: Theme saved to localStorage via `themeStore.ts`
+- **Usage**: Components use `var(--bg-surface)`, `var(--text-primary)`, etc.
+
 ## Key Files
 
 **Editor (TypeScript)**
 - `editor/src/types/index.ts` — All TypeScript interfaces (Document, Page, Element, TextStyle, etc.)
-- `editor/src/stores/editorStore.ts` — Pinia store with undo/redo (50 levels), element CRUD, multi-page state
+- `editor/src/stores/editorStore.ts` — Pinia store with undo/redo (50 levels), element CRUD, multi-page state, import/export JSON
+- `editor/src/stores/themeStore.ts` — Theme toggle with localStorage persistence
 - `editor/src/utils/measureContent.ts` — Canvas API text/list measurement for auto-sizing
 - `editor/src/utils/getDefaultElement.ts` — Element factory (no `id` field—store generates UUID, takes `pageId` param)
 - `editor/src/utils/bulletTypes.ts` — Bullet type definitions (circle, square, dash, diamond, arrow, number)
 - `editor/src/utils/conditionHelpers.ts` — `evaluateShowIf()` / `evaluateStyleIf()` for conditional visibility and style
 - `editor/src/utils/fieldOptions.ts` — `flattenSampleData()` for generating field dropdown options from sampleData
+- `editor/src/i18n/index.ts` — i18n plugin config + `setLocale()` export
+- `editor/src/i18n/locales/{en,it,es,de,fr}.ts` — Translation dictionaries
 
 **Engine (PHP)**
 - `engine/src/PdfWriter/PdfDocument.php` — PDF binary writer (Header→Body→Xref→Trailer)
 - `engine/src/PdfWriter/PdfPage.php` — Drawing primitives (text, rectangle, line, circle, polygon, image)
 - `engine/src/Font/FontManager.php` — Type1 resolution + TTF registration + PDF object allocation
-- `engine/src/Renderer/PdfRenderer.php` — Template→PDF renderer (handles all element types)
+- `engine/src/Renderer/PdfRenderer.php` — Template→PDF renderer (handles all 28 element types)
 - `engine/src/Template/PlaceholderResolver.php` — `{{ }}` syntax with filters
 - `engine/src/Template/TemplateLoader.php` — Template file loader
 
 **Documentation**
+- `template.md` — Complete JSON reference with all 28 component types and properties
 - `components-guide.md` — Complete guide to all 28 components (properties, examples, programmability)
 - `template-component-guide.md` — Template format for creating component guides
 - `guide.md` — User guide for the editor
@@ -84,7 +108,7 @@ php test_template.php   # Invoice template test
 - **Auto-size**: Text/lists measure content via Canvas API for initial dimensions
 - **Double-click**: Inline editing for text and list elements
 - **Resize handles**: 8 handles (4 corners + 4 edges) on selected elements
-- **Grid snap**: Default 1mm, configurable
+- **Grid snap**: Fixed at 1mm (not configurable in UI)
 - **Undo/redo**: 50 levels, JSON serialization
 
 ## Gotchas
@@ -101,3 +125,4 @@ php test_template.php   # Invoice template test
 - `showIf`/`styleIf` on BaseElement are optional; evaluateShowIf/evaluateStyleIf in conditionHelpers.ts handle undefined gracefully
 - `sampleData` lives in `document.sampleData`, not as a separate store ref
 - List bullets: circle, square, dash, diamond, arrow, number (rendered as PDF drawing primitives; number renders as circle)
+- JSON import handles hand-written templates: auto-generates UUIDs for missing IDs, assigns pageId to first page if missing, applies default page settings

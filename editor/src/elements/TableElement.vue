@@ -162,9 +162,9 @@ function onKeydown(e: KeyboardEvent) {
 }
 .table-name {
   font-size: 9px;
-  color: #999;
+  color: var(--text-tertiary);
   padding: 1px 4px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-inset);
   border-radius: 3px 3px 0 0;
   align-self: flex-start;
   max-width: 100%;

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '../stores/editorStore'
 
+const { t } = useI18n()
 const store = useEditorStore()
 const searchInput = ref<HTMLInputElement | null>(null)
 
@@ -31,27 +33,27 @@ function handleKeydown(e: KeyboardEvent) {
         ref="searchInput"
         v-model="store.searchText"
         type="text"
-        placeholder="Cerca..."
+        :placeholder="t('search.placeholder')"
         class="search-input"
         @keydown="handleKeydown"
       />
       <span class="match-info" v-if="store.searchText">
-        {{ matchCount > 0 ? `${store.searchMatchIndex + 1}/${matchCount}` : '0 risultati' }}
+        {{ matchCount > 0 ? `${store.searchMatchIndex + 1}/${matchCount}` : t('search.noResults') }}
       </span>
-      <button class="search-btn" @click="store.findPrevious" :disabled="matchCount === 0" title="Precedente (Shift+Enter)">◀</button>
-      <button class="search-btn" @click="store.findNext" :disabled="matchCount === 0" title="Successiva (Enter)">▶</button>
-      <button class="search-btn close" @click="store.toggleSearch" title="Chiudi (Esc)">✕</button>
+      <button class="search-btn" @click="store.findPrevious" :disabled="matchCount === 0" :title="t('search.prev')">◀</button>
+      <button class="search-btn" @click="store.findNext" :disabled="matchCount === 0" :title="t('search.next')">▶</button>
+      <button class="search-btn close" @click="store.toggleSearch" :title="t('search.close')">✕</button>
     </div>
     <div class="replace-row">
       <input
         v-model="store.replaceText"
         type="text"
-        placeholder="Sostituisci con..."
+        :placeholder="t('search.replacePlaceholder')"
         class="search-input"
         @keydown="handleKeydown"
       />
-      <button class="search-btn" @click="store.replaceCurrent" :disabled="matchCount === 0" title="Sostituisci">S</button>
-      <button class="search-btn" @click="store.replaceAll" :disabled="matchCount === 0" title="Sostituisci tutti">SA</button>
+      <button class="search-btn" @click="store.replaceCurrent" :disabled="matchCount === 0" :title="t('search.replace')">S</button>
+      <button class="search-btn" @click="store.replaceAll" :disabled="matchCount === 0" :title="t('search.replaceAll')">SA</button>
     </div>
   </div>
 </template>
@@ -61,16 +63,16 @@ function handleKeydown(e: KeyboardEvent) {
   position: fixed;
   top: 56px;
   right: 272px;
-  background: #16213e;
-  border: 1px solid #0f3460;
-  border-radius: 6px;
-  padding: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 10px;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-width: 300px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .search-row, .replace-row {
@@ -81,24 +83,29 @@ function handleKeydown(e: KeyboardEvent) {
 
 .search-input {
   flex: 1;
-  background: #0f3460;
-  border: 1px solid #1a1a4e;
-  color: #eee;
-  padding: 4px 8px;
-  border-radius: 3px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #4A90D9;
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 3px var(--bg-accent-subtle);
 }
 
 .match-info {
   font-size: 11px;
-  color: #888;
+  color: var(--text-tertiary);
   min-width: 50px;
   text-align: center;
+  font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-weight: 500;
 }
 
 .search-btn {
@@ -107,17 +114,20 @@ function handleKeydown(e: KeyboardEvent) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0f3460;
-  border: 1px solid #1a1a4e;
-  color: #eee;
-  border-radius: 3px;
+  background: var(--bg-button);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 11px;
   padding: 0;
+  transition: all 0.15s ease;
 }
 
 .search-btn:hover:not(:disabled) {
-  background: #4A90D9;
+  background: var(--bg-accent);
+  color: var(--text-inverse);
+  border-color: var(--bg-accent);
 }
 
 .search-btn:disabled {
@@ -126,11 +136,11 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 .search-btn.close {
-  color: #e94560;
+  color: var(--text-danger);
 }
 
 .search-btn.close:hover {
-  background: #e94560;
-  color: #fff;
+  background: var(--bg-danger);
+  color: var(--text-inverse);
 }
 </style>

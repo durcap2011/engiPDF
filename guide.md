@@ -2,7 +2,7 @@
 
 ## Introduzione
 
-engiPDF è un editor web per la creazione di template PDF. Permette di disporre elementi testuali, immagini, liste, rettangoli e linee su uno o più fogli virtuali, e di generare un file PDF tramite un motore PHP nativo. Supporta documenti multi-pagina con pagine indipendenti.
+engiPDF è un editor web per la creazione di template PDF. Permette di disporre elementi testuali, immagini, liste, rettangoli e linee su uno o più fogli virtuali, e di generare un file PDF tramite un motore PHP nativo. Supporta documenti multi-pagina con pagine indipendenti. L'interfaccia è disponibile in 5 lingue (italiano, inglese, spagnolo, tedesco, francese) selezionabili dalla barra degli strumenti.
 
 ---
 
@@ -34,6 +34,7 @@ La barra degli strumenti contiene:
 - **Elimina**: rimuove l'elemento selezionato
 - **Importa/Esporta**: salva o carica il template in formato JSON
 - **Controlli pagine**: gestione pagine multiple del documento
+- **Tema chiaro/scuro**: alterna tra tema chiaro e scuro dell'interfaccia
 
 I controlli per la gestione delle pagine sono posizionati nella barra degli strumenti e consentono di:
 
@@ -78,14 +79,13 @@ L'area centrale è l'area di editing principale, dotata di:
 
 ### 4. Pannello Proprietà (a destra)
 
-Mostra e permette di modificare le proprietà dell'elemento selezionato o della pagina:
+Mostra e permette di modificare le proprietà dell'elemento selezionato o della pagina. Tutte le etichette e le stringhe del pannello sono tradotte tramite vue-i18n nelle 5 lingue supportate.
 
 **Proprietà della pagina** (indipendenti per ogni pagina):
 - Formato carta (A4, A3, Letter, personalizzato)
-- Dimensioni (larghezza × altezza in mm)
-- Margini (top, right, bottom, left)
-- **Header**: altezza area intestazione in mm (default: 20)
-- **Footer**: altezza area piè di pagina in mm (default: 20)
+- Dimensioni (icona ↔ larghezza, icona ↕ altezza in mm)
+- Margini (icona Y↑ top, X→ right, Y↓ bottom, ←X left)
+- Header/Footer (icona ⊤ altezza header, icona ⊥ altezza footer in mm)
 - **Copia Header da**: seleziona una pagina sorgente da cui copiare gli elementi header
 - **Copia Footer da**: seleziona una pagina sorgente da cui copiare gli elementi footer
 
@@ -97,6 +97,10 @@ Mostra e permette di modificare le proprietà dell'elemento selezionato o della 
 ---
 
 ## Funzionalità Avanzate
+
+### Tema Chiaro/Scuro
+
+L'editor supporta due temi visivi: chiaro e scuro. Per alternare tra i temi, cliccare il pulsante della luna/sole nella barra degli strumenti. La preferenza viene salvata automaticamente nel browser.
 
 ### Selezione Multipla
 
@@ -224,10 +228,9 @@ Le pagine si dispongono verticalmente nell'area di editing:
 
 Ogni pagina ha le proprie impostazioni configurabili nel pannello proprietà:
 - **Formato carta**: A4, A3, Letter, personalizzato
-- **Dimensioni**: larghezza × altezza in mm
-- **Margini**: top, right, bottom, left
-- **Header**: altezza area intestazione in mm
-- **Footer**: altezza area piè di pagina in mm
+- **Dimensioni**: icona ↔ larghezza, icona ↕ altezza in mm
+- **Margini**: icona Y↑ top, X→ right, Y↓ bottom, ←X left
+- **Header/Footer**: icona ⊤ altezza header, icona ⊥ altezza footer in mm
 
 ### Associazione Elementi alle Pagine
 
@@ -329,7 +332,7 @@ L'editor include due righelli sincronizzati con l'area di editing, simili a quel
 
 ---
 
-## Esportazione
+## Esportazione e Importazione
 
 ### Esporta JSON
 Salva l'intero template in formato JSON, includendo:
@@ -337,6 +340,18 @@ Salva l'intero template in formato JSON, includendo:
 - Tutti gli elementi con le loro proprietà
 - Immagini incorporate (base64)
 - Font personalizzati (riferimenti)
+
+### Importa JSON
+Carica un template JSON precedentemente salvato dall'editor.
+
+### Incolla JSON
+Incolla direttamente un JSON scritto a mano nell'editor. Il sistema gestisce automaticamente:
+- **ID mancanti**: genera UUID per pagine e elementi
+- **pageId mancanti**: assegna gli elementi alla prima pagina
+- **Impostazioni mancanti**: applica i valori predefiniti (formato A4, margini standard)
+- **Campi opzionali**: completa i campi mancanti con valori di default
+
+Questo permette di importare template JSON creati manualmente seguendo il formato descritto in [`template.md`](../template.md).
 
 ### Genera PDF
 Utilizza il template JSON per generare un file PDF tramite il motore PHP nativo:
@@ -349,6 +364,8 @@ Utilizza il template JSON per generare un file PDF tramite il motore PHP nativo:
 ## Formato Documento (JSON)
 
 Il template è un file JSON. La versione attuale è la versione 2, che supporta pagine multiple.
+
+> **Riferimento completo**: Per un esempio JSON con **tutti i componenti** e **tutte le proprietà** supportate, consulta il file [`template.md`](../template.md) nella root del progetto.
 
 ### Formato Versione 2 (attuale)
 

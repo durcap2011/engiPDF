@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '../../stores/editorStore'
 import { snapToGrid } from '../../utils/snapToGrid'
 import type { Element } from '../../types'
@@ -40,6 +41,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ select: [event: MouseEvent] }>()
 
+const { t } = useI18n()
 const store = useEditorStore()
 const MM_TO_PX = 96 / 25.4
 
@@ -286,8 +288,8 @@ const resizeCursors: Record<ResizeDir, string> = {
 
     <!-- Indicatore overflow -->
     <div v-if="isOverflowing" class="overflow-indicator">
-      <span class="overflow-badge">Fuori pagina</span>
-      <button class="overflow-move-btn" @click.stop="store.moveElementToNextPage(element.id)" title="Sposta alla pagina successiva">→ Pagina+</button>
+      <span class="overflow-badge">{{ t('element.outOfPage') }}</span>
+      <button class="overflow-move-btn" @click.stop="store.moveElementToNextPage(element.id)" :title="t('element.moveToNext')">→ {{ t('element.pagePlus') }}</button>
     </div>
 
     <!-- Maniglie di resize -->
@@ -319,10 +321,11 @@ const resizeCursors: Record<ResizeDir, string> = {
 <style scoped>
 .resize-handle {
   position: absolute;
-  background: #4A90D9;
-  border: 1px solid #fff;
+  background: var(--selection-color);
+  border: 1.5px solid var(--bg-elevated);
   border-radius: 2px;
   z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 /* Angoli */
@@ -370,26 +373,30 @@ const resizeCursors: Record<ResizeDir, string> = {
 }
 
 .overflow-badge {
-  background: #e94560;
-  color: white;
+  background: var(--bg-danger);
+  color: var(--text-inverse);
   font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .overflow-move-btn {
-  background: #4A90D9;
-  color: white;
+  background: var(--bg-accent);
+  color: var(--text-inverse);
   border: none;
   font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   white-space: nowrap;
+  font-weight: 500;
+  font-family: inherit;
+  transition: background 0.15s ease;
 }
 
 .overflow-move-btn:hover {
-  background: #357ABD;
+  background: var(--bg-accent-hover);
 }
 </style>

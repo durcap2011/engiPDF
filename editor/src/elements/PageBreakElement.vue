@@ -28,12 +28,12 @@ defineProps<{
 .page-break-line {
   flex: 1;
   height: 0;
-  border-top: 2px dashed #c00;
+  border-top: 2px dashed var(--bg-danger);
 }
 
 .page-break-label {
   font-size: 9px;
-  color: #c00;
+  color: var(--bg-danger);
   white-space: nowrap;
   font-weight: bold;
   letter-spacing: 0.5px;

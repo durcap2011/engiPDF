@@ -69,10 +69,10 @@ function resolveChild(child: Element, item: Record<string, unknown>, index: numb
 
 .repeat-empty {
   font-size: 10px;
-  color: #999;
+  color: var(--text-tertiary);
   font-style: italic;
   padding: 8px;
-  border: 1px dashed #ccc;
+  border: 1px dashed var(--text-secondary);
   border-radius: 4px;
 }
 </style>

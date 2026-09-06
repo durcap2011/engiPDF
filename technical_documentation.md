@@ -35,6 +35,7 @@ engiPDF è un sistema bifasico composto da un editor web (Vue 3 + TypeScript + V
 - **TypeScript** (type checking con `vue-tsc`)
 - **Vite** (bundler, dev server su porta 5173)
 - **Pinia** (state management con undo/redo)
+- **vue-i18n** (internazionalizzazione, 5 lingue: en, it, es, de, fr)
 
 ### Layout della UI (`App.vue`)
 
@@ -55,7 +56,7 @@ Layout a griglia CSS a 3 pannelli:
 Componenti del layout:
 - `EditorToolbar` (in alto, altezza fissa ~48px)
 - `LayersPanel` (sinistra, larghezza fissa 220px)
-- `ComponentPalette` (sinistra, larghezza fissa 160px) — palette con accordion per categorie
+- `ComponentPalette` (sinistra, larghezza fissa 160px) — palette con accordion per categorie, testi internazionalizzati via vue-i18n (chiavi `palette.*`)
 - `EditorCanvas` (centro, flex: 1) — include i righelli
 - `PropertyPanel` (destra, larghezza fissa 260px)
 - `SearchReplace` (overlay in alto a destra)
@@ -110,7 +111,13 @@ Ogni pagina viene resa come un componente `PageArtboard`:
 
 ### Pannello Proprietà (`PropertyPanel.vue`)
 
-Il pannello proprietà è stato aggiornato per il sistema multi-pagina:
+Il pannello proprietà è stato aggiornato per il sistema multi-pagina e il supporto i18n:
+
+**Internazionalizzazione (i18n)**:
+- Tutte le stringhe visibili del template sono tradotte tramite `useI18n()` e le chiavi `properties.*`
+- Le chiavi sono definite in 5 file locale: `it.ts`, `en.ts`, `es.ts`, `de.ts`, `fr.ts`
+- I tooltip (attributi `title`) sono binding dinamici (`:title="t('properties.xxx')"`)
+- Le stringhe dinamiche usano la sintassi con parametri: `t('properties.pageNName', { n: ..., name: ... })`
 
 **Riferimenti pagina**:
 - Tutti i riferimenti a `store.document.page` sono stati cambiati in `store.activePage.settings`
@@ -144,7 +151,7 @@ La toolbar include controlli specifici per la gestione pagine e le nuove funzion
 
 ### Pannello Livelli (`LayersPanel.vue`)
 
-Il pannello livelli mostra tutti gli elementi della pagina corrente in ordine di z-order:
+Il pannello livelli mostra tutti gli elementi della pagina corrente in ordine di z-order. Tutti i testi interfaccia sono internazionalizzati tramite vue-i18n (chiavi `layers.*` e `element.*`).
 
 **Funzionalità**:
 - **Selezione**: clicca su un elemento nella lista per selezionarlo
@@ -263,12 +270,20 @@ interface EditorState {
 - `copyHeaderFooterFromPage(sourcePageId, targetPageId, zone)`: copia gli elementi header/footer da una pagina sorgente a una pagina target
 
 **Backward Compatibility**:
-- `migrateLegacyDocument()`: converte automaticamente il formato legacy (singola pagina con `page` + `elements` separati) nel formato multipagina v2 (`pages[]` + `elements[]` con `pageId`)
+- `migrateLegacyDocument()`: converte automaticamente il formato legacy (singola pagina con `page` + `elements` separati) nel formato multipagina v2 (`pages[]` + `elements[]` con `pageId`). Gestisce anche JSON scritti a mano:
+  - Genera UUID per pagine e elementi se mancanti
+  - Assegna `pageId` agli elementi se mancante (alla prima pagina)
+  - Applica impostazioni di default alle pagine (A4, margini standard)
+  - Completa i campi opzionali con valori di default
 
 **Gestione Overflow**:
 - `isElementOverflowing(elementId)`: verifica se un elemento eccede i confini della pagina
 - `getOverflowingElements()`: ritorna tutti gli elementi che eccedono i confini della pagina attiva
 - `moveElementToNextPage(elementId)`: sposta un elemento alla pagina successiva, creandola se necessario
+
+**Import/Export JSON**:
+- `exportJson()`: serializza l'intero documento in formato JSON (v2)
+- `importJson(json)`: importa un template JSON con migrazione automatica tramite `migrateLegacyDocument()`
 
 ### Types (`types/index.ts`)
 
@@ -607,6 +622,8 @@ engine/
 └── test_*.php                   # Script di test
 ```
 
+> **Riferimento completo**: Per un esempio JSON con **tutti i 28 tipi di elemento** e **tutte le proprietà** supportate, consulta il file [`template.md`](template.md) nella root del progetto.
+
 ### Generazione PDF (`PdfDocument.php`)
 
 Il PDF viene scritto byte-per-byte senza librerie esterne:
@@ -873,6 +890,25 @@ Il sistema è completamente backward-compatible:
 - Shell: PowerShell (no `mkdir -p`)
 - Path: separatore backslash
 - Server di sviluppo: Laragon
+
+### CSS Variables (Temi)
+
+L'editor supporta temi chiaro/scuro tramite CSS variables definite in `editor/src/styles/themes.css`. Tutti i colori UI usati nei componenti devono riferirsi a variabili CSS, non a valori hardcoded. Mapping delle variabili principali:
+
+| Variabile | Uso |
+|---|---|
+| `--text-primary` | Testo principale |
+| `--text-secondary` | Testo secondario (es. bordi tratteggiati `#ccc`) |
+| `--text-tertiary` | Testo smorzato (etichette, testo disabilitato: `#666`, `#888`, `#999`) |
+| `--bg-accent-subtle` | Sfondo selezione accento (es. `rgba(74,144,217,0.05)`) |
+| `--bg-hover` | Sfondo hover/child (es. `rgba(255,255,255,0.1)`) |
+| `--bg-inset` | Sfondo inset (es. etichette tabelle `rgba(0,0,0,0.3)`) |
+| `--bg-danger` | Colore pericolo/errore (es. taglio pagina `#c00`) |
+| `--border-subtle` | Bordi sottili (es. bordi spacer `rgba(128,128,128,0.3)`) |
+| `--canvas-grid` | Pattern griglia canvas (es. `rgba(128,128,128,0.05)`) |
+| `--selection-color` | Bordo selezione (es. `rgba(74,144,217,0.5)`) |
+
+**Regola**: non usare mai colori hardcoded nei componenti Vue. Usa sempre variabili CSS per garantire la compatibilità con i temi chiaro/scuro.
 
 ---
 

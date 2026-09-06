@@ -115,19 +115,19 @@ function onPageClick() {
 <style scoped>
 .page-artboard {
   background: white;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
   transition: outline 0.15s;
 }
 
 .page-artboard.is-active {
-  outline: 2px solid #4A90D9;
+  outline: 2px solid var(--selection-color);
   outline-offset: 2px;
 }
 
 .page-artboard.drag-over {
-  outline: 2px dashed #4A90D9;
+  outline: 2px dashed var(--selection-color);
   outline-offset: -2px;
 }
 
@@ -136,17 +136,18 @@ function onPageClick() {
   top: 4px;
   right: 8px;
   font-size: 10px;
-  color: #999;
-  font-family: monospace;
+  color: var(--text-tertiary);
+  font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   pointer-events: none;
   z-index: 200;
+  opacity: 0.6;
 }
 
 .guide-line {
   position: absolute;
   left: 0;
   height: 0;
-  border-top: 2px dashed rgba(74, 144, 217, 0.8);
+  border-top: 2px dashed var(--guide-color);
   pointer-events: none;
   z-index: 100;
 }
@@ -159,11 +160,11 @@ function onPageClick() {
 
 .margin-top, .margin-bottom {
   height: 0;
-  border-top: 2px dashed rgba(74, 144, 217, 0.8);
+  border-top: 2px dashed var(--guide-color);
 }
 
 .margin-left, .margin-right {
   width: 0;
-  border-left: 2px dashed rgba(74, 144, 217, 0.8);
+  border-left: 2px dashed var(--guide-color);
 }
 </style>

@@ -694,24 +694,42 @@ export const useEditorStore = defineStore('editor', () => {
   }
 
   function migrateLegacyDocument(data: any): Document {
+    let pages: Page[] = []
+    let elements: Element[] = []
+
     if (data.page && !data.pages) {
-      const pageId = createDefaultPage().id
-      return {
-        version: 2,
-        name: data.name || 'Template',
-        pages: [{
-          id: pageId,
-          name: undefined,
-          settings: { ...DEFAULT_PAGE_SETTINGS, ...data.page }
-        }],
-        defaultFont: data.defaultFont || 'helvetica',
-        elements: (data.elements || []).map((el: any) => ({
-          ...el,
-          pageId: el.pageId || pageId
-        }))
-      }
+      const pageId = data.page.id || createDefaultPage().id
+      pages = [{
+        id: pageId,
+        name: data.page.name,
+        settings: { ...DEFAULT_PAGE_SETTINGS, ...data.page.settings }
+      }]
+      elements = (data.elements || []).map((el: any) => ({
+        ...el,
+        id: el.id || crypto.randomUUID(),
+        pageId: el.pageId || pageId
+      }))
+    } else {
+      pages = (data.pages || []).map((p: any) => ({
+        id: p.id || crypto.randomUUID(),
+        name: p.name,
+        settings: { ...DEFAULT_PAGE_SETTINGS, ...(p.settings || {}) }
+      }))
+      elements = (data.elements || []).map((el: any) => ({
+        ...el,
+        id: el.id || crypto.randomUUID(),
+        pageId: el.pageId || (pages.length > 0 ? pages[0].id : '')
+      }))
     }
-    return data
+
+    return {
+      version: 2,
+      name: data.name || 'Template',
+      pages,
+      defaultFont: data.defaultFont || 'helvetica',
+      elements,
+      sampleData: data.sampleData
+    }
   }
 
   function importJson(json: string) {

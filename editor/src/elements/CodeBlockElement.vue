@@ -29,7 +29,7 @@ const style = computed(() => {
 <style scoped>
 .code-lang {
   font-size: 9px;
-  color: #666;
+  color: var(--text-tertiary);
   margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 1px;

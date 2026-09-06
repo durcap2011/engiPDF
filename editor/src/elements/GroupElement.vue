@@ -30,8 +30,8 @@ defineProps<{
   width: 100%;
   height: 100%;
   position: relative;
-  border: 1px dashed rgba(74, 144, 217, 0.5);
-  background: rgba(74, 144, 217, 0.05);
+  border: 1px dashed var(--selection-color);
+  background: var(--bg-accent-subtle);
 }
 
 .group-child {
@@ -45,7 +45,7 @@ defineProps<{
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  color: #999;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-tertiary);
+  background: var(--bg-hover);
 }
 </style>
