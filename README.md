@@ -73,6 +73,8 @@ npm run build
 
 Static files are generated in `editor/dist/`.
 
+Copy the path and its contents under the root directory, then open the HOST/editor/dist path to open the editor.
+
 ## Documentation
 
 - [User guide](docs/guide.md)
