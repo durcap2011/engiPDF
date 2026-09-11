@@ -1,39 +1,39 @@
-# Guida ai Componenti
+# Components Guide
 
-Qui una descrizione generale di cosa sono i componenti
+Here is a general description of what components are
 
-## Categorie componenti
+## Component categories
 
-* **Categoria 1** - descizione della categoria 1
+* **Category 1** - description of category 1
 * .....
-* **Categoria N** - descizione della categoria N
+* **Category N** - description of category N
 
-## Componente 1
+## Component 1
 
-Breve descrizione del componente
+Brief description of the component
 
-### Categoria di appartenenza
+### Category
 
-Nome categoria
+Category name
 
-### Proprietà
+### Properties
 
-* **Proprietà 1** - descizione della proprietà 1
+* **Property 1** - description of property 1
 * .....
-* **Proprietà N** - descizione della proprietà N
+* **Property N** - description of property N
 
-### Programmabilità
+### Programmability
 
-Breve descrizione della programmabilità del componente
+Brief description of the component's programmability
 
-### Come utilizzarlo
+### How to use it
 
-Breve descrione formale dell'utilizzo del componente, come si usa e quali sono i passi da fare per il corretto utilizzo.
+Brief formal description of component usage, how to use it and what steps are needed for correct usage.
 
-1 **azione 1** - descizione dell'azione 1
+1 **Action 1** - description of action 1
 2 .....
-N **azione N** - descizione della proprietà N
+N **Action N** - description of action N
 
-## Esempi
+## Examples
 
-Raccolta di esempi almeno 3 sul componente, In questa sezione vanno riportati sia il codice .json che il codice php, quindi scritto qui, non file esterni
+Collection of at least 3 examples for the component. In this section, both the .json code and the php code should be reported, written here, not as external files.

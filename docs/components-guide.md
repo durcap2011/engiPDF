@@ -1,63 +1,63 @@
-# Guida ai Componenti
+# Component Guide
 
-engiPDF dispone di 28 componenti che possono essere trascinati dalla palette laterale sul canvas per costruire template PDF. Ogni componente ha proprietà specifiche, supporta placeholder `{{ }}` per dati dinamici, e può essere condizionato con regole `showIf`/`styleIf`.
+engiPDF has 28 components that can be dragged from the side palette onto the canvas to build PDF templates. Each component has specific properties, supports `{{ }}` placeholders for dynamic data, and can be conditioned with `showIf`/`styleIf` rules.
 
-## Categorie componenti
+## Component Categories
 
-* **Testo e Dati** - Componenti per testo libero, data, numero pagina
-* **Strutture Dati** - Tabelle, liste, checklist, radio button
-* **Grafica** - Rettangoli, linee, ellissi, divisorii, icone
-* **Immagini e Codici** - Immagini, QR code, barcode
-* **Avvisi e Citazioni** - Callout, citazioni, blocchi codice
-* **Timbri e Filigrane** - Timbri (stamp), filigrane (watermark)
-* **Progresso e Firma** - Barre di progresso, aree firma
-* **Grafici** - Chart (bar, pie, line)
-* **Layout** - Contenitori, gruppi, spaziatori, taglio pagina, ripetizione dati
-
----
-
-## Componenti Testo e Dati
+* **Text and Data** - Components for free text, date, page number
+* **Data Structures** - Tables, lists, checklists, radio buttons
+* **Graphics** - Rectangles, lines, ellipses, dividers, icons
+* **Images and Codes** - Images, QR codes, barcodes
+* **Alerts and Quotes** - Callouts, quotes, code blocks
+* **Stamps and Watermarks** - Stamps, watermarks
+* **Progress and Signature** - Progress bars, signature areas
+* **Charts** - Chart (bar, pie, line)
+* **Layout** - Containers, groups, spacers, page breaks, data repeats
 
 ---
 
-## Testo (Text)
+## Text and Data Components
 
-Breve testo stilizzato con font, colore, dimensione e allineamento personalizzabili. Supporta modifica inline con doppio-click.
+---
 
-### Categoria di appartenenza
+## Text (Text)
 
-Testo e Dati
+Short styled text with customizable font, color, size, and alignment. Supports inline editing with double-click.
 
-### Proprietà
+### Category
 
-* **text** - Il testo da visualizzare. Supporta placeholder `{{ }}` per dati dinamici
-* **style.font** - Font: `helvetica`, `times`, `courier` (o TTF personalizzate registrate)
-* **style.weight** - Spessore: `normal` o `bold`
-* **style.style** - Stile: `normal`, `italic`, `oblique`
-* **style.underline** - Se `true`, sottolinea il testo
-* **style.size** - Dimensione font in punti
-* **style.color** - Colore RGB `[R, G, B]` con valori da 0 a 1
-* **style.align** - Allineamento: `left`, `center`, `right`, `justify`
-* **style.lineHeight** - Altezza riga opzionale
-* **showIf** - Condizione di visibilità opzionale
-* **styleIf** - Regole di stile condizionale opzionali
-* **repeatOnAllPages** - Se `true`, il testo appare su ogni pagina
+Text and Data
 
-### Programmabilità
+### Properties
 
-Supporta `showIf` per nascondere/mostrare in base ai dati, `styleIf` per cambiare colore in base al valore, e `repeatOnAllPages` per ripetere su tutte le pagine. I placeholder `{{ }}` vengono risolti con i dati passati al motore.
+* **text** - The text to display. Supports `{{ }}` placeholders for dynamic data
+* **style.font** - Font: `helvetica`, `times`, `courier` (or registered custom TTFs)
+* **style.weight** - Weight: `normal` or `bold`
+* **style.style** - Style: `normal`, `italic`, `oblique`
+* **style.underline** - If `true`, underlines the text
+* **style.size** - Font size in points
+* **style.color** - RGB color `[R, G, B]` with values from 0 to 1
+* **style.align** - Alignment: `left`, `center`, `right`, `justify`
+* **style.lineHeight** - Optional line height
+* **showIf** - Optional visibility condition
+* **styleIf** - Optional conditional style rules
+* **repeatOnAllPages** - If `true`, the text appears on every page
 
-### Come utilizzarlo
+### Programmability
 
-1. Trascina "Testo" dalla palette sul canvas
-2. Fai doppio-click per modificare il testo inline
-3. Nel Pannello Proprietà configura font, colore, dimensione
-4. Usa `{{ nome_campo }}` nel testo per dati dinamici
-5. Opzionalmente aggiungi condizioni in "Programmabilità"
+Supports `showIf` to hide/show based on data, `styleIf` to change color based on value, and `repeatOnAllPages` to repeat on all pages. `{{ }}` placeholders are resolved with data passed to the engine.
 
-### Esempi
+### How to Use It
 
-**Testo statico:**
+1. Drag "Text" from the palette onto the canvas
+2. Double-click to edit the text inline
+3. In the Properties Panel, configure font, color, size
+4. Use `{{ field_name }}` in the text for dynamic data
+5. Optionally add conditions in "Programmability"
+
+### Examples
+
+**Static text:**
 ```json
 {
   "type": "text",
@@ -77,7 +77,7 @@ Supporta `showIf` per nascondere/mostrare in base ai dati, `styleIf` per cambiar
 }
 ```
 
-**Testo con placeholder:**
+**Text with placeholder:**
 ```json
 {
   "type": "text",
@@ -97,7 +97,7 @@ Supporta `showIf` per nascondere/mostrare in base ai dati, `styleIf` per cambiar
 }
 ```
 
-**Testo con styleIf e filtri:**
+**Text with styleIf and filters:**
 ```json
 {
   "type": "text",
@@ -120,7 +120,7 @@ Supporta `showIf` per nascondere/mostrare in base ai dati, `styleIf` per cambiar
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $renderer = new PdfRenderer();
 $template = [
@@ -140,34 +140,34 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Data (Date)
+## Date (Date)
 
-Mostra la data corrente nel formato specificato. Il formato usa la sintassi PHP date.
+Displays the current date in the specified format. The format uses PHP date syntax.
 
-### Categoria di appartenenza
+### Category
 
-Testo e Dati
+Text and Data
 
-### Proprietà
+### Properties
 
-* **format** - Formato data PHP (es. `d/m/Y`, `Y-m-d`, `d/m/Y H:i`)
-* **style** - Stile testo (font, peso, stile, dimensione, colore, allineamento)
-* **showIf** - Condizione di visibilità opzionale
-* **styleIf** - Regole di stile condizionale opzionali
+* **format** - PHP date format (e.g., `d/m/Y`, `Y-m-d`, `d/m/Y H:i`)
+* **style** - Text style (font, weight, style, size, color, alignment)
+* **showIf** - Optional visibility condition
+* **styleIf** - Optional conditional style rules
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}` — la data viene generata automaticamente dal motore con `date($format)`.
+Supports `showIf` and `styleIf`. Does not use `{{ }}` placeholders — the date is automatically generated by the engine using `date($format)`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Data" dalla palette sul canvas
-2. Nel Pannello Proprietà imposta il formato desiderato
-3. Configura lo stile del testo
+1. Drag "Date" from the palette onto the canvas
+2. In the Properties Panel, set the desired format
+3. Configure the text style
 
-### Esempi
+### Examples
 
-**Data nel formato italiano:**
+**Date in Italian format:**
 ```json
 {
   "type": "date",
@@ -187,7 +187,7 @@ Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}` — la data viene gen
 }
 ```
 
-**Data e ora:**
+**Date and time:**
 ```json
 {
   "type": "date",
@@ -207,7 +207,7 @@ Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}` — la data viene gen
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "date1", "pageId" => "p1", "type" => "date",
@@ -219,31 +219,31 @@ $template["elements"][] = [
 
 ---
 
-## Numero Pagina (Page Number)
+## Page Number (Page Number)
 
-Mostra il numero della pagina corrente. L'allineamento determina la posizione orizzontale.
+Displays the current page number. Alignment determines the horizontal position.
 
-### Categoria di appartenenza
+### Category
 
-Testo e Dati
+Text and Data
 
-### Proprietà
+### Properties
 
-* **style** - Stile testo (font, peso, stile, dimensione, colore, allineamento)
+* **style** - Text style (font, weight, style, size, color, alignment)
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}` — il numero pagina viene generato automaticamente dal motore.
+Supports `showIf` and `styleIf`. Does not use `{{ }}` placeholders — the page number is automatically generated by the engine.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Numero Pagina" dalla palette sul canvas
-2. Posizionalo tipicamente in header o footer
-3. Configura allineamento (left, center, right) per posizionare il numero
+1. Drag "Page Number" from the palette onto the canvas
+2. Position it typically in the header or footer
+3. Configure alignment (left, center, right) to position the number
 
-### Esempi
+### Examples
 
-**Numero pagina centrato in footer:**
+**Page number centered in footer:**
 ```json
 {
   "type": "pageNumber",
@@ -262,7 +262,7 @@ Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}` — il numero pagina 
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "pg1", "pageId" => "p1", "type" => "pageNumber",
@@ -273,46 +273,46 @@ $template["elements"][] = [
 
 ---
 
-## Componenti Strutture Dati
+## Data Structure Components
 
 ---
 
-## Tabella (Table)
+## Table (Table)
 
-Tabella con header, righe e colonne. Supporta paginazione automatica e dati dinamici.
+Table with headers, rows, and columns. Supports automatic pagination and dynamic data.
 
-### Categoria di appartenenza
+### Category
 
-Strutture Dati
+Data Structures
 
-### Proprietà
+### Properties
 
-* **name** - Nome tabella (usato come chiave per dati dinamici)
-* **columns** - Array di colonne, ognuna con `width` (peso relativo), `header` (testo intestazione), `headerStyle`
-* **rows** - Array di righe, ognuna con `cells[]` (ogni cella ha `text` e `style` opzionale)
-* **repeatHeader** - Se `true`, ripete l'intestazione su ogni nuova pagina
-* **headerStyle** - Stile di default per intestazioni
-* **cellStyle** - Stile di default per celle dati
-* **borderColor** - Colore bordi tabella
-* **borderWidth** - Spessore bordi
-* **columns[].header** - Testo intestazione, supporta placeholder `{{ }}`
-* **rows[].cells[].text** - Testo cella, supporta placeholder `{{ }}`
+* **name** - Table name (used as key for dynamic data)
+* **columns** - Array of columns, each with `width` (relative weight), `header` (header text), `headerStyle`
+* **rows** - Array of rows, each with `cells[]` (each cell has `text` and optional `style`)
+* **repeatHeader** - If `true`, repeats the header on each new page
+* **headerStyle** - Default style for headers
+* **cellStyle** - Default style for data cells
+* **borderColor** - Table border color
+* **borderWidth** - Border thickness
+* **columns[].header** - Header text, supports `{{ }}` placeholders
+* **rows[].cells[].text** - Cell text, supports `{{ }}` placeholders
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. La tabella gestisce la paginazione automatica: se non cabe in una pagina, crea nuove pagine e ripete l'header. In modalità dinamica, i dati vengono presi da un array nel sampleData usando il campo `name`.
+Supports `showIf` and `styleIf`. The table handles automatic pagination: if it doesn't fit on one page, it creates new pages and repeats the header. In dynamic mode, data is taken from an array in sampleData using the `name` field.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Tabella" dalla palette sul canvas
-2. Configura colonne (peso larghezza, intestazioni)
-3. Aggiungi righe e compila le celle
-4. Usa `{{ }}` nelle intestazioni e nelle celle per dati dinamici
-5. Per dati dinamici, imposta `name` e passa un array nei dati
+1. Drag "Table" from the palette onto the canvas
+2. Configure columns (width weight, headers)
+3. Add rows and fill in the cells
+4. Use `{{ }}` in headers and cells for dynamic data
+5. For dynamic data, set `name` and pass an array in the data
 
-### Esempi
+### Examples
 
-**Tabella statica con placeholder:**
+**Static table with placeholders:**
 ```json
 {
   "type": "table",
@@ -343,7 +343,7 @@ Supporta `showIf` e `styleIf`. La tabella gestisce la paginazione automatica: se
 }
 ```
 
-**Rendering PHP con dati dinamici:**
+**PHP Rendering with dynamic data:**
 ```php
 $template["elements"][] = [
   "id" => "tbl1", "pageId" => "p1", "type" => "table",
@@ -374,45 +374,45 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Lista (List)
+## List (List)
 
-Lista puntata/numerata con supporto per bullet personalizzati e annidamento.
+Bulleted/numbered list with support for custom bullets and nesting.
 
-### Categoria di appartenenza
+### Category
 
-Strutture Dati
+Data Structures
 
-### Proprietà
+### Properties
 
-* **mode** - `static` (elementi fissi) o `dynamic` (dati da array)
-* **items** - Array di voci, ognuna con `text` e opzionale `items` per annidamento
-* **items[].text** - Testo della voce, supporta placeholder `{{ }}`
+* **mode** - `static` (fixed items) or `dynamic` (data from array)
+* **items** - Array of entries, each with `text` and optional `items` for nesting
+* **items[].text** - Entry text, supports `{{ }}` placeholders
 * **style.font** - Font
-* **style.weight** - Spessore
-* **style.style** - Stile
-* **style.size** - Dimensione
-* **style.color** - Colore
-* **style.align** - Allineamento
-* **style.bullet** - Tipo bullet: `circle`, `square`, `dash`, `diamond`, `arrow`, `number`
-* **style.bullets** - Array di bullet per livelli annidati
-* **style.bulletIndent** - Indentazione bullet in mm
-* **style.textIndent** - Indentazione testo in mm
+* **style.weight** - Weight
+* **style.style** - Style
+* **style.size** - Size
+* **style.color** - Color
+* **style.align** - Alignment
+* **style.bullet** - Bullet type: `circle`, `square`, `dash`, `diamond`, `arrow`, `number`
+* **style.bullets** - Array of bullets for nested levels
+* **style.bulletIndent** - Bullet indentation in mm
+* **style.textIndent** - Text indentation in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce della lista. In modalità dinamica, gli elementi possono essere presi da un array nei dati.
+Supports `showIf` and `styleIf`. Placeholders are resolved in each list entry. In dynamic mode, elements can be taken from an array in the data.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Lista" dalla palette sul canvas
-2. Fai doppio-click per modificare le voci inline
-3. Usa Tab per indentare (annidare), Shift+Tab per de-indentare
-4. Configura tipo bullet e stile nel Pannello Proprietà
-5. Usa `{{ }}` nel testo per dati dinamici
+1. Drag "List" from the palette onto the canvas
+2. Double-click to edit entries inline
+3. Use Tab to indent (nest), Shift+Tab to de-indent
+4. Configure bullet type and style in the Properties Panel
+5. Use `{{ }}` in the text for dynamic data
 
-### Esempi
+### Examples
 
-**Lista con bullet personalizzati:**
+**List with custom bullets:**
 ```json
 {
   "type": "list",
@@ -443,7 +443,7 @@ Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce della 
 }
 ```
 
-**Lista con placeholder:**
+**List with placeholders:**
 ```json
 {
   "type": "list",
@@ -461,7 +461,7 @@ Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce della 
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "list1", "pageId" => "p1", "type" => "list",
@@ -481,36 +481,36 @@ $pdf = $renderer->render($template, $data);
 
 ## Checklist
 
-Lista con checkbox (spuntate o meno). Utile per elenchi di controllo.
+List with checkboxes (checked or unchecked). Useful for control lists.
 
-### Categoria di appartenenza
+### Category
 
-Strutture Dati
+Data Structures
 
-### Proprietà
+### Properties
 
-* **items** - Array di voci con `text` (testo) e `checked` (booleano)
-* **items[].text** - Testo della voce, supporta placeholder `{{ }}`
-* **size** - Dimensione testo in punti
-* **color** - Colore testo e bordo non checked
-* **checkedColor** - Colore quando checked
-* **gap** - Spazio tra le voci in mm
+* **items** - Array of entries with `text` (text) and `checked` (boolean)
+* **items[].text** - Entry text, supports `{{ }}` placeholders
+* **size** - Text size in points
+* **color** - Text and unchecked border color
+* **checkedColor** - Color when checked
+* **gap** - Space between entries in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce.
+Supports `showIf` and `styleIf`. Placeholders are resolved in each entry.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Checklist" dalla palette sul canvas
-2. Nel Pannello Proprietà aggiungi/rimuovi voci
-3. Clicca le checkbox per anteprima visiva
-4. Configura colori e dimensioni
-5. Usa `{{ }}` nel testo per dati dinamici
+1. Drag "Checklist" from the palette onto the canvas
+2. In the Properties Panel, add/remove entries
+3. Click the checkboxes for a visual preview
+4. Configure colors and sizes
+5. Use `{{ }}` in the text for dynamic data
 
-### Esempi
+### Examples
 
-**Checklist con stati misti:**
+**Checklist with mixed states:**
 ```json
 {
   "type": "checklist",
@@ -530,7 +530,7 @@ Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "chk1", "pageId" => "p1", "type" => "checklist",
@@ -547,35 +547,35 @@ $template["elements"][] = [
 
 ## Radio
 
-Lista di bottoni radio (una sola selezione possibile).
+List of radio buttons (single selection only).
 
-### Categoria di appartenenza
+### Category
 
-Strutture Dati
+Data Structures
 
-### Proprietà
+### Properties
 
-* **items** - Array di opzioni con `text` (testo) e `selected` (booleano)
-* **items[].text** - Testo dell'opzione, supporta placeholder `{{ }}`
-* **size** - Dimensione testo in punti
-* **color** - Colore testo e bordo non selezionato
-* **selectedColor** - Colore quando selezionato
-* **gap** - Spazio tra le voci in mm
+* **items** - Array of options with `text` (text) and `selected` (boolean)
+* **items[].text** - Option text, supports `{{ }}` placeholders
+* **size** - Text size in points
+* **color** - Text and unselected border color
+* **selectedColor** - Color when selected
+* **gap** - Space between entries in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce.
+Supports `showIf` and `styleIf`. Placeholders are resolved in each entry.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Radio" dalla palette sul canvas
-2. Nel Pannello Proprietà aggiungi/rimuovi opzioni
-3. Clicca i radio button per selezionare l'opzione attiva
-4. Configura colori e dimensioni
+1. Drag "Radio" from the palette onto the canvas
+2. In the Properties Panel, add/remove options
+3. Click the radio buttons to select the active option
+4. Configure colors and sizes
 
-### Esempi
+### Examples
 
-**Radio con opzioni:**
+**Radio with options:**
 ```json
 {
   "type": "radio",
@@ -595,7 +595,7 @@ Supporta `showIf` e `styleIf`. I placeholder vengono risolti in ogni voce.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "radio1", "pageId" => "p1", "type" => "radio",
@@ -611,37 +611,37 @@ $template["elements"][] = [
 
 ---
 
-## Componenti Grafica
+## Graphics Components
 
 ---
 
-## Rettangolo (Rectangle)
+## Rectangle (Rectangle)
 
-Rettangolo con colore di riempimento e bordo opzionale.
+Rectangle with fill color and optional border.
 
-### Categoria di appartenenza
+### Category
 
-Grafica
+Graphics
 
-### Proprietà
+### Properties
 
-* **fill** - Colore riempimento RGB (opzionale)
-* **stroke** - Colore bordo RGB (opzionale)
-* **strokeWidth** - Spessore bordo in mm
+* **fill** - RGB fill color (optional)
+* **stroke** - RGB border color (optional)
+* **strokeWidth** - Border thickness in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Rettangolo" dalla palette sul canvas
-2. Ridimensiona con le maniglie
-3. Configura colori nel Pannello Proprietà
+1. Drag "Rectangle" from the palette onto the canvas
+2. Resize using the handles
+3. Configure colors in the Properties Panel
 
-### Esempi
+### Examples
 
-**Rettangolo grigio con bordo nero:**
+**Gray rectangle with black border:**
 ```json
 {
   "type": "rectangle",
@@ -655,7 +655,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
 }
 ```
 
-**Rettangolo trasparente:**
+**Transparent rectangle:**
 ```json
 {
   "type": "rectangle",
@@ -669,7 +669,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "rect1", "pageId" => "p1", "type" => "rectangle",
@@ -680,34 +680,34 @@ $template["elements"][] = [
 
 ---
 
-## Linea (Line)
+## Line (Line)
 
-Linea retta tra due punti.
+Straight line between two points.
 
-### Categoria di appartenenza
+### Category
 
-Grafica
+Graphics
 
-### Proprietà
+### Properties
 
-* **x2** - Coordinata fine X in mm
-* **y2** - Coordinata fine Y in mm
-* **color** - Colore RGB
-* **lineWidth** - Spessore in mm
+* **x2** - End X coordinate in mm
+* **y2** - End Y coordinate in mm
+* **color** - RGB color
+* **lineWidth** - Thickness in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Linea" dalla palette sul canvas
-2. Ridimensiona con le maniglie (modifica lunghezza e direzione)
-3. Configura colore e spessore
+1. Drag "Line" from the palette onto the canvas
+2. Resize using the handles (changes length and direction)
+3. Configure color and thickness
 
-### Esempi
+### Examples
 
-**Linea orizzontale:**
+**Horizontal line:**
 ```json
 {
   "type": "line",
@@ -722,7 +722,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "line1", "pageId" => "p1", "type" => "line",
@@ -733,33 +733,33 @@ $template["elements"][] = [
 
 ---
 
-## Ellisse (Ellipse)
+## Ellipse (Ellipse)
 
-Ellisse o cerchio con riempimento e bordo.
+Ellipse or circle with fill and border.
 
-### Categoria di appartenenza
+### Category
 
-Grafica
+Graphics
 
-### Proprietà
+### Properties
 
-* **fill** - Colore riempimento RGB
-* **stroke** - Colore bordo RGB
-* **strokeWidth** - Spessore bordo in mm
+* **fill** - RGB fill color
+* **stroke** - RGB border color
+* **strokeWidth** - Border thickness in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Ellisse" dalla palette sul canvas
-2. Ridimensiona per ottenere cerchio o ellisse
-3. Configura colori
+1. Drag "Ellipse" from the palette onto the canvas
+2. Resize to get a circle or ellipse
+3. Configure colors
 
-### Esempi
+### Examples
 
-**Cerchio grigio:**
+**Gray circle:**
 ```json
 {
   "type": "ellipse",
@@ -773,7 +773,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "ell1", "pageId" => "p1", "type" => "ellipse",
@@ -784,32 +784,32 @@ $template["elements"][] = [
 
 ---
 
-## Divisore (Divider)
+## Divider (Divider)
 
-Linea orizzontale divisoria con stili personalizzabili.
+Horizontal dividing line with customizable styles.
 
-### Categoria di appartenenza
+### Category
 
-Grafica
+Graphics
 
-### Proprietà
+### Properties
 
-* **color** - Colore RGB
-* **lineWidth** - Spessore in mm
-* **lineStyle** - Stile: `solid`, `dashed`, `dotted`
+* **color** - RGB color
+* **lineWidth** - Thickness in mm
+* **lineStyle** - Style: `solid`, `dashed`, `dotted`
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Divisore" dalla palette sul canvas
-2. Configura stile e colore
+1. Drag "Divider" from the palette onto the canvas
+2. Configure style and color
 
-### Esempi
+### Examples
 
-**Divisore tratteggiato:**
+**Dashed divider:**
 ```json
 {
   "type": "divider",
@@ -823,7 +823,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "div1", "pageId" => "p1", "type" => "divider",
@@ -834,32 +834,32 @@ $template["elements"][] = [
 
 ---
 
-## Icona (Icon)
+## Icon (Icon)
 
-Icona SVG tra diverse opzioni predefinite.
+SVG icon from several predefined options.
 
-### Categoria di appartenenza
+### Category
 
-Grafica
+Graphics
 
-### Proprietà
+### Properties
 
-* **name** - Nome icona: `check`, `warning`, `info`, `error`, `star`, `heart`, `arrow`
-* **color** - Colore RGB
+* **name** - Icon name: `check`, `warning`, `info`, `error`, `star`, `heart`, `arrow`
+* **color** - RGB color
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non supporta `repeatOnAllPages`.
+Supports `showIf` and `styleIf`. Does not support `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Icona" dalla palette sul canvas
-2. Seleziona il tipo di icona nel Pannello Proprietà
-3. Configura colore e dimensione
+1. Drag "Icon" from the palette onto the canvas
+2. Select the icon type in the Properties Panel
+3. Configure color and size
 
-### Esempi
+### Examples
 
-**Icona di spunta verde:**
+**Green check icon:**
 ```json
 {
   "type": "icon",
@@ -872,7 +872,7 @@ Supporta `showIf` e `styleIf`. Non supporta `repeatOnAllPages`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "ico1", "pageId" => "p1", "type" => "icon",
@@ -883,37 +883,37 @@ $template["elements"][] = [
 
 ---
 
-## Componenti Immagini e Codici
+## Images and Codes Components
 
 ---
 
-## Immagine (Image)
+## Image (Image)
 
-Area per immagine supporta JPEG e PNG. Le immagini vengono salvate come data URL base64.
+Area for images, supports JPEG and PNG. Images are saved as base64 data URLs.
 
-### Categoria di appartenenza
+### Category
 
-Immagini e Codici
+Images and Codes
 
-### Proprietà
+### Properties
 
-* **src** - Data URL base64 dell'immagine (es. `data:image/png;base64,...`)
-* **fit** - Modalità adattamento: `contain` (proporzionale, whole), `cover` (proporzionale, fill), `stretch` (deforma)
+* **src** - Base64 data URL of the image (e.g., `data:image/png;base64,...`)
+* **fit** - Fit mode: `contain` (proportional, whole), `cover` (proportional, fill), `stretch` (stretches)
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Non usa placeholder `{{ }}`.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`. Does not use `{{ }}` placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Immagine" dalla palette sul canvas
-2. Fai doppio-click per aprire il selettore file
-3. Seleziona un'immagine JPEG o PNG
-4. Configura la modalità di adattamento
+1. Drag "Image" from the palette onto the canvas
+2. Double-click to open the file selector
+3. Select a JPEG or PNG image
+4. Configure the fit mode
 
-### Esempi
+### Examples
 
-**Immagine con fit contain:**
+**Image with fit contain:**
 ```json
 {
   "type": "image",
@@ -926,7 +926,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Non usa placeholder `{{ }}`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "img1", "pageId" => "p1", "type" => "image",
@@ -940,29 +940,29 @@ $template["elements"][] = [
 
 ## QR Code
 
-Genera un codice QR dal testo specificato.
+Generates a QR code from the specified text.
 
-### Categoria di appartenenza
+### Category
 
-Immagini e Codici
+Images and Codes
 
-### Proprietà
+### Properties
 
-* **text** - Contenuto del QR code (URL, testo, dati), supporta placeholder `{{ }}`
+* **text** - QR code content (URL, text, data), supports `{{ }}` placeholders
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
+Supports `showIf` and `styleIf`. The text is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "QR Code" dalla palette sul canvas
-2. Nel Pannello Proprietà imposta il contenuto
-3. Usa `{{ }}` per dati dinamici
+1. Drag "QR Code" from the palette onto the canvas
+2. In the Properties Panel, set the content
+3. Use `{{ }}` for dynamic data
 
-### Esempi
+### Examples
 
-**QR code con URL dinamico:**
+**QR code with dynamic URL:**
 ```json
 {
   "type": "qrcode",
@@ -974,7 +974,7 @@ Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "qr1", "pageId" => "p1", "type" => "qrcode",
@@ -989,31 +989,31 @@ $pdf = $renderer->render($template, $data);
 
 ## Barcode
 
-Genera un codice a barre dal testo specificato.
+Generates a barcode from the specified text.
 
-### Categoria di appartenenza
+### Category
 
-Immagini e Codici
+Images and Codes
 
-### Proprietà
+### Properties
 
-* **text** - Codice da barre, supporta placeholder `{{ }}`
-* **format** - Formato: `code128`, `code39`, `ean13`
-* **showText** - Se `true`, mostra il testo sotto il barcode
+* **text** - Barcode text, supports `{{ }}` placeholders
+* **format** - Format: `code128`, `code39`, `ean13`
+* **showText** - If `true`, displays the text below the barcode
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
+Supports `showIf` and `styleIf`. The text is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Barcode" dalla palette sul canvas
-2. Configura il formato e il testo
-3. Usa `{{ }}` per dati dinamici
+1. Drag "Barcode" from the palette onto the canvas
+2. Configure the format and text
+3. Use `{{ }}` for dynamic data
 
-### Esempi
+### Examples
 
-**Barcode Code128:**
+**Code128 barcode:**
 ```json
 {
   "type": "barcode",
@@ -1027,7 +1027,7 @@ Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "bc1", "pageId" => "p1", "type" => "barcode",
@@ -1040,38 +1040,38 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Componenti Avvisi e Citazioni
+## Alerts and Quotes Components
 
 ---
 
-## Citazione (Quote)
+## Quote (Quote)
 
-Blocco citazione con barra laterale colorata, testo in corsivo e autore.
+Quote block with colored left bar, italic text, and author.
 
-### Categoria di appartenenza
+### Category
 
-Avvisi e Citazioni
+Alerts and Quotes
 
-### Proprietà
+### Properties
 
-* **text** - Testo della citazione, supporta placeholder `{{ }}`
-* **author** - Nome dell'autore, supporta placeholder `{{ }}`
-* **barColor** - Colore della barra laterale sinistra
-* **style** - Stile testo (tipicamente `times`, italic)
+* **text** - Quote text, supports `{{ }}` placeholders
+* **author** - Author name, supports `{{ }}` placeholders
+* **barColor** - Color of the left sidebar bar
+* **style** - Text style (typically `times`, italic)
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Testo e autore vengono risolti con placeholder.
+Supports `showIf` and `styleIf`. Text and author are resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Citazione" dalla palette sul canvas
-2. Modifica testo e autore
-3. Configura colore barra e stile
+1. Drag "Quote" from the palette onto the canvas
+2. Edit the text and author
+3. Configure bar color and style
 
-### Esempi
+### Examples
 
-**Citazione con placeholder:**
+**Quote with placeholders:**
 ```json
 {
   "type": "quote",
@@ -1093,7 +1093,7 @@ Supporta `showIf` e `styleIf`. Testo e autore vengono risolti con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "qt1", "pageId" => "p1", "type" => "quote",
@@ -1110,34 +1110,34 @@ $pdf = $renderer->render($template, $data);
 
 ## Callout
 
-Box informativo con bordo laterale colorato e icona.
+Informational box with colored left border and icon.
 
-### Categoria di appartenenza
+### Category
 
-Avvisi e Citazioni
+Alerts and Quotes
 
-### Proprietà
+### Properties
 
-* **text** - Testo del messaggio, supporta placeholder `{{ }}`
-* **style** - Tipo stile: `info`, `warning`, `error`, `success`
-* **icon** - Carattere icona personalizzato
-* **bgColor** - Colore sfondo RGB
-* **borderColor** - Colore bordo laterale RGB
+* **text** - Message text, supports `{{ }}` placeholders
+* **style** - Style type: `info`, `warning`, `error`, `success`
+* **icon** - Custom icon character
+* **bgColor** - RGB background color
+* **borderColor** - RGB left border color
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
+Supports `showIf` and `styleIf`. The text is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Callout" dalla palette sul canvas
-2. Seleziona lo stile (info, warning, error, success)
-3. Modifica il testo del messaggio
-4. Usa `{{ }}` per dati dinamici
+1. Drag "Callout" from the palette onto the canvas
+2. Select the style (info, warning, error, success)
+3. Edit the message text
+4. Use `{{ }}` for dynamic data
 
-### Esempi
+### Examples
 
-**Callout informativo:**
+**Informational callout:**
 ```json
 {
   "type": "callout",
@@ -1153,7 +1153,7 @@ Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "co1", "pageId" => "p1", "type" => "callout",
@@ -1168,32 +1168,32 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Blocco Codice (Code Block)
+## Code Block (Code Block)
 
-Blocco di codice su sfondo scuro con font monospace.
+Code block on dark background with monospace font.
 
-### Categoria di appartenenza
+### Category
 
-Avvisi e Citazioni
+Alerts and Quotes
 
-### Proprietà
+### Properties
 
-* **text** - Codice sorgente, supporta placeholder `{{ }}`
-* **language** - Linguaggio (es. `javascript`, `python`, `php`)
+* **text** - Source code, supports `{{ }}` placeholders
+* **language** - Language (e.g., `javascript`, `python`, `php`)
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
+Supports `showIf` and `styleIf`. The text is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Blocco Codice" dalla palette sul canvas
-2. Inserisci il codice e specifica la linguaggio
-3. Usa `{{ }}` per codice generato da dati
+1. Drag "Code Block" from the palette onto the canvas
+2. Enter the code and specify the language
+3. Use `{{ }}` for code generated from data
 
-### Esempi
+### Examples
 
-**Blocco codice PHP:**
+**PHP code block:**
 ```json
 {
   "type": "codeBlock",
@@ -1206,7 +1206,7 @@ Supporta `showIf` e `styleIf`. Il testo viene risolto con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "cb1", "pageId" => "p1", "type" => "codeBlock",
@@ -1220,40 +1220,40 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Componenti Timbri e Filigrane
+## Stamps and Watermarks Components
 
 ---
 
-## Timbro (Stamp)
+## Stamp (Stamp)
 
-Timbro/bollo con bordo arrotondato, rotazione -15° e sfondo semitrasparente. Cinque preset colorati.
+Stamp/seal with rounded border, -15° rotation, and semi-transparent background. Five colored presets.
 
-### Categoria di appartenenza
+### Category
 
-Timbri e Filigrane
+Stamps and Watermarks
 
-### Proprietà
+### Properties
 
-* **text** - Testo del timbro, supporta placeholder `{{ }}`
-* **preset** - Preset: `approved` (verde), `confidential` (rosso), `draft` (grigio), `paid` (blu), `urgent` (viola)
-* **color** - Colore RGB personalizzato (sovrascrive il preset)
-* **repeatOnAllPages** - Se `true`, il timbro appare su ogni pagina
+* **text** - Stamp text, supports `{{ }}` placeholders
+* **preset** - Preset: `approved` (green), `confidential` (red), `draft` (gray), `paid` (blue), `urgent` (purple)
+* **color** - Custom RGB color (overrides preset)
+* **repeatOnAllPages** - If `true`, the stamp appears on every page
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Il testo viene risolto con placeholder. Lo styleIf può cambiare colore in base ai dati.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`. The text is resolved with placeholders. styleIf can change color based on data.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Timbro" dalla palette sul canvas
-2. Seleziona il preset o personalizza il colore
-3. Modifica il testo (opzionale)
-4. Usa `{{ }}` per testo dinamico
-5. Attiva "Ripeti su tutte le pagine" se necessario
+1. Drag "Stamp" from the palette onto the canvas
+2. Select the preset or customize the color
+3. Edit the text (optional)
+4. Use `{{ }}` for dynamic text
+5. Enable "Repeat on all pages" if needed
 
-### Esempi
+### Examples
 
-**Timbro APPROVATO verde:**
+**Green APPROVED stamp:**
 ```json
 {
   "type": "stamp",
@@ -1267,7 +1267,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Il testo viene risolto con pl
 }
 ```
 
-**Timbro con placeholder e styleIf:**
+**Stamp with placeholder and styleIf:**
 ```json
 {
   "type": "stamp",
@@ -1286,7 +1286,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Il testo viene risolto con pl
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "st1", "pageId" => "p1", "type" => "stamp",
@@ -1304,35 +1304,35 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Filigrana (Watermark)
+## Watermark (Watermark)
 
-Testo ruotato semitrasparente come filigrana su ogni pagina.
+Rotated semi-transparent text as a watermark on every page.
 
-### Categoria di appartenenza
+### Category
 
-Timbri e Filigrane
+Stamps and Watermarks
 
-### Proprietà
+### Properties
 
-* **text** - Testo della filigrana, supporta placeholder `{{ }}`
-* **fontSize** - Dimensione font in punti
-* **color** - Colore RGB
-* **rotation** - Angolo rotazione in gradi (tipicamente -45)
-* **opacity** - Opacità da 0 a 1
+* **text** - Watermark text, supports `{{ }}` placeholders
+* **fontSize** - Font size in points
+* **color** - RGB color
+* **rotation** - Rotation angle in degrees (typically -45)
+* **opacity** - Opacity from 0 to 1
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Il testo viene risolto con placeholder.
+Supports `showIf`, `styleIf`, and `repeatOnAllPages`. The text is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Filigrana" dalla palette sul canvas
-2. Configura testo, dimensione, colore e opacità
-3. La filigrana appare automaticamente su ogni pagina
+1. Drag "Watermark" from the palette onto the canvas
+2. Configure text, size, color, and opacity
+3. The watermark automatically appears on every page
 
-### Esempi
+### Examples
 
-**Filigrana "BOZZA":**
+**"DRAFT" watermark:**
 ```json
 {
   "type": "watermark",
@@ -1348,7 +1348,7 @@ Supporta `showIf`, `styleIf` e `repeatOnAllPages`. Il testo viene risolto con pl
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "wm1", "pageId" => "p1", "type" => "watermark",
@@ -1362,39 +1362,39 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Componenti Progresso e Firma
+## Progress and Signature Components
 
 ---
 
-## Barra di Progresso (Progress Bar)
+## Progress Bar (Progress Bar)
 
-Barra di progresso orizzontale con etichetta.
+Horizontal progress bar with label.
 
-### Categoria di appartenenza
+### Category
 
-Progresso e Firma
+Progress and Signature
 
-### Proprietà
+### Properties
 
-* **value** - Valore da 0 a 100
-* **color** - Colore barra riempita
-* **bgColor** - Colore sfondo barra
-* **label** - Etichetta sotto la barra, supporta placeholder `{{ }}`
+* **value** - Value from 0 to 100
+* **color** - Filled bar color
+* **bgColor** - Bar background color
+* **label** - Label below the bar, supports `{{ }}` placeholders
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. L'etichetta viene risolta con placeholder.
+Supports `showIf` and `styleIf`. The label is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Barra di Progresso" dalla palette sul canvas
-2. Imposta il valore percentuale
-3. Configura colori e etichetta
-4. Usa `{{ }}` nell'etichetta per dati dinamici
+1. Drag "Progress Bar" from the palette onto the canvas
+2. Set the percentage value
+3. Configure colors and label
+4. Use `{{ }}` in the label for dynamic data
 
-### Esempi
+### Examples
 
-**Barra al 65%:**
+**65% bar:**
 ```json
 {
   "type": "progressBar",
@@ -1409,7 +1409,7 @@ Supporta `showIf` e `styleIf`. L'etichetta viene risolta con placeholder.
 }
 ```
 
-**Barra con placeholder:**
+**Bar with placeholder:**
 ```json
 {
   "type": "progressBar",
@@ -1424,7 +1424,7 @@ Supporta `showIf` e `styleIf`. L'etichetta viene risolta con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "pb1", "pageId" => "p1", "type" => "progressBar",
@@ -1438,32 +1438,32 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Firma (Signature)
+## Signature (Signature)
 
-Linea tratteggiata con etichetta centrata sotto, per aree di firma.
+Dashed line with centered label below, for signature areas.
 
-### Categoria di appartenenza
+### Category
 
-Progresso e Firma
+Progress and Signature
 
-### Proprietà
+### Properties
 
-* **label** - Etichetta sotto la linea, supporta placeholder `{{ }}`
-* **color** - Colore RGB
+* **label** - Label below the line, supports `{{ }}` placeholders
+* **color** - RGB color
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. L'etichetta viene risolta con placeholder.
+Supports `showIf` and `styleIf`. The label is resolved with placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Firma" dalla palette sul canvas
-2. Configura etichetta e colore
-3. Usa `{{ }}` nell'etichetta per dati dinamici
+1. Drag "Signature" from the palette onto the canvas
+2. Configure label and color
+3. Use `{{ }}` in the label for dynamic data
 
-### Esempi
+### Examples
 
-**Firma con nome dinamico:**
+**Signature with dynamic name:**
 ```json
 {
   "type": "signature",
@@ -1476,7 +1476,7 @@ Supporta `showIf` e `styleIf`. L'etichetta viene risolta con placeholder.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "sig1", "pageId" => "p1", "type" => "signature",
@@ -1489,37 +1489,37 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Componenti Grafici
+## Chart Components
 
 ---
 
-## Grafico (Chart)
+## Chart (Chart)
 
-Grafico con tre tipi: barre, torta, linea.
+Chart with three types: bar, pie, line.
 
-### Categoria di appartenenza
+### Category
 
-Grafici
+Charts
 
-### Proprietà
+### Properties
 
-* **chartType** - Tipo: `bar`, `pie`, `line`
-* **data** - Array di dati con `label` (stringa) e `value` (numero)
-* **colors** - Array di colori RGB per le serie
+* **chartType** - Type: `bar`, `pie`, `line`
+* **data** - Array of data with `label` (string) and `value` (number)
+* **colors** - Array of RGB colors for the series
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}`.
+Supports `showIf` and `styleIf`. Does not use `{{ }}` placeholders.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Grafico" dalla palette sul canvas
-2. Seleziona il tipo di grafico
-3. Configura i dati e i colori
+1. Drag "Chart" from the palette onto the canvas
+2. Select the chart type
+3. Configure data and colors
 
-### Esempi
+### Examples
 
-**Grafico a barre:**
+**Bar chart:**
 ```json
 {
   "type": "chart",
@@ -1538,7 +1538,7 @@ Supporta `showIf` e `styleIf`. Non usa placeholder `{{ }}`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "ch1", "pageId" => "p1", "type" => "chart",
@@ -1555,37 +1555,37 @@ $template["elements"][] = [
 
 ---
 
-## Componenti Layout
+## Layout Components
 
 ---
 
-## Contenitore (Container)
+## Container (Container)
 
-Rettangolo con bordo usato come contenitore per raggruppare elementi.
+Rectangle with border used as a container to group elements.
 
-### Categoria di appartenenza
+### Category
 
 Layout
 
-### Proprietà
+### Properties
 
-* **fill** - Colore sfondo RGB (opzionale, trasparente di default)
-* **borderColor** - Colore bordo RGB
-* **borderWidth** - Spessore bordo in mm
+* **fill** - RGB background color (optional, transparent by default)
+* **borderColor** - RGB border color
+* **borderWidth** - Border thickness in mm
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non supporta `repeatOnAllPages`.
+Supports `showIf` and `styleIf`. Does not support `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Contenitore" dalla palette sul canvas
-2. Posiziona altri elementi al suo interno
-3. Configura colori
+1. Drag "Container" from the palette onto the canvas
+2. Position other elements inside it
+3. Configure colors
 
-### Esempi
+### Examples
 
-**Contenitore con bordo:**
+**Container with border:**
 ```json
 {
   "type": "container",
@@ -1598,7 +1598,7 @@ Supporta `showIf` e `styleIf`. Non supporta `repeatOnAllPages`.
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "cnt1", "pageId" => "p1", "type" => "container",
@@ -1609,31 +1609,31 @@ $template["elements"][] = [
 
 ---
 
-## Gruppo (Group)
+## Group (Group)
 
-Contenitore per raggruppare più elementi con posizionamento relativo.
+Container for grouping multiple elements with relative positioning.
 
-### Categoria di appartenenza
+### Category
 
 Layout
 
-### Proprietà
+### Properties
 
-* **children** - Array di elementi figli (qualsiasi tipo)
+* **children** - Array of child elements (any type)
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non supporta `repeatOnAllPages`.
+Supports `showIf` and `styleIf`. Does not support `repeatOnAllPages`.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Gruppo" dalla palette sul canvas
-2. Trascina altri elementi all'interno del gruppo
-3. Gli elementi figli si posizionano relativamente al gruppo
+1. Drag "Group" from the palette onto the canvas
+2. Drag other elements inside the group
+3. Child elements are positioned relative to the group
 
-### Esempi
+### Examples
 
-**Gruppo con testo e rettangolo:**
+**Group with text and rectangle:**
 ```json
 {
   "type": "group",
@@ -1650,30 +1650,30 @@ Supporta `showIf` e `styleIf`. Non supporta `repeatOnAllPages`.
 
 ---
 
-## Spaziatore (Spacer)
+## Spacer (Spacer)
 
-Spazio vuoto usato come separatore tra elementi. Non renderizza nulla nel PDF.
+Empty space used as a separator between elements. Does not render anything in the PDF.
 
-### Categoria di appartenenza
+### Category
 
 Layout
 
-### Proprietà
+### Properties
 
-Nessuna proprietà aggiuntiva oltre a `width` e `height`.
+* No additional properties beyond `width` and `height`.
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non produce rendering nel PDF.
+Supports `showIf` and `styleIf`. Does not produce rendering in the PDF.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Spaziatore" dalla palette sul canvas
-2. Imposta la dimensione per controllare lo spazio
+1. Drag "Spacer" from the palette onto the canvas
+2. Set the size to control the space
 
-### Esempi
+### Examples
 
-**Spaziatore verticale:**
+**Vertical spacer:**
 ```json
 {
   "type": "spacer",
@@ -1686,30 +1686,30 @@ Supporta `showIf` e `styleIf`. Non produce rendering nel PDF.
 
 ---
 
-## Taglio Pagina (Page Break)
+## Page Break (Page Break)
 
-Indica dove inizia una nuova pagina nell'editor. Non produce rendering nel PDF.
+Indicates where a new page starts in the editor. Does not produce rendering in the PDF.
 
-### Categoria di appartenenza
+### Category
 
 Layout
 
-### Proprietà
+### Properties
 
-Nessuna proprietà aggiuntiva oltre a `width` e `height`.
+* No additional properties beyond `width` and `height`.
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. Non produce rendering nel PDF.
+Supports `showIf` and `styleIf`. Does not produce rendering in the PDF.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Taglio Pagina" dalla palette sul canvas
-2. Posizionalo dove vuoi iniziare una nuova pagina
+1. Drag "Page Break" from the palette onto the canvas
+2. Position it where you want to start a new page
 
-### Esempi
+### Examples
 
-**Taglio pagina:**
+**Page break:**
 ```json
 {
   "type": "pageBreak",
@@ -1722,35 +1722,35 @@ Supporta `showIf` e `styleIf`. Non produce rendering nel PDF.
 
 ---
 
-## Ripetizione Dati (Data Repeat)
+## Data Repeat (Data Repeat)
 
-Contenitore che ripete i suoi figli per ogni elemento di un array nei dati.
+Container that repeats its children for each element of an array in the data.
 
-### Categoria di appartenenza
+### Category
 
 Layout
 
-### Proprietà
+### Properties
 
-* **repeatField** - Campo da sampleData da ripetere (es. `articoli`)
-* **children** - Array di elementi figli da ripetere
-* **direction** - Direzione: `vertical` o `horizontal`
-* **spacing** - Spazio tra le ripetizioni in pixel
+* **repeatField** - Field from sampleData to repeat (e.g., `articoli`)
+* **children** - Array of child elements to repeat
+* **direction** - Direction: `vertical` or `horizontal`
+* **spacing** - Space between repetitions in pixels
 
-### Programmabilità
+### Programmability
 
-Supporta `showIf` e `styleIf`. I placeholder `{{ item.campo }}` nei figli vengono risolti per ogni elemento dell'array.
+Supports `showIf` and `styleIf`. `{{ item.field }}` placeholders in children are resolved for each element of the array.
 
-### Come utilizzarlo
+### How to Use It
 
-1. Trascina "Ripeti Dati" dalla palette sul canvas
-2. Imposta il "Campo dati" (es. `articoli`)
-3. Trascina gli elementi figli all'interno
-4. Nei testi figli usa `{{ item.nome }}`, `{{ item.prezzo }}` per i campi
+1. Drag "Data Repeat" from the palette onto the canvas
+2. Set the "Data field" (e.g., `articoli`)
+3. Drag child elements inside
+4. In child texts, use `{{ item.name }}`, `{{ item.price }}` for fields
 
-### Esempi
+### Examples
 
-**Ripetizione verticale:**
+**Vertical repeat:**
 ```json
 {
   "type": "dataRepeat",
@@ -1767,7 +1767,7 @@ Supporta `showIf` e `styleIf`. I placeholder `{{ item.campo }}` nei figli vengon
 }
 ```
 
-**Rendering PHP:**
+**PHP Rendering:**
 ```php
 $template["elements"][] = [
   "id" => "dr1", "pageId" => "p1", "type" => "dataRepeat",
@@ -1790,35 +1790,35 @@ $pdf = $renderer->render($template, $data);
 
 ---
 
-## Tabella Riepilogativa
+## Summary Table
 
-| # | Componente | Tipo | Placeholder | showIf | styleIf | repeatOnAllPages |
+| # | Component | Type | Placeholder | showIf | styleIf | repeatOnAllPages |
 |---|-----------|------|:-----------:|:------:|:-------:|:----------------:|
-| 1 | Testo | `text` | Si | Si | Si | Si |
-| 2 | Data | `date` | No | Si | Si | No |
-| 3 | Numero Pagina | `pageNumber` | No | Si | Si | No |
-| 4 | Tabella | `table` | Si | Si | Si | No |
-| 5 | Lista | `list` | Si | Si | Si | No |
-| 6 | Checklist | `checklist` | Si | Si | Si | No |
-| 7 | Radio | `radio` | Si | Si | Si | No |
-| 8 | Rettangolo | `rectangle` | No | Si | Si | Si |
-| 9 | Linea | `line` | No | Si | Si | Si |
-| 10 | Ellisse | `ellipse` | No | Si | Si | Si |
-| 11 | Divisore | `divider` | No | Si | Si | Si |
-| 12 | Icona | `icon` | No | Si | Si | No |
-| 13 | Immagine | `image` | No | Si | Si | Si |
-| 14 | QR Code | `qrcode` | Si | Si | Si | No |
-| 15 | Barcode | `barcode` | Si | Si | Si | No |
-| 16 | Citazione | `quote` | Si | Si | Si | No |
-| 17 | Callout | `callout` | Si | Si | Si | No |
-| 18 | Blocco Codice | `codeBlock` | Si | Si | Si | No |
-| 19 | Timbro | `stamp` | Si | Si | Si | Si |
-| 20 | Filigrana | `watermark` | Si | Si | Si | Si |
-| 21 | Barra di Progresso | `progressBar` | Si | Si | Si | No |
-| 22 | Firma | `signature` | Si | Si | Si | No |
-| 23 | Grafico | `chart` | No | Si | Si | No |
-| 24 | Contenitore | `container` | No | Si | Si | No |
-| 25 | Gruppo | `group` | No | Si | Si | No |
-| 26 | Spaziatore | `spacer` | No | Si | Si | No |
-| 27 | Taglio Pagina | `pageBreak` | No | Si | Si | No |
-| 28 | Ripetizione Dati | `dataRepeat` | No | Si | Si | No |
+| 1 | Text | `text` | Yes | Yes | Yes | Yes |
+| 2 | Date | `date` | No | Yes | Yes | No |
+| 3 | Page Number | `pageNumber` | No | Yes | Yes | No |
+| 4 | Table | `table` | Yes | Yes | Yes | No |
+| 5 | List | `list` | Yes | Yes | Yes | No |
+| 6 | Checklist | `checklist` | Yes | Yes | Yes | No |
+| 7 | Radio | `radio` | Yes | Yes | Yes | No |
+| 8 | Rectangle | `rectangle` | No | Yes | Yes | Yes |
+| 9 | Line | `line` | No | Yes | Yes | Yes |
+| 10 | Ellipse | `ellipse` | No | Yes | Yes | Yes |
+| 11 | Divider | `divider` | No | Yes | Yes | Yes |
+| 12 | Icon | `icon` | No | Yes | Yes | No |
+| 13 | Image | `image` | No | Yes | Yes | Yes |
+| 14 | QR Code | `qrcode` | Yes | Yes | Yes | No |
+| 15 | Barcode | `barcode` | Yes | Yes | Yes | No |
+| 16 | Quote | `quote` | Yes | Yes | Yes | No |
+| 17 | Callout | `callout` | Yes | Yes | Yes | No |
+| 18 | Code Block | `codeBlock` | Yes | Yes | Yes | No |
+| 19 | Stamp | `stamp` | Yes | Yes | Yes | Yes |
+| 20 | Watermark | `watermark` | Yes | Yes | Yes | Yes |
+| 21 | Progress Bar | `progressBar` | Yes | Yes | Yes | No |
+| 22 | Signature | `signature` | Yes | Yes | Yes | No |
+| 23 | Chart | `chart` | No | Yes | Yes | No |
+| 24 | Container | `container` | No | Yes | Yes | No |
+| 25 | Group | `group` | No | Yes | Yes | No |
+| 26 | Spacer | `spacer` | No | Yes | Yes | No |
+| 27 | Page Break | `pageBreak` | No | Yes | Yes | No |
+| 28 | Data Repeat | `dataRepeat` | No | Yes | Yes | No |

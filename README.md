@@ -1,19 +1,19 @@
 # engiPDF
 
-Editor web + Generatore PDF puro PHP per template.
+Web editor + pure PHP PDF generator for templates.
 
-## Requisiti
+## Requirements
 
-- PHP ≥ 8.2
-- Estensioni: `zlib`, `mbstring`, `gd`
+- PHP >= 8.2
+- Extensions: `zlib`, `mbstring`, `gd`
 
-## Installazione
+## Installation
 
 ```bash
 composer require durcap2011/engipdf
 ```
 
-## Utilizzo
+## Usage
 
 ```php
 <?php
@@ -37,25 +37,25 @@ $pdf = $renderer->render($template, $data);
 file_put_contents('output.pdf', $pdf);
 ```
 
-## Struttura
+## Structure
 
 ```
 engipdf/
-├── src/                    # Motore PHP (PDF generator)
-│   ├── PdfWriter/          # Scrittura binaria PDF
-│   ├── Font/               # Gestione font Type1 e TTF
-│   ├── Renderer/           # Renderizzatore template → PDF
-│   └── Template/           # Loader e risolutore placeholder
-├── editor/                 # Editor web Vue 3 (sorgente)
-│   └── dist/               # Build statico dell'editor
-├── templates/              # Template JSON di esempio
-├── examples/               # Esempi d'uso
-└── docs/                   # Documentazione completa
+├── src/                    # PHP engine (PDF generator)
+│   ├── PdfWriter/          # Binary PDF writer
+│   ├── Font/               # Type1 and TTF font handling
+│   ├── Renderer/           # Template → PDF renderer
+│   └── Template/           # Loader and placeholder resolver
+├── editor/                 # Vue 3 web editor (source)
+│   └── dist/               # Static editor build
+├── templates/              # Example JSON templates
+├── examples/               # Usage examples
+└── docs/                   # Full documentation
 ```
 
 ## Editor
 
-L'editor è un'app Vue 3 che funziona interamente nel browser. Per avviarlo in locale:
+The editor is a Vue 3 app that runs entirely in the browser. To start it locally:
 
 ```bash
 cd editor
@@ -63,34 +63,34 @@ npm install
 npm run dev
 ```
 
-Si apre su `http://localhost:5173`.
+Opens at `http://localhost:5173`.
 
-Per generare il build di produzione:
+To generate a production build:
 
 ```bash
 npm run build
 ```
 
-I file statici vengono generati in `editor/dist/`.
+Static files are generated in `editor/dist/`.
 
-## Documentazione
+## Documentation
 
-- [Guida utente](docs/guide.md)
-- [Guida componenti](docs/components-guide.md)
-- [Riferimento template JSON](docs/template.md)
-- [Documentazione tecnica](docs/technical_documentation.md)
+- [User guide](docs/guide.md)
+- [Components guide](docs/components-guide.md)
+- [JSON template reference](docs/template.md)
+- [Technical documentation](docs/technical_documentation.md)
 
-## Componenti
+## Components
 
-28 componenti disponibili nell'editor: testo, tabella, rettangolo, linea, lista, immagine, QR code, barcode, citazione, callout, blocco codice, checklist, radio, ellisse, divisore, timbro, filigrana, firma, barra di progresso, grafico, icona, gruppo, contenitore, taglio pagina, numero pagina, data, ripeti dati, spaziatore.
+28 components available in the editor: text, table, rectangle, line, list, image, QR code, barcode, citation, callout, code block, checklist, radio, ellipse, divider, stamp, watermark, signature, progress bar, chart, icon, group, container, page break, page number, date, data repeat, spacer.
 
-## Esecuzione test
+## Running Tests
 
 ```bash
 composer install
 ./vendor/bin/phpunit
 ```
 
-## Licenza
+## License
 
-MIT — vedi [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

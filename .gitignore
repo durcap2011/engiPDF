@@ -4,3 +4,4 @@
 *.log
 .env
 *.pdf
+template-component-guide.md

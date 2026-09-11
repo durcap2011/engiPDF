@@ -1,378 +1,378 @@
-# engiPDF - Guida Utente
+# engiPDF - User Guide
 
-## Introduzione
+## Introduction
 
-engiPDF è un editor web per la creazione di template PDF. Permette di disporre elementi testuali, immagini, liste, rettangoli e linee su uno o più fogli virtuali, e di generare un file PDF tramite un motore PHP nativo. Supporta documenti multi-pagina con pagine indipendenti. L'interfaccia è disponibile in 5 lingue (italiano, inglese, spagnolo, tedesco, francese) selezionabili dalla barra degli strumenti.
+engiPDF is a web editor for creating PDF templates. It allows you to arrange text elements, images, lists, rectangles, and lines on one or more virtual sheets, and to generate a PDF file via a native PHP engine. It supports multi-page documents with independent pages. The interface is available in 5 languages (Italian, English, Spanish, German, French) selectable from the toolbar.
 
 ---
 
-## Interfaccia dell'Editor
+## Editor Interface
 
-L'editor si compone di quattro aree principali:
+The editor consists of four main areas:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Barra degli Strumenti                 │
+│                    Toolbar                               │
 ├────────┬──────────────────────────────┬─────────────────┤
 │        │  ┌─────────────────────────┐ │                 │
-│Palette │  │ Righello Orizzontale    │ │   Pannello      │
-│Compon- │  ├─────┬───────────────────┤ │   Proprietà     │
-│enti    │  │Righ.│                   │ │                 │
-│        │  │Ver. │   Area Canvas     │ │                 │
+│Palette │  │ Horizontal Ruler        │ │   Properties    │
+│Compon- │  ├─────┬───────────────────┤ │   Panel         │
+│ents    │  │Ver. │                   │ │                 │
+│        │  │Rul. │   Canvas Area     │ │                 │
 │        │  │     │                   │ │                 │
 │        │  └─────┴───────────────────┘ │                 │
 └────────┴──────────────────────────────┴─────────────────┘
 ```
 
-### 1. Barra degli Strumenti (in alto)
+### 1. Toolbar (at the top)
 
-La barra degli strumenti contiene:
-- **Logo e nome documento**: visualizza il nome corrente del progetto
-- **Undo/Redo**: torna all'azione precedente o ripristina quella successiva (fino a 50 livelli)
-- **Movimento layer**: sposta l'elemento selezionato avanti/indietro nello stack
-- **Duplica**: crea una copia dell'elemento selezionato
-- **Elimina**: rimuove l'elemento selezionato
-- **Importa/Esporta**: salva o carica il template in formato JSON
-- **Controlli pagine**: gestione pagine multiple del documento
-- **Tema chiaro/scuro**: alterna tra tema chiaro e scuro dell'interfaccia
+The toolbar contains:
+- **Logo and document name**: displays the current project name
+- **Undo/Redo**: go back to the previous action or restore the next one (up to 50 levels)
+- **Layer movement**: move the selected element forward/backward in the stack
+- **Duplicate**: create a copy of the selected element
+- **Delete**: remove the selected element
+- **Import/Export**: save or load the template in JSON format
+- **Page controls**: manage multiple pages of the document
+- **Light/Dark theme**: toggle between light and dark interface theme
 
-I controlli per la gestione delle pagine sono posizionati nella barra degli strumenti e consentono di:
+The page management controls are positioned in the toolbar and allow you to:
 
-| Controllo | Descrizione |
+| Control | Description |
 |---|---|
-| **◀ / ▶** | Navigazione tra le pagine precedente e successiva |
-| **Contatore pagine** | Indica la pagina corrente e il numero totale (es. "2 / 5") |
-| **Aggiungi pagina** | Inserisce una nuova pagina vuota dopo quella corrente |
-| **Duplica pagina** | Crea una copia della pagina corrente con tutti i suoi elementi |
-| **Elimina pagina** | Rimuove la pagina corrente (non disponibile se è l'unica pagina) |
+| **◀ / ▶** | Navigate between previous and next pages |
+| **Page counter** | Shows the current page and total number (e.g., "2 / 5") |
+| **Add page** | Inserts a new blank page after the current one |
+| **Duplicate page** | Creates a copy of the current page with all its elements |
+| **Delete page** | Removes the current page (not available if it's the only page) |
 
-### 2. Palette Componenti (a sinistra)
+### 2. Component Palette (on the left)
 
-Elenco dei componenti disponibili per il trascinamento sull'area di editing, organizzati in categorie con accordion:
+List of available components for dragging onto the editing area, organized in categories with accordion:
 
-| Categoria | Componenti |
+| Category | Components |
 |---|---|
-| **Forme base** | Rettangolo, Cerchio, Linea, Divisore |
-| **Testo** | Testo, Lista, Citazione, Blocco codice |
-| **Dati** | Tabella, Barcode, QR Code, Grafico |
-| **Media** | Immagine, Icona |
-| **Layout** | Contenitore, Gruppo, Spaziatore, Taglio pagina |
-| **Dinamici** | N. Pagina, Data, Barra avanzamento |
-| **Stile** | Watermark, Timbro, Callout, Firma |
+| **Basic shapes** | Rectangle, Circle, Line, Divider |
+| **Text** | Text, List, Quote, Code block |
+| **Data** | Table, Barcode, QR Code, Chart |
+| **Media** | Image, Icon |
+| **Layout** | Container, Group, Spacer, Page break |
+| **Dynamic** | Page No., Date, Progress bar |
+| **Style** | Watermark, Stamp, Callout, Signature |
 
-**Come inserire un componente**: trascina il componente desiderato dalla palette e rilascialo sull'area di editing. L'elemento verrà posizionato con snap alla griglia più vicina.
+**How to insert a component**: drag the desired component from the palette and drop it onto the editing area. The element will be positioned with snap to the nearest grid.
 
-### 3. Area Canvas e Righelli
+### 3. Canvas Area and Rulers
 
-L'area centrale è l'area di editing principale, dotata di:
+The central area is the main editing area, equipped with:
 
-- **Righello orizzontale** (in alto): mostra la scala in centimetri con tacche per ogni millimetro. Si sincronizza automaticamente con pan e zoom dell'area canvas.
-- **Righello verticale** (a sinistra): mostra la scala in centimetri con tacche per ogni millimetro. Si sincronizza automaticamente con pan e zoom dell'area canvas.
-- **Pagine**: rappresenta i fogli bianchi con dimensioni configurabili (default A4: 210×297 mm). Le pagine multiple si dispongono verticalmente nell'area di editing, separate da un divisore visivo. Ogni pagina ha le proprie impostazioni indipendenti (dimensioni, header, footer)
-- **Griglia di sfondo**: griglia leggermente visibile per orientamento
+- **Horizontal ruler** (at the top): shows the scale in centimeters with marks for every millimeter. It automatically syncs with pan and zoom of the canvas area.
+- **Vertical ruler** (on the left): shows the scale in centimeters with marks for every millimeter. It automatically syncs with pan and zoom of the canvas area.
+- **Pages**: represents the white sheets with configurable dimensions (default A4: 210×297 mm). Multiple pages are arranged vertically in the editing area, separated by a visual divider. Each page has its own independent settings (dimensions, header, footer)
+- **Background grid**: slightly visible grid for orientation
 
-**Navigazione**:
-- **Pan** (spostamento): trascina il mouse sullo sfondo dell'area canvas (cursore assume forma di "mano")
-- **Zoom**: tieni premuto `Ctrl` e usa la rotella del mouse per ingrandire/rimpicciolire (range: 0.2x – 5x)
-- **Centraggio**: al primo caricamento, la pagina viene centrata automaticamente nell'area disponibile
-- **Pagina corrente**: la pagina attualmente in modifica è evidenziata; gli elementi di altre pagine sono visualizzati con minore opacità
+**Navigation**:
+- **Pan** (movement): drag the mouse on the canvas background (cursor changes to "hand" shape)
+- **Zoom**: hold `Ctrl` and use the mouse wheel to zoom in/out (range: 0.2x – 5x)
+- **Centering**: on first load, the page is automatically centered in the available area
+- **Current page**: the page currently being edited is highlighted; elements from other pages are displayed with reduced opacity
 
-### 4. Pannello Proprietà (a destra)
+### 4. Properties Panel (on the right)
 
-Mostra e permette di modificare le proprietà dell'elemento selezionato o della pagina. Tutte le etichette e le stringhe del pannello sono tradotte tramite vue-i18n nelle 5 lingue supportate.
+Shows and allows you to modify the properties of the selected element or page. All panel labels and strings are translated via vue-i18n in the 5 supported languages.
 
-**Proprietà della pagina** (indipendenti per ogni pagina):
-- Formato carta (A4, A3, Letter, personalizzato)
-- Dimensioni (icona ↔ larghezza, icona ↕ altezza in mm)
-- Margini (icona Y↑ top, X→ right, Y↓ bottom, ←X left)
-- Header/Footer (icona ⊤ altezza header, icona ⊥ altezza footer in mm)
-- **Copia Header da**: seleziona una pagina sorgente da cui copiare gli elementi header
-- **Copia Footer da**: seleziona una pagina sorgente da cui copiare gli elementi footer
+**Page properties** (independent for each page):
+- Paper format (A4, A3, Letter, custom)
+- Dimensions (↔ width icon, ↕ height icon in mm)
+- Margins (Y↑ top icon, X→ right icon, Y↓ bottom icon, ←X left icon)
+- Header/Footer (⊤ header height icon, ⊥ footer height icon in mm)
+- **Copy Header from**: select a source page to copy header elements from
+- **Copy Footer from**: select a source page to copy footer elements from
 
-**Proprietà dell'elemento** (variano per tipo):
-- Posizione (x, y in mm)
-- Dimensioni (width, height in mm)
-- Stile (font, colore, allineamento, ecc.)
+**Element properties** (vary by type):
+- Position (x, y in mm)
+- Dimensions (width, height in mm)
+- Style (font, color, alignment, etc.)
 
 ---
 
-## Funzionalità Avanzate
+## Advanced Features
 
-### Tema Chiaro/Scuro
+### Light/Dark Theme
 
-L'editor supporta due temi visivi: chiaro e scuro. Per alternare tra i temi, cliccare il pulsante della luna/sole nella barra degli strumenti. La preferenza viene salvata automaticamente nel browser.
+The editor supports two visual themes: light and dark. To toggle between themes, click the moon/sun button in the toolbar. The preference is automatically saved in the browser.
 
-### Selezione Multipla
+### Multiple Selection
 
-Per selezionare più elementi contemporaneamente:
-- **Shift+Clicca** su ogni elemento da aggiungere alla selezione
-- Gli elementi selezionati sono evidenziati con bordo blu
-- Trascinando un elemento selezionato, si spostano tutti gli elementi selezionati
-- Il pannello proprietà mostra "N elementi selezionati"
+To select multiple elements simultaneously:
+- **Shift+Click** on each element to add to the selection
+- Selected elements are highlighted with a blue border
+- Dragging a selected element moves all selected elements
+- The properties panel shows "N elements selected"
 
-### Allineamento e Distribuzione
+### Alignment and Distribution
 
-Quando due o più elementi sono selezionati, la barra degli strumenti mostra i pulsanti di allineamento:
+When two or more elements are selected, the alignment buttons appear in the toolbar:
 
-| Pulsante | Descrizione |
+| Button | Description |
 |---|---|
-| **Allinea a sinistra** | Allinea tutti gli elementi al bordo sinistro |
-| **Allinea al centro** | Allinea tutti gli elementi al centro orizzontale |
-| **Allinea a destra** | Allinea tutti gli elementi al bordo destro |
-| **Allinea in alto** | Allinea tutti gli elementi al bordo superiore |
-| **Allinea al centro verticale** | Allinea tutti gli elementi al centro verticale |
-| **Allinea in basso** | Allinea tutti gli elementi al bordo inferiore |
+| **Align left** | Aligns all elements to the left edge |
+| **Align center** | Aligns all elements to the horizontal center |
+| **Align right** | Aligns all elements to the right edge |
+| **Align top** | Aligns all elements to the top edge |
+| **Align vertical center** | Aligns all elements to the vertical center |
+| **Align bottom** | Aligns all elements to the bottom edge |
 
-Quando tre o più elementi sono selezionati, sono disponibili anche i pulsanti di distribuzione:
+When three or more elements are selected, the distribution buttons are also available:
 
-| Pulsante | Descrizione |
+| Button | Description |
 |---|---|
-| **Distribuisci orizzontalmente** | Distribuisce gli elementi con spaziatura uniforme orizzontale |
-| **Distribuisci verticalmente** | Distribuisce gli elementi con spaziatura uniforme verticale |
+| **Distribute horizontally** | Distributes elements with uniform horizontal spacing |
+| **Distribute vertically** | Distributes elements with uniform vertical spacing |
 
-### Raggruppamento
+### Grouping
 
-Per raggruppare più elementi in un unico blocco:
-1. Seleziona gli elementi da raggruppare (Shift+Clicca)
-2. Clicca il pulsante "Raggruppa" nella barra degli strumenti (o `Ctrl+G`)
-3. Gli elementi vengono combinati in un gruppo
-4. Il gruppo può essere spostato e ridimensionato come un singolo elemento
-5. Per separare il gruppo, selezionalo e clicca "Separa" (o `Ctrl+Shift+G`)
+To group multiple elements into a single block:
+1. Select the elements to group (Shift+Click)
+2. Click the "Group" button in the toolbar (or `Ctrl+G`)
+3. The elements are combined into a group
+4. The group can be moved and resized as a single element
+5. To ungroup, select the group and click "Ungroup" (or `Ctrl+Shift+G`)
 
-### Copia e Incolla tra Pagine
+### Copy and Paste Between Pages
 
-Per copiare elementi da una pagina a un'altra:
-1. Seleziona gli elementi da copiare
-2. Premi `Ctrl+C` per copiare
-3. Naviga alla pagina di destinazione
-4. Premi `Ctrl+V` per incollare
-5. Gli elementi vengono incollati con un offset di 5mm
+To copy elements from one page to another:
+1. Select the elements to copy
+2. Press `Ctrl+C` to copy
+3. Navigate to the destination page
+4. Press `Ctrl+V` to paste
+5. The elements are pasted with a 5mm offset
 
-### Ricerca e Sostituzione
+### Find and Replace
 
-Per cercare e sostituire testo nel documento:
-1. Premi `Ctrl+F` per aprire la barra di ricerca
-2. Inserisci il testo da cercare
-3. Usa i pulsanti ◀/▶ o premi Enter/Shift+Enter per navigare tra i risultati
-4. Inserisci il testo di sostituzione nel secondo campo
-5. Clicca "S" per sostituire il risultato corrente o "SA" per sostituire tutti
-6. Premi Esc per chiudere la barra
+To find and replace text in the document:
+1. Press `Ctrl+F` to open the search bar
+2. Enter the text to search for
+3. Use the ◀/▶ buttons or press Enter/Shift+Enter to navigate between results
+4. Enter the replacement text in the second field
+5. Click "R" to replace the current result or "RA" to replace all
+6. Press Esc to close the bar
 
-### Pannello Livelli
+### Layers Panel
 
-Il pannello livelli (a sinistra) mostra tutti gli elementi della pagina corrente:
-- **Selezione**: clicca su un elemento nella lista per selezionarlo
-- **Visibilità**: clicca sull'icona occhio per nascondere/mostrare un elemento
-- **Blocco**: clicca sull'icona lucchetto per bloccare/sbloccare un elemento
-- Gli elementi nascosti sono visualizzati con opacità ridotta
-- Gli elementi bloccati non possono essere selezionati o modificati sull'canvas
+The layers panel (on the left) shows all elements of the current page:
+- **Selection**: click on an element in the list to select it
+- **Visibility**: click the eye icon to hide/show an element
+- **Lock**: click the lock icon to lock/unlock an element
+- Hidden elements are displayed with reduced opacity
+- Locked elements cannot be selected or modified on the canvas
 
-### Selezione e Spostamento
+### Selection and Movement
 
-- **Clicca** su un elemento per selezionarlo. Appariranno 8 maniglie di ridimensionamento (4 angoli + 4 lati).
-- **Shift+Clicca** su un elemento per aggiungerlo alla selezione (selezione multipla).
-- **Trascina** un elemento selezionato per spostarlo. Il posizionamento segue la griglia di snap.
-- Quando più elementi sono selezionati, trascinando un elemento si spostano tutti quelli selezionati.
-- **Clicca** sullo sfondo per deselezionare tutti gli elementi.
-- **Selezione multi-pagina**: gli elementi delle altre pagine sono visualizzati con minore opacità e non sono selezionabili; solo gli elementi della pagina corrente possono essere selezionati e modificati.
+- **Click** on an element to select it. 8 resize handles will appear (4 corners + 4 sides).
+- **Shift+Click** on an element to add it to the selection (multiple selection).
+- **Drag** a selected element to move it. Positioning follows the snap grid.
+- When multiple elements are selected, dragging one element moves all selected elements.
+- **Click** on the background to deselect all elements.
+- **Multi-page selection**: elements from other pages are displayed with reduced opacity and cannot be selected; only elements of the current page can be selected and modified.
 
-### Ridimensionamento
+### Resizing
 
-- Trascina una delle 8 maniglie per ridimensionare l'elemento.
-- Dimensione minima: 5mm per lato.
-- **Doppio clic** su una maniglia per l'**auto-dimensionamento**: l'elemento si adatta automaticamente al suo contenuto (utile per testo e liste).
+- Drag one of the 8 handles to resize the element.
+- Minimum size: 5mm per side.
+- **Double-click** on a handle for **auto-sizing**: the element automatically adapts to its content (useful for text and lists).
 
-### Editing Inline
+### Inline Editing
 
-- **Doppio clic** su un elemento di testo per modificare il contenuto direttamente sull'area di editing.
-- **Doppio clic** su un elemento lista per modificare gli elementi della lista.
-- Per le liste: `Tab` aumenta l'indentazione, `Ctrl+Tab` la diminuisce.
-- Premi `Escape` o clicca fuori per uscire dall'editing.
+- **Double-click** on a text element to edit the content directly on the editing area.
+- **Double-click** on a list element to edit the list items.
+- For lists: `Tab` increases indentation, `Ctrl+Tab` decreases it.
+- Press `Escape` or click outside to exit editing.
 
-### Scorciatoie da Tasto
+### Keyboard Shortcuts
 
-| Combinazione | Azione |
+| Combination | Action |
 |---|---|
-| `Ctrl+Z` | Annulla |
-| `Ctrl+Shift+Z` / `Ctrl+Y` | Ripristina |
-| `Ctrl+D` | Duplica elemento selezionato |
-| `Delete` | Elimina elemento selezionato |
-| `Ctrl+C` | Copia elementi selezionati |
-| `Ctrl+V` | Incolla elementi copiati |
-| `Ctrl+G` | Raggruppa elementi selezionati |
-| `Ctrl+Shift+G` | Separa gruppo selezionato |
-| `Ctrl+F` | Apri/chiudi barra di ricerca |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Shift+Z` / `Ctrl+Y` | Redo |
+| `Ctrl+D` | Duplicate selected element |
+| `Delete` | Delete selected element |
+| `Ctrl+C` | Copy selected elements |
+| `Ctrl+V` | Paste copied elements |
+| `Ctrl+G` | Group selected elements |
+| `Ctrl+Shift+G` | Ungroup selected group |
+| `Ctrl+F` | Open/close search bar |
 
 ---
 
-## Gestione Pagine Multiple
+## Multiple Page Management
 
-engiPDF supporta documenti con pagine multiple. Ogni pagina è un'unità indipendente con le proprie impostazioni e i propri elementi.
+engiPDF supports documents with multiple pages. Each page is an independent unit with its own settings and elements.
 
-### Creazione e Gestione delle Pagine
+### Page Creation and Management
 
-- **Pagina predefinita**: ogni nuovo documento inizia con una singola pagina
-- **Aggiungi pagina**: clicca il pulsante "+" nella barra degli strumenti per inserire una nuova pagina vuota dopo quella corrente
-- **Duplica pagina**: copia tutti gli elementi della pagina corrente in una nuova pagina
-- **Elimina pagina**: rimuove la pagina corrente (non disponibile con una sola pagina)
-- **Navigazione**: usa le frecce ◀/▶ o il contatore pagine per navigare tra le pagine
+- **Default page**: each new document starts with a single page
+- **Add page**: click the "+" button in the toolbar to insert a new blank page after the current one
+- **Duplicate page**: copies all elements of the current page to a new page
+- **Delete page**: removes the current page (not available with only one page)
+- **Navigation**: use the ◀/▶ arrows or the page counter to navigate between pages
 
-### Organizzazione delle Pagine
+### Page Organization
 
-Le pagine si dispongono verticalmente nell'area di editing:
-- Ogni pagina è separata da un divisore visivo con il numero della pagina
-- La pagina corrente è evidenziata e gli elementi delle altre pagine sono visualizzati con minore opacità
-- Lo scroll verticale dell'area canvas mostra tutte le pagine in sequenza
+Pages are arranged vertically in the editing area:
+- Each page is separated by a visual divider with the page number
+- The current page is highlighted and elements from other pages are displayed with reduced opacity
+- Vertical scrolling of the canvas area shows all pages in sequence
 
-### Proprietà Indipendenti per Pagina
+### Independent Page Properties
 
-Ogni pagina ha le proprie impostazioni configurabili nel pannello proprietà:
-- **Formato carta**: A4, A3, Letter, personalizzato
-- **Dimensioni**: icona ↔ larghezza, icona ↕ altezza in mm
-- **Margini**: icona Y↑ top, X→ right, Y↓ bottom, ←X left
-- **Header/Footer**: icona ⊤ altezza header, icona ⊥ altezza footer in mm
+Each page has its own configurable settings in the properties panel:
+- **Paper format**: A4, A3, Letter, custom
+- **Dimensions**: ↔ width icon, ↕ height icon in mm
+- **Margins**: Y↑ top icon, X→ right icon, Y↓ bottom icon, ←X left icon
+- **Header/Footer**: ⊤ header height icon, ⊥ footer height icon in mm
 
-### Associazione Elementi alle Pagine
+### Element-to-Page Association
 
-Ogni elemento è associato a una specifica pagina tramite il campo `pageId`:
-- Gli elementi vengono posizionati solo sulla pagina a cui appartengono
-- Quando un elemento viene trascinato oltre i confini della sua pagina, viene mostrato un indicatore "Fuori pagina"
-- L'indicatore include un pulsante per spostare automaticamente l'elemento alla pagina successiva
-- Gli elementi non possono essere spostati manualmente tra le pagine; il spostamento avviene solo tramite il pulsante "Sposta alla pagina successiva"
+Each element is associated with a specific page via the `pageId` field:
+- Elements are positioned only on the page they belong to
+- When an element is dragged beyond the boundaries of its page, an "Off page" indicator is shown
+- The indicator includes a button to automatically move the element to the next page
+- Elements cannot be manually moved between pages; movement is only done via the "Move to next page" button
 
-### Indicatori di Sovrapposizione
+### Overlap Indicators
 
-Quando un elemento eccede i confini della pagina:
-- Viene visualizzato un banner "Fuori pagina" con un pulsante "Sposta alla pagina successiva"
-- Cliccando il pulsante, l'elemento viene automaticamente spostato alla pagina successiva mantenendo le sue coordinate relative
-- Se l'elemento viene ridimensionato entro i confini, l'indicatore scompare automaticamente
-
----
-
-## Tipi di Elemento
-
-### Testo
-Elemento di testo libero con stili personalizzabili:
-- **Font**: Helvetica, Times, Courier e varianti (Bold, Italic, BoldItalic)
-- **Font personalizzati**:支持 TTF tramite upload nel pannello proprietà
-- **Dimensione**: in punti
-- **Colore**: RGB
-- **Allineamento**: sinistra, centro, destra, giustificato
-- **Stile**: grassetto, corsivo, sottolineato
-- **Interlinea**: rapporto tra altezza di riga
-
-### Rettangolo
-Forma rettangolare con:
-- **Colore di riempimento** (fill): RGB opzionale
-- **Colore del bordo** (stroke): RGB opzionale
-- **Spessore del bordo**: in punti
-
-### Linea
-Linea con:
-- **Colore**: RGB
-- **Spessore**: in punti
-- Punti di estremità definiti da coordinate (x, y) e (x2, y2)
-
-### Lista
-Lista puntata o numerata con:
-- **Tipo bullet**: cerchio, quadrato, trattino, diamante, freccia, numero
-- **Livelli di annidamento**: supporto ricorsivo con `Tab` / `Ctrl+Tab`
-- **Stile testo**: stesso delle stringhe di testo
-- **Indentazione**: spaziatura bullet e testo configurabile
-
-### Immagine
-Area per immagini:
-- **Supporto formati**: JPG, PNG, SVG (via upload)
-- **Modalità adattamento**: contain, cover, stretch
-- **Doppio clic** per cambiare immagine
-
-### Tabella
-Tabella con intestazioni e righe dati:
-- **Nome**: identificativo della tabella, usato come placeholder per i dati (`{{ nome }}`)
-- **Colonne**: numero configurabile, con larghezze proporzionali
-- **Intestazioni**: testo e stile individuali per colonna (font, dimensione, grassetto, corsivo, colore, allineamento)
-- **Stile celle dati**: impostazioni di default applicabili a tutte le celle, con sfondo personalizzabile
-- **Righe dati**: ogni cella può avere uno stile diverso (allineamento, grassetto, colore sfondo, etc.)
-- **Ripeti intestazione**: checkbox per ripetere la prima riga su ogni nuova pagina
-- **Dati dinamici**: passare un array PHP con lo stesso nome della tabella per popolare le righe
-- **Paginazione automatica**: quando la tabella supera l'area disponibile tra header e footer, viene automaticamente spezzata su più pagine con ripetizione dell'intestazione
-
-### Gruppo
-Contenitore per raggruppare più elementi:
-- **Raggruppamento**: combina più elementi in un unico blocco
-- **Spostamento**: il gruppo può essere spostato come un singolo elemento
-- **Ridimensionamento**: il gruppo può essere ridimensionato
-- **Separazione**: il gruppo può essere separato per ripristinare gli elementi originali
+When an element exceeds the page boundaries:
+- An "Off page" banner is displayed with a "Move to next page" button
+- Clicking the button automatically moves the element to the next page while maintaining its relative coordinates
+- If the element is resized within the boundaries, the indicator automatically disappears
 
 ---
 
-## Righelli
+## Element Types
 
-L'editor include due righelli sincronizzati con l'area di editing, simili a quelli di Microsoft Word:
+### Text
+Free text element with customizable styles:
+- **Font**: Helvetica, Times, Courier and variants (Bold, Italic, BoldItalic)
+- **Custom fonts**: supports TTF via upload in the properties panel
+- **Size**: in points
+- **Color**: RGB
+- **Alignment**: left, center, right, justified
+- **Style**: bold, italic, underline
+- **Line height**: line height ratio
 
-### Righello Orizzontale (in alto)
-- Posizionato nella parte superiore dell'area canvas, a destra della palette componenti
-- Mostra la scala in centimetri con tacche per ogni millimetro
-- Tacche maggiore (numerarie) ogni centimetro
-- Tacche medie ogni 5mm
-- Tacche minori ogni mm
-- Si aggiorna automaticamente durante pan e zoom
-- Le coordinate si riferiscono alla pagina corrente
+### Rectangle
+Rectangular shape with:
+- **Fill color**: optional RGB
+- **Stroke color**: optional RGB
+- **Stroke width**: in points
 
-### Righello Verticale (a sinistra)
-- Posizionato nella parte sinistra dell'area canvas, sotto la barra degli strumenti
-- Mostra la scala in centimetri con tacche per ogni millimetro
-- Numeri ruotati verticalmente per leggibilità
-- Si aggiorna automaticamente durante pan e zoom
-- Le coordinate si riferiscono alla pagina corrente
+### Line
+Line with:
+- **Color**: RGB
+- **Width**: in points
+- Endpoints defined by coordinates (x, y) and (x2, y2)
 
-### Angolo di Intersezione
-- Area grigia nell'angolo superiore-sinistro dove i due righelli si incontrano
-- Funge da area di riferimento visivo
+### List
+Bulleted or numbered list with:
+- **Bullet type**: circle, square, dash, diamond, arrow, number
+- **Nesting levels**: recursive support with `Tab` / `Ctrl+Tab`
+- **Text style**: same as text strings
+- **Indentation**: configurable bullet and text spacing
+
+### Image
+Image area:
+- **Supported formats**: JPG, PNG, SVG (via upload)
+- **Fit mode**: contain, cover, stretch
+- **Double-click** to change image
+
+### Table
+Table with headers and data rows:
+- **Name**: table identifier, used as a placeholder for data (`{{ name }}`)
+- **Columns**: configurable number, with proportional widths
+- **Headers**: individual text and style per column (font, size, bold, italic, color, alignment)
+- **Data cell style**: default settings applicable to all cells, with customizable background
+- **Data rows**: each cell can have a different style (alignment, bold, background color, etc.)
+- **Repeat header**: checkbox to repeat the first row on every new page
+- **Dynamic data**: pass a PHP array with the same name as the table to populate the rows
+- **Auto pagination**: when the table exceeds the available area between header and footer, it is automatically split across multiple pages with header repetition
+
+### Group
+Container to group multiple elements:
+- **Grouping**: combines multiple elements into a single block
+- **Movement**: the group can be moved as a single element
+- **Resizing**: the group can be resized
+- **Ungrouping**: the group can be ungrouped to restore the original elements
 
 ---
 
-## Esportazione e Importazione
+## Rulers
 
-### Esporta JSON
-Salva l'intero template in formato JSON, includendo:
-- Impostazioni pagine (multiple)
-- Tutti gli elementi con le loro proprietà
-- Immagini incorporate (base64)
-- Font personalizzati (riferimenti)
+The editor includes two rulers synchronized with the editing area, similar to those in Microsoft Word:
 
-### Importa JSON
-Carica un template JSON precedentemente salvato dall'editor.
+### Horizontal Ruler (at the top)
+- Positioned at the top of the canvas area, to the right of the component palette
+- Shows the scale in centimeters with marks for every millimeter
+- Major (numbered) marks every centimeter
+- Medium marks every 5mm
+- Minor marks every mm
+- Updates automatically during pan and zoom
+- Coordinates refer to the current page
 
-### Incolla JSON
-Incolla direttamente un JSON scritto a mano nell'editor. Il sistema gestisce automaticamente:
-- **ID mancanti**: genera UUID per pagine e elementi
-- **pageId mancanti**: assegna gli elementi alla prima pagina
-- **Impostazioni mancanti**: applica i valori predefiniti (formato A4, margini standard)
-- **Campi opzionali**: completa i campi mancanti con valori di default
+### Vertical Ruler (on the left)
+- Positioned on the left side of the canvas area, below the toolbar
+- Shows the scale in centimeters with marks for every millimeter
+- Numbers rotated vertically for readability
+- Updates automatically during pan and zoom
+- Coordinates refer to the current page
 
-Questo permette di importare template JSON creati manualmente seguendo il formato descritto in [`template.md`](../template.md).
-
-### Genera PDF
-Utilizza il template JSON per generare un file PDF tramite il motore PHP nativo:
-- Apri il terminale nella cartella `engine/`
-- Esegui: `php generate.php template.json output.pdf`
-- Il PDF conterrà tutte le pagine definite nel template nell'ordine especificato
+### Intersection Corner
+- Gray area in the upper-left corner where the two rulers meet
+- Serves as a visual reference area
 
 ---
 
-## Formato Documento (JSON)
+## Export and Import
 
-Il template è un file JSON. La versione attuale è la versione 2, che supporta pagine multiple.
+### Export JSON
+Save the entire template in JSON format, including:
+- Page settings (multiple)
+- All elements with their properties
+- Embedded images (base64)
+- Custom fonts (references)
 
-> **Riferimento completo**: Per un esempio JSON con **tutti i componenti** e **tutte le proprietà** supportate, consulta il file [`template.md`](../template.md) nella root del progetto.
+### Import JSON
+Load a previously saved JSON template from the editor.
 
-### Formato Versione 2 (attuale)
+### Paste JSON
+Paste a handwritten JSON directly into the editor. The system automatically handles:
+- **Missing IDs**: generates UUIDs for pages and elements
+- **Missing pageId**: assigns elements to the first page
+- **Missing settings**: applies default values (A4 format, standard margins)
+- **Optional fields**: fills in missing fields with default values
+
+This allows importing JSON templates created manually following the format described in [`template.md`](../template.md).
+
+### Generate PDF
+Use the JSON template to generate a PDF file via the native PHP engine:
+- Open the terminal in the `engine/` folder
+- Run: `php generate.php template.json output.pdf`
+- The PDF will contain all pages defined in the template in the specified order
+
+---
+
+## Document Format (JSON)
+
+The template is a JSON file. The current version is version 2, which supports multiple pages.
+
+> **Complete reference**: For a JSON example with **all components** and **all supported properties**, see the [`template.md`](../template.md) file in the project root.
+
+### Version 2 Format (current)
 
 ```json
 {
   "version": 2,
-  "name": "Nome Documento",
+  "name": "Document Name",
   "pages": [
     {
       "id": "page-1",
@@ -402,7 +402,7 @@ Il template è un file JSON. La versione attuale è la versione 2, che supporta 
       "y": 20,
       "width": 170,
       "height": 15,
-      "text": "Titolo Pagina 1",
+      "text": "Page 1 Title",
       "style": {
         "font": "helvetica",
         "weight": "bold",
@@ -418,7 +418,7 @@ Il template è un file JSON. La versione attuale è la versione 2, che supporta 
       "y": 20,
       "width": 170,
       "height": 15,
-      "text": "Contenuto Pagina 2",
+      "text": "Page 2 Content",
       "style": {
         "font": "times",
         "weight": "normal",
@@ -431,39 +431,39 @@ Il template è un file JSON. La versione attuale è la versione 2, che supporta 
 }
 ```
 
-### Struttura Versione 2
+### Version 2 Structure
 
-| Campo | Tipo | Descrizione |
+| Field | Type | Description |
 |---|---|---|
-| `version` | number | Versione del formato (deve essere 2) |
-| `name` | string | Nome del documento |
-| `pages` | array | Array di oggetti pagina, ognuno con le proprie impostazioni |
-| `pages[].id` | string | Identificativo univoco della pagina |
-| `pages[].width` | number | Larghezza pagina in mm |
-| `pages[].height` | number | Altezza pagina in mm |
-| `pages[].margins` | object | Margini della pagina (top, right, bottom, left) |
-| `pages[].headerHeight` | number | Altezza area header in mm |
-| `pages[].footerHeight` | number | Altezza area footer in mm |
-| `pages[].headerSourcePageId` | string | ID della pagina sorgente per copiare l'header (opzionale) |
-| `pages[].footerSourcePageId` | string | ID della pagina sorgente per copiare il footer (opzionale) |
-| `defaultFont` | string | Font predefinito per il documento |
-| `elements` | array | Array di tutti gli elementi di tutte le pagine |
-| `elements[].pageId` | string | ID della pagina a cui appartiene l'elemento |
+| `version` | number | Format version (must be 2) |
+| `name` | string | Document name |
+| `pages` | array | Array of page objects, each with its own settings |
+| `pages[].id` | string | Unique page identifier |
+| `pages[].width` | number | Page width in mm |
+| `pages[].height` | number | Page height in mm |
+| `pages[].margins` | object | Page margins (top, right, bottom, left) |
+| `pages[].headerHeight` | number | Header area height in mm |
+| `pages[].footerHeight` | number | Footer area height in mm |
+| `pages[].headerSourcePageId` | string | Source page ID for copying header (optional) |
+| `pages[].footerSourcePageId` | string | Source page ID for copying footer (optional) |
+| `defaultFont` | string | Default font for the document |
+| `elements` | array | Array of all elements from all pages |
+| `elements[].pageId` | string | ID of the page the element belongs to |
 
 ### Backward Compatibility
 
-I template nella versione 1 vengono migrati automaticamente all'apertura:
-- Il campo `page` singolo viene convertito in un array `pages[]` con un singolo elemento
-- Gli esistenti `elements` vengono associati automaticamente alla prima pagina
-- La versione del formato viene aggiornata da 1 a 2
-- La migrazione è trasparente e non modifica il layout esistente
+Version 1 templates are automatically migrated on opening:
+- The single `page` field is converted to a `pages[]` array with a single element
+- Existing `elements` are automatically assigned to the first page
+- The format version is updated from 1 to 2
+- The migration is transparent and does not modify the existing layout
 
-### Formato Versione 1 (obsoleto)
+### Version 1 Format (obsolete)
 
 ```json
 {
   "version": 1,
-  "name": "Nome Documento",
+  "name": "Document Name",
   "page": {
     "width": 210,
     "height": 297,
@@ -477,132 +477,132 @@ I template nella versione 1 vengono migrati automaticamente all'apertura:
 }
 ```
 
-**Nota**: il formato versione 1 è obsoleto. Tutti i nuovi template dovrebbero utilizzare la versione 2.
+**Note**: version 1 format is obsolete. All new templates should use version 2.
 
 ---
 
-## Programmabilità
+## Programmability
 
-engiPDF supporta la logica condizionale e la generazione dinamica di contenuti direttamente nei template JSON.
+engiPDF supports conditional logic and dynamic content generation directly in JSON templates.
 
-### Visibilità Condizionale (showIf)
+### Conditional Visibility (showIf)
 
-Ogni elemento può avere un campo `showIf` che ne controlla la visibilità in base ai dati:
+Each element can have a `showIf` field that controls its visibility based on data:
 
 ```json
 {
   "type": "text",
-  "text": "Sconto applicato",
-  "showIf": { "field": "ordine.stato", "op": "eq", "value": "scontato" }
+  "text": "Discount applied",
+  "showIf": { "field": "order.status", "op": "eq", "value": "discounted" }
 }
 ```
 
-**Operatori disponibili**: `eq`, `neq`, `gt`, `lt`, `gte`, `lte`, `empty`, `notempty`, `contains`
+**Available operators**: `eq`, `neq`, `gt`, `lt`, `gte`, `lte`, `empty`, `notempty`, `contains`
 
-Se la condizione non è soddisfatta, l'elemento non viene renderizzato nel PDF né visualizzato nell'editor.
+If the condition is not met, the element is not rendered in the PDF nor displayed in the editor.
 
-**Come impostare una condizione nell'editor**:
-1. Seleziona l'elemento nel canvas
-2. Nel Pannello Proprietà (destra), scorri fino a "Programmabilità"
-3. Attiva il checkbox "Condizione visibilità"
-4. Nel campo "Campo", seleziona dal dropdown il percorso del dato (es. `ordine.stato → "pagato"`)
-5. Scegli l'operatore (es. "Uguale a")
-6. Inserisci il valore da confrontare
-7. Nell'editor vedrai subito l'anteprima: se `ordine.stato` nel sampleData è "pagato", l'elemento è visibile
+**How to set a condition in the editor**:
+1. Select the element on the canvas
+2. In the Properties Panel (right), scroll to "Programmability"
+3. Enable the "Visibility condition" checkbox
+4. In the "Field" field, select the data path from the dropdown (e.g., `order.status → "paid"`)
+5. Choose the operator (e.g., "Equals")
+6. Enter the value to compare
+7. In the editor you will see the preview immediately: if `order.status` in the sampleData is "paid", the element is visible
 
-Se il campo che cerchi non è nel dropdown, seleziona "Personalizza..." per digitare il percorso manualmente.
+If the field you're looking for is not in the dropdown, select "Custom..." to type the path manually.
 
-### Stile Condizionale (styleIf)
+### Conditional Style (styleIf)
 
-Ogni elemento può avere un campo `styleIf` che modifica lo stile in base ai dati:
+Each element can have a `styleIf` field that modifies the style based on data:
 
 ```json
 {
   "type": "text",
-  "text": "Stato: {{ ordine.stato }}",
+  "text": "Status: {{ order.status }}",
   "styleIf": [
-    { "field": "ordine.stato", "op": "eq", "value": "pagato", "then": { "fill": [0, 0.6, 0] } },
-    { "field": "ordine.stato", "op": "eq", "value": "scaduto", "then": { "fill": [0.8, 0, 0] } }
+    { "field": "order.status", "op": "eq", "value": "paid", "then": { "fill": [0, 0.6, 0] } },
+    { "field": "order.status", "op": "eq", "value": "overdue", "then": { "fill": [0.8, 0, 0] } }
   ]
 }
 ```
 
-La prima regola che restituisce true applica lo stile definito in `then`. Il campo `fill` imposta il colore del testo.
+The first rule that returns true applies the style defined in `then`. The `fill` field sets the text color.
 
-### Ripetizione su Tutte le Pagine (repeatOnAllPages)
+### Repeat on All Pages (repeatOnAllPages)
 
-Alcuni elementi possono essere ripetuti automaticamente su ogni pagina del documento:
+Some elements can be automatically repeated on every page of the document:
 
-1. Seleziona l'elemento nel canvas
-2. Nel Pannello Proprietà (destra), scorri fino a "Programmabilità"
-3. Attiva il checkbox "Ripeti su tutte le pagine"
+1. Select the element on the canvas
+2. In the Properties Panel (right), scroll to "Programmability"
+3. Enable the "Repeat on all pages" checkbox
 
-**Elementi supportati**: Timbro, Filigrana, Testo, Immagine, Rettangolo, Linea, Ellisse, Divisore
+**Supported elements**: Stamp, Watermark, Text, Image, Rectangle, Line, Ellipse, Divider
 
-**Esempio d'uso**: Un timbro "BOZZA" o "RISERVATO" che deve apparire su ogni pagina del documento.
+**Use case example**: A "DRAFT" or "CONFIDENTIAL" stamp that should appear on every page of the document.
 
-### Ripetizione Dati (DataRepeat)
+### Data Repeat
 
-Il componente "Ripeti dati" genera automaticamente copie dei suoi elementi figli per ogni elemento di un array nei dati:
+The "Data repeat" component automatically generates copies of its child elements for each element in a data array:
 
-1. Trascina "Ripeti dati" dalla palette
-2. Imposta il "Campo dati" (es. `articoli`)
-3. Aggiungi gli elementi figli come contenitore
-4. Nei testi figli usa `{{ item.nome }}`, `{{ item.prezzo }}` per i campi dell'elemento corrente
+1. Drag "Data repeat" from the palette
+2. Set the "Data field" (e.g., `items`)
+3. Add child elements as a container
+4. In child texts use `{{ item.name }}`, `{{ item.price }}` for the current element fields
 
-### Filtri Placeholder
+### Placeholder Filters
 
-I placeholder `{{ }}` supportano filtri per formattare i dati:
+`{{ }}` placeholders support filters for data formatting:
 
-| Filtro | Esempio | Descrizione |
+| Filter | Example | Description |
 |--------|---------|-------------|
-| `currency` | `{{ importo \| currency }}` | Formato valuta (es. €1.234,56) |
-| `date:"format"` | `{{ data \| date:"d/m/Y" }}` | Formato data PHP |
-| `number:N` | `{{ valore \| number:2 }}` | N cifre decimali |
-| `uppercase` | `{{ testo \| uppercase }}` | Maiuscolo |
-| `lowercase` | `{{ testo \| lowercase }}` | Minuscolo |
-| `capitalize` | `{{ testo \| capitalize }}` | Prima lettera maiuscola |
-| `trim` | `{{ testo \| trim }}` | Rimuove spazi |
-| `truncate:N` | `{{ testo \| truncate:20 }}` | Taglia a N caratteri |
-| `default:"val"` | `{{ testo \| default:"N/A" }}` | Valore di default |
-| `len` | `{{ lista \| len }}` | Lunghezza array |
-| `if:"match":"then":"else"` | `{{ val \| if:"si":"Ok":"No" }}` | Condizionale inline |
+| `currency` | `{{ amount \| currency }}` | Currency format (e.g., €1,234.56) |
+| `date:"format"` | `{{ date \| date:"d/m/Y" }}` | PHP date format |
+| `number:N` | `{{ value \| number:2 }}` | N decimal digits |
+| `uppercase` | `{{ text \| uppercase }}` | Uppercase |
+| `lowercase` | `{{ text \| lowercase }}` | Lowercase |
+| `capitalize` | `{{ text \| capitalize }}` | Capitalize first letter |
+| `trim` | `{{ text \| trim }}` | Removes spaces |
+| `truncate:N` | `{{ text \| truncate:20 }}` | Truncates to N characters |
+| `default:"val"` | `{{ text \| default:"N/A" }}` | Default value |
+| `len` | `{{ list \| len }}` | Array length |
+| `if:"match":"then":"else"` | `{{ val \| if:"yes":"Ok":"No" }}` | Inline conditional |
 
-**Accesso array**: `{{ articoli[0].nome }}` accede al primo elemento.
+**Array access**: `{{ items[0].name }}` accesses the first element.
 
-**Catena filtri**: `{{ testo \| uppercase \| truncate:10 }}` applica prima uppercase poi tronca.
+**Filter chaining**: `{{ text \| uppercase \| truncate:10 }}` applies uppercase first then truncates.
 
-### Componenti con Supporto Placeholder
+### Components with Placeholder Support
 
-I seguenti componenti supportano la sintassi `{{ variabile }}` nei loro campi testuali:
+The following components support `{{ variable }}` syntax in their text fields:
 
-| Componente | Campo/i supportati | Esempio |
+| Component | Supported field(s) | Example |
 |------------|-------------------|---------|
-| **Testo** | `text` | `{{ nome_cliente }}` |
-| **Lista** | `items[].text` | `{{ item.descrizione }}` |
-| **Tabella** | `columns[].header`, `rows[].cells[].text` | `{{ colonna.nome }}` |
-| **Citazione** | `text`, `author` | `{{ citazione.testo }}`, `{{ citazione.autore }}` |
-| **Callout** | `text` | `{{ messaggio }}` |
-| **Checklist** | `items[].text` | `{{ voce.descrizione }}` |
-| **Radio** | `items[].text` | `{{ opzione.etichetta }}` |
-| **Filigrana** | `text` | `{{ company }} - BOZZA` |
-| **Timbro** | `text` | `{{ stato }}` |
-| **Barcode** | `text` | `{{ codice_prodotto }}` |
-| **QR Code** | `text` | `{{ link_registrazione }}` |
-| **Blocco Codice** | `text` | `{{ codice_generato }}` |
-| **Firma** | `label` | `{{ firmatario }}` |
-| **Barra Progresso** | `label` | `{{ percentuale }}%` |
+| **Text** | `text` | `{{ customer_name }}` |
+| **List** | `items[].text` | `{{ item.description }}` |
+| **Table** | `columns[].header`, `rows[].cells[].text` | `{{ column.name }}` |
+| **Quote** | `text`, `author` | `{{ quote.text }}`, `{{ quote.author }}` |
+| **Callout** | `text` | `{{ message }}` |
+| **Checklist** | `items[].text` | `{{ item.description }}` |
+| **Radio** | `items[].text` | `{{ option.label }}` |
+| **Watermark** | `text` | `{{ company }} - DRAFT` |
+| **Stamp** | `text` | `{{ status }}` |
+| **Barcode** | `text` | `{{ product_code }}` |
+| **QR Code** | `text` | `{{ registration_link }}` |
+| **Code Block** | `text` | `{{ generated_code }}` |
+| **Signature** | `label` | `{{ signatory }}` |
+| **Progress Bar** | `label` | `{{ percentage }}%` |
 
 ### Checklist
 
-Il componente "Checklist" mostra una lista con checkbox (□ ☑):
+The "Checklist" component displays a list with checkboxes (□ ☑):
 
 ```json
 {
   "type": "checklist",
   "items": [
-    { "text": "Documenti firmati", "checked": true },
-    { "text": "Pagamento ricevuto", "checked": false }
+    { "text": "Documents signed", "checked": true },
+    { "text": "Payment received", "checked": false }
   ],
   "size": 11,
   "color": [0, 0, 0],
@@ -611,26 +611,26 @@ Il componente "Checklist" mostra una lista con checkbox (□ ☑):
 }
 ```
 
-**Proprietà**:
-- `items`: array di oggetti `{ text, checked }`
-- `size`: dimensione font in punti
-- `color`: colore testo [R, G, B]
-- `checkedColor`: colore checkbox marcata [R, G, B]
-- `gap`: spaziatura verticale tra voci in mm
+**Properties**:
+- `items`: array of `{ text, checked }` objects
+- `size`: font size in points
+- `color`: text color [R, G, B]
+- `checkedColor`: checked checkbox color [R, G, B]
+- `gap`: vertical spacing between items in mm
 
-Nell'editor puoi cliccare le checkbox per anteprima, aggiungere/rimuovere voci dal Pannello Proprietà.
+In the editor you can click the checkboxes for preview, add/remove items from the Properties Panel.
 
 ### Radio
 
-Il componente "Radio" mostra una lista con bottoni radio (○ ●):
+The "Radio" component displays a list with radio buttons (○ ●):
 
 ```json
 {
   "type": "radio",
   "items": [
-    { "text": "Opzione A", "selected": true },
-    { "text": "Opzione B", "selected": false },
-    { "text": "Opzione C", "selected": false }
+    { "text": "Option A", "selected": true },
+    { "text": "Option B", "selected": false },
+    { "text": "Option C", "selected": false }
   ],
   "size": 11,
   "color": [0, 0, 0],
@@ -639,17 +639,17 @@ Il componente "Radio" mostra una lista con bottoni radio (○ ●):
 }
 ```
 
-**Proprietà**:
-- `items`: array di oggetti `{ text, selected }`
-- `size`: dimensione font in punti
-- `color`: colore testo [R, G, B]
-- `selectedColor`: colore cerchio selezionato [R, G, B]
-- `gap`: spaziatura verticale tra voci in mm
+**Properties**:
+- `items`: array of `{ text, selected }` objects
+- `size`: font size in points
+- `color`: text color [R, G, B]
+- `selectedColor`: selected circle color [R, G, B]
+- `gap`: vertical spacing between items in mm
 
-A differenza della checklist, solo un'opzione può essere selezionata alla volta.
+Unlike the checklist, only one option can be selected at a time.
 
 ---
 
-## Documentazione Completa dei Componenti
+## Complete Component Documentation
 
-Per una documentazione dettagliata di ogni componente (proprietà, esempi JSON+PHP, programmabilità), consulta il file [`components-guide.md`](./components-guide.md).
+For detailed documentation of each component (properties, JSON+PHP examples, programmability), see the [`components-guide.md`](./components-guide.md) file.

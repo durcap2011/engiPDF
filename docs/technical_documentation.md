@@ -1,8 +1,8 @@
-# engiPDF - Documentazione Tecnica
+# engiPDF - Technical Documentation
 
-## Architettura Generale
+## General Architecture
 
-engiPDF è un sistema bifasico composto da un editor web (Vue 3 + TypeScript + Vite + Pinia) e un generatore PDF PHP 8.2+ nativo (senza librerie esterne). I due sistemi comunicano tramite file JSON che rappresentano il template del documento.
+engiPDF is a two-phase system composed of a web editor (Vue 3 + TypeScript + Vite + Pinia) and a native PHP 8.2+ PDF generator (without external libraries). The two systems communicate via JSON files that represent the document template.
 
 ```
 ┌──────────────────────────┐     ┌──────────────────────────┐
@@ -28,18 +28,18 @@ engiPDF è un sistema bifasico composto da un editor web (Vue 3 + TypeScript + V
 
 ---
 
-## Frontend - Editor Vue 3
+## Frontend - Vue 3 Editor
 
-### Stack Tecnologico
+### Technology Stack
 - **Vue 3** (Composition API, `<script setup>`)
-- **TypeScript** (type checking con `vue-tsc`)
-- **Vite** (bundler, dev server su porta 5173)
-- **Pinia** (state management con undo/redo)
-- **vue-i18n** (internazionalizzazione, 5 lingue: en, it, es, de, fr)
+- **TypeScript** (type checking with `vue-tsc`)
+- **Vite** (bundler, dev server on port 5173)
+- **Pinia** (state management with undo/redo)
+- **vue-i18n** (internationalization, 5 languages: en, it, es, de, fr)
 
-### Layout della UI (`App.vue`)
+### UI Layout (`App.vue`)
 
-Layout a griglia CSS a 3 pannelli:
+CSS grid layout with 3 panels:
 
 ```css
 .app-layout {
@@ -53,38 +53,38 @@ Layout a griglia CSS a 3 pannelli:
 }
 ```
 
-Componenti del layout:
-- `EditorToolbar` (in alto, altezza fissa ~48px)
-- `LayersPanel` (sinistra, larghezza fissa 220px)
-- `ComponentPalette` (sinistra, larghezza fissa 160px) — palette con accordion per categorie, testi internazionalizzati via vue-i18n (chiavi `palette.*`)
-- `EditorCanvas` (centro, flex: 1) — include i righelli
-- `PropertyPanel` (destra, larghezza fissa 260px)
-- `SearchReplace` (overlay in alto a destra)
+Layout components:
+- `EditorToolbar` (at top, fixed height ~48px)
+- `LayersPanel` (left, fixed width 220px)
+- `ComponentPalette` (left, fixed width 160px) — palette with accordion for categories, internationalized texts via vue-i18n (keys `palette.*`)
+- `EditorCanvas` (center, flex: 1) — includes rulers
+- `PropertyPanel` (right, fixed width 260px)
+- `SearchReplace` (overlay at top right)
 
-### Struttura del Canvas (`EditorCanvas.vue`)
+### Canvas Structure (`EditorCanvas.vue`)
 
-Il canvas è organizzato in una griglia CSS 2×2:
+The canvas is organized in a 2×2 CSS grid:
 
 ```
 ┌──────────────────────────────────┐
-│ RulerCorner │ HorizontalRuler    │  ← riga 1 (24px)
+│ RulerCorner │ HorizontalRuler    │  ← row 1 (24px)
 ├─────────────┼────────────────────┤
-│ VerticalR.  │    EditorCanvas    │  ← riga 2 (flex: 1)
+│ VerticalR.  │    EditorCanvas    │  ← row 2 (flex: 1)
 └─────────────┴────────────────────┘
 ```
 
-**Rendering Multi-Pagina**:
-- Il canvas rende più `PageArtboard` in colonna con spaziatura `PAGE_GAP = 40px`
-- Ogni artboard è indipendente, con le proprie dimensioni e righelli
-- Centraggio iniziale sulla prima pagina al mount del componente
-- `panY` viene calcolato per posizionare la pagina attiva al centro dello viewport
+**Multi-Page Rendering**:
+- The canvas renders multiple `PageArtboard` components in a column with spacing `PAGE_GAP = 40px`
+- Each artboard is independent, with its own dimensions and rulers
+- Initial centering on the first page at component mount
+- `panY` is calculated to position the active page at the center of the viewport
 
-**Proprietà reattive**:
-- `panX`, `panY`: offset di spostamento in pixel
-- `zoom`: fattore di scala (0.2 – 5.0)
-- `isPanning`: flag per trascinamento attivo
+**Reactive properties**:
+- `panX`, `panY`: movement offset in pixels
+- `zoom`: scale factor (0.2 – 5.0)
+- `isPanning`: flag for active dragging
 
-**Trasformazione CSS**: il contenuto del canvas viene trasformato con:
+**CSS Transformation**: the canvas content is transformed with:
 ```css
 transform: translate(panXpx, panYpx) scale(zoom);
 transformOrigin: 0 0;
@@ -92,213 +92,213 @@ transformOrigin: 0 0;
 
 ### PageArtboard (`PageArtboard.vue`)
 
-Ogni pagina viene resa come un componente `PageArtboard`:
+Each page is rendered as a `PageArtboard` component:
 
 **Props**:
-- `page: Page` — oggetto pagina con id, name e settings
-- `isActive: boolean` — indica se è la pagina attualmente selezionata
+- `page: Page` — page object with id, name and settings
+- `isActive: boolean` — indicates whether it is the currently selected page
 
-**Comportamento**:
-- Filtra gli elementi dal document per `element.pageId === page.id`
-- Emette l'evento `selectPage` quando l'utente clicca sull'artboard
-- Mostra un'etichetta con il numero progressivo della pagina in alto a sinistra
-- Evidenzia il bordo quando la pagina è attiva
+**Behavior**:
+- Filters elements from the document by `element.pageId === page.id`
+- Emits the `selectPage` event when the user clicks on the artboard
+- Shows a label with the progressive page number at top left
+- Highlights the border when the page is active
 
 **Layout**:
-- Ogni artboard ha dimensioni fisse in base a `page.settings.width` e `page.settings.height`
-- Contiene il proprio set di righelli orizzontale e verticale
-- Gli elementi vengono renderizzati al suo interno con le stesse logiche di drag, resize e selezione
+- Each artboard has fixed dimensions based on `page.settings.width` and `page.settings.height`
+- Contains its own set of horizontal and vertical rulers
+- Elements are rendered inside it with the same drag, resize and selection logic
 
-### Pannello Proprietà (`PropertyPanel.vue`)
+### Properties Panel (`PropertyPanel.vue`)
 
-Il pannello proprietà è stato aggiornato per il sistema multi-pagina e il supporto i18n:
+The properties panel has been updated for the multi-page system and i18n support:
 
-**Internazionalizzazione (i18n)**:
-- Tutte le stringhe visibili del template sono tradotte tramite `useI18n()` e le chiavi `properties.*`
-- Le chiavi sono definite in 5 file locale: `it.ts`, `en.ts`, `es.ts`, `de.ts`, `fr.ts`
-- I tooltip (attributi `title`) sono binding dinamici (`:title="t('properties.xxx')"`)
-- Le stringhe dinamiche usano la sintassi con parametri: `t('properties.pageNName', { n: ..., name: ... })`
+**Internationalization (i18n)**:
+- All visible template strings are translated via `useI18n()` and the `properties.*` keys
+- The keys are defined in 5 locale files: `it.ts`, `en.ts`, `es.ts`, `de.ts`, `fr.ts`
+- Tooltips (attributes `title`) are dynamic bindings (`:title="t('properties.xxx')"`)
+- Dynamic strings use parameter syntax: `t('properties.pageNName', { n: ..., name: ... })`
 
-**Riferimenti pagina**:
-- Tutti i riferimenti a `store.document.page` sono stati cambiati in `store.activePage.settings`
-- Il metodo `updatePage()` è stato rinominato in `updatePageSettings(pageId, settings)`
-- Le modifiche alle impostazioni pagina si applicano solo alla pagina attiva
+**Page references**:
+- All references to `store.document.page` have been changed to `store.activePage.settings`
+- The `updatePage()` method has been renamed to `updatePageSettings(pageId, settings)`
+- Page setting changes apply only to the active page
 
-**Contenuto**:
-- Proprietà elemento (posizione, dimensioni, stile)
-- Proprietà pagina (dimensioni, margini, header, footer) — solo per la pagina attiva
-- La selezione della pagina nel toolbar aggiorna automaticamente il pannello
+**Content**:
+- Element properties (position, dimensions, style)
+- Page properties (dimensions, margins, header, footer) — only for the active page
+- Page selection in the toolbar automatically updates the panel
 
-### Toolbar Editor (`EditorToolbar.vue`)
+### Editor Toolbar (`EditorToolbar.vue`)
 
-La toolbar include controlli specifici per la gestione pagine e le nuove funzionalità:
+The toolbar includes specific controls for page management and new features:
 
-**Controlli navigazione**:
-- Pulsanti ◀/▶ per navigare tra le pagine
-- Contatore pagine (es. "2 / 5")
-- La navigazione ciclica: dalla prima si va all'ultima, dall'ultima alla prima
+**Navigation controls**:
+- ◀/▶ buttons to navigate between pages
+- Page counter (e.g. "2 / 5")
+- Navigation is cyclic: from the first it goes to the last, from the last to the first
 
-**Azioni pagina**:
-- Aggiungi pagina: crea una nuova pagina in fondo al documento
-- Duplica pagina: duplica la pagina attiva con tutti i suoi elementi
-- Elimina pagina: rimuove la pagina attiva (disabilitato se è l'unica pagina)
+**Page actions**:
+- Add page: creates a new page at the end of the document
+- Duplicate page: duplicates the active page with all its elements
+- Delete page: removes the active page (disabled if it's the only page)
 
-**Multi-selezione**:
-- Pulsanti di allineamento (6 direzioni): visibili con 2+ elementi selezionati
-- Pulsanti di distribuzione (2 assi): visibili con 3+ elementi selezionati
-- Pulsante raggruppa: visibile con 2+ elementi selezionati
-- Pulsante separa: visibile con 1 gruppo selezionato
+**Multi-selection**:
+- Alignment buttons (6 directions): visible with 2+ elements selected
+- Distribution buttons (2 axes): visible with 3+ elements selected
+- Group button: visible with 2+ elements selected
+- Ungroup button: visible with 1 group selected
 
-### Pannello Livelli (`LayersPanel.vue`)
+### Layers Panel (`LayersPanel.vue`)
 
-Il pannello livelli mostra tutti gli elementi della pagina corrente in ordine di z-order. Tutti i testi interfaccia sono internazionalizzati tramite vue-i18n (chiavi `layers.*` e `element.*`).
+The layers panel shows all elements of the current page in z-order. All interface texts are internationalized via vue-i18n (keys `layers.*` and `element.*`).
 
-**Funzionalità**:
-- **Selezione**: clicca su un elemento nella lista per selezionarlo
-- **Visibilità**: icona occhio per nascondere/mostrare un elemento
-- **Blocco**: icona lucchetto per bloccare/sbloccare un elemento
-- Ordine inverso: gli elementi in primo piano sono in cima alla lista
-- Evidenziazione dell'elemento selezionato
+**Features**:
+- **Selection**: click on an element in the list to select it
+- **Visibility**: eye icon to hide/show an element
+- **Lock**: lock icon to lock/unlock an element
+- Reverse order: foreground elements are at the top of the list
+- Highlighting of the selected element
 
-**Integrazione con editor**:
-- Gli elementi nascosti sono visualizzati con opacità ridotta sull'canvas
-- Gli elementi bloccati non possono essere selezionati o modificati
-- La visibilità e il blocco sono persistiti nello state Pinia
+**Editor integration**:
+- Hidden elements are displayed with reduced opacity on the canvas
+- Locked elements cannot be selected or modified
+- Visibility and lock state are persisted in the Pinia state
 
-### Barra Ricerca e Sostituzione (`SearchReplace.vue`)
+### Search and Replace Bar (`SearchReplace.vue`)
 
-Componente overlay per ricerca e sostituzione testo:
+Overlay component for text search and replace:
 
-**Funzionalità**:
-- Ricerca case-insensitive in tutti gli elementi di testo e liste
-- Navigazione tra i risultati con ◀/▶ o Enter/Shift+Enter
-- Sostituzione singola o sostituzione di tutti i risultati
-- Chiusura con Esc o pulsante ✕
-- Contatore risultati (es. "3/15")
+**Features**:
+- Case-insensitive search in all text elements and lists
+- Navigation between results with ◀/▶ or Enter/Shift+Enter
+- Single replace or replace all results
+- Close with Esc or ✕ button
+- Result counter (e.g. "3/15")
 
-**Integrazione**:
-- `Ctrl+F` apre/chiude la barra
-- Gli elementi trovati vengono selezionati automaticamente
-- La navigazione cambia la pagina corrente se necessario
+**Integration**:
+- `Ctrl+F` opens/closes the bar
+- Found elements are automatically selected
+- Navigation changes the current page if necessary
 
-### Sistema di Coordinate
+### Coordinate System
 
-L'editor opera in millimetri (`MM_TO_PX = 96 / 25.4 ≈ 3.7795`):
-- Tutte le coordinate degli elementi sono in mm
-- La conversione in pixel avviene al momento del rendering CSS
-- Il PDF usa punti (`MM_TO_PT = 72 / 25.4 ≈ 2.8346`)
-- L'origine delle coordinate è l'angolo in alto a sinistra del foglio (consistente tra editor e renderizzazione, ma invertita rispetto al PDF che ha origine in basso a sinistra)
+The editor operates in millimeters (`MM_TO_PX = 96 / 25.4 ≈ 3.7795`):
+- All element coordinates are in mm
+- Conversion to pixels happens at CSS rendering time
+- The PDF uses points (`MM_TO_PT = 72 / 25.4 ≈ 2.8346`)
+- The coordinate origin is the top-left corner of the page (consistent between editor and rendering, but inverted compared to PDF which has origin at bottom-left)
 
-### Store Pinia (`editorStore.ts`)
+### Pinia Store (`editorStore.ts`)
 
-**State principale**:
+**Main state**:
 ```typescript
 interface EditorState {
   document: Document
   selectedId: string | null
-  selectedIds: string[]        // Array di ID selezionati (multi-selezione)
-  selectedPageId: string | null   // ID della pagina attiva
-  gridSize: 1            // Costante fisso a 1 mm (non modificabile)
+  selectedIds: string[]        // Array of selected IDs (multi-selection)
+  selectedPageId: string | null   // ID of the active page
+  gridSize: 1            // Constant fixed at 1 mm (not modifiable)
   zoom: number
-  clipboard: Element[]   // Elementi copiati per incolla
-  searchText: string     // Testo di ricerca
-  replaceText: string    // Testo di sostituzione
-  searchVisible: boolean // Visibilità barra ricerca
-  searchMatchIndex: number // Indice del match corrente
-  hiddenIds: Set<string> // ID degli elementi nascosti
-  lockedIds: Set<string> // ID degli elementi bloccati
+  clipboard: Element[]   // Elements copied for paste
+  searchText: string     // Search text
+  replaceText: string    // Replace text
+  searchVisible: boolean // Search bar visibility
+  searchMatchIndex: number // Index of the current match
+  hiddenIds: Set<string> // IDs of hidden elements
+  lockedIds: Set<string> // IDs of locked elements
 }
 ```
 
 **Computed properties**:
-- `activePage`: ritorna l'oggetto `Page` corrente in base a `selectedPageId`
-- `currentPageElements`: filtra gli elementi del document per `pageId === selectedPageId`
+- `activePage`: returns the current `Page` object based on `selectedPageId`
+- `currentPageElements`: filters document elements by `pageId === selectedPageId`
 
 **History (Undo/Redo)**:
-- Array di snapshot JSON serializzati
-- Max 50 livelli
-- `saveHistory()` viene chiamata prima di ogni modifica
-- Serializzazione completa dello stato ad ogni snapshot
+- Array of serialized JSON snapshots
+- Max 50 levels
+- `saveHistory()` is called before every change
+- Complete state serialization at each snapshot
 
 **CRUD Operations**:
-- `addElement(type)`: crea elemento con UUID via `crypto.randomUUID()` e assegna `pageId` della pagina attiva
-- `updateElement(id, patch)`: aggiorna proprietà parziali
-- `removeElement(id)`: elimina elemento (supporta multi-selezione)
-- `duplicateElement(id)`: crea copia con offset di 5mm (supporta multi-selezione)
-- `moveElementUp/Down(id)`: riordina nello stack
+- `addElement(type)`: creates element with UUID via `crypto.randomUUID()` and assigns `pageId` of the active page
+- `updateElement(id, patch)`: updates partial properties
+- `removeElement(id)`: deletes element (supports multi-selection)
+- `duplicateElement(id)`: creates copy with 5mm offset (supports multi-selection)
+- `moveElementUp/Down(id)`: reorders in the stack
 
-**Multi-selezione**:
-- `selectElement(id)`: seleziona un solo elemento
-- `toggleSelection(id)`: aggiunge/rimuove un elemento dalla selezione
-- `selectAll()`: seleziona tutti gli elementi della pagina corrente
-- `clearSelection()`: svuota la selezione
-- `moveSelectedElements(dx, dy)`: sposta tutti gli elementi selezionati
-- `resizeSelectedElements(dw, dh)`: ridimensiona tutti gli elementi selezionati
+**Multi-selection**:
+- `selectElement(id)`: selects a single element
+- `toggleSelection(id)`: adds/removes an element from the selection
+- `selectAll()`: selects all elements of the current page
+- `clearSelection()`: clears the selection
+- `moveSelectedElements(dx, dy)`: moves all selected elements
+- `resizeSelectedElements(dw, dh)`: resizes all selected elements
 
-**Allineamento e Distribuzione**:
-- `alignElements(direction)`: allinea gli elementi selezionati (left, center, right, top, middle, bottom)
-- `distributeElements(axis)`: distribuisce gli elementi selezionati (horizontal, vertical)
+**Alignment and Distribution**:
+- `alignElements(direction)`: aligns selected elements (left, center, right, top, middle, bottom)
+- `distributeElements(axis)`: distributes selected elements (horizontal, vertical)
 
-**Raggruppamento**:
-- `groupElements(ids)`: crea un GroupElement contenente gli elementi selezionati
-- `ungroupElement(groupId)`: separa un gruppo negli elementi originali
+**Grouping**:
+- `groupElements(ids)`: creates a GroupElement containing the selected elements
+- `ungroupElement(groupId)`: separates a group into the original elements
 
-**Copia e Incolla**:
-- `copyElements()`: copia gli elementi selezionati nel clipboard
-- `pasteElements(targetPageId?)`: incolla gli elementi dal clipboard
+**Copy and Paste**:
+- `copyElements()`: copies the selected elements to the clipboard
+- `pasteElements(targetPageId?)`: pastes elements from the clipboard
 
-**Ricerca e Sostituzione**:
-- `findNext()`: cerca il prossimo match
-- `findPrevious()`: cerca il match precedente
-- `replaceCurrent()`: sostituisce il match corrente
-- `replaceAll()`: sostituisce tutti i match
-- `getSearchMatches()`: ritorna tutti gli elementi che corrispondono alla ricerca
+**Search and Replace**:
+- `findNext()`: finds the next match
+- `findPrevious()`: finds the previous match
+- `replaceCurrent()`: replaces the current match
+- `replaceAll()`: replaces all matches
+- `getSearchMatches()`: returns all elements matching the search
 
-**Visibilità e Blocco**:
-- `toggleVisibility(id)`: nasconde/mostra un elemento
-- `toggleLock(id)`: blocca/sblocca un elemento
-- `isHidden(id)`: verifica se un elemento è nascosto
-- `isLocked(id)`: verifica se un elemento è bloccato
+**Visibility and Lock**:
+- `toggleVisibility(id)`: hides/shows an element
+- `toggleLock(id)`: locks/unlocks an element
+- `isHidden(id)`: checks if an element is hidden
+- `isLocked(id)`: checks if an element is locked
 
-**Gestione Pagine**:
-- `addPage()`: aggiunge una nuova pagina in coda con impostazioni di default
-- `removePage(pageId)`: elimina una pagina e tutti i suoi elementi; se è l'ultima pagina, non permette l'eliminazione
-- `duplicatePage(pageId)`: duplica una pagina con tutti i suoi elementi, assegnando nuovi UUID
-- `selectPage(pageId)`: cambia la pagina attiva
-- `updatePageSettings(pageId, settings)`: aggiorna le impostazioni di una pagina (dimensioni, margini, header/footer)
-- `renamePage(pageId, name)`: rinomina una pagina
-- `copyHeaderFooterFromPage(sourcePageId, targetPageId, zone)`: copia gli elementi header/footer da una pagina sorgente a una pagina target
+**Page Management**:
+- `addPage()`: adds a new page at the end with default settings
+- `removePage(pageId)`: deletes a page and all its elements; if it's the last page, deletion is not allowed
+- `duplicatePage(pageId)`: duplicates a page with all its elements, assigning new UUIDs
+- `selectPage(pageId)`: changes the active page
+- `updatePageSettings(pageId, settings)`: updates the settings of a page (dimensions, margins, header/footer)
+- `renamePage(pageId, name)`: renames a page
+- `copyHeaderFooterFromPage(sourcePageId, targetPageId, zone)`: copies header/footer elements from a source page to a target page
 
 **Backward Compatibility**:
-- `migrateLegacyDocument()`: converte automaticamente il formato legacy (singola pagina con `page` + `elements` separati) nel formato multipagina v2 (`pages[]` + `elements[]` con `pageId`). Gestisce anche JSON scritti a mano:
-  - Genera UUID per pagine e elementi se mancanti
-  - Assegna `pageId` agli elementi se mancante (alla prima pagina)
-  - Applica impostazioni di default alle pagine (A4, margini standard)
-  - Completa i campi opzionali con valori di default
+- `migrateLegacyDocument()`: automatically converts the legacy format (single page with `page` + separate `elements`) to the v2 multi-page format (`pages[]` + `elements[]` with `pageId`). Also handles hand-written JSON:
+  - Generates UUIDs for pages and elements if missing
+  - Assigns `pageId` to elements if missing (to the first page)
+  - Applies default settings to pages (A4, standard margins)
+  - Fills optional fields with default values
 
-**Gestione Overflow**:
-- `isElementOverflowing(elementId)`: verifica se un elemento eccede i confini della pagina
-- `getOverflowingElements()`: ritorna tutti gli elementi che eccedono i confini della pagina attiva
-- `moveElementToNextPage(elementId)`: sposta un elemento alla pagina successiva, creandola se necessario
+**Overflow Management**:
+- `isElementOverflowing(elementId)`: checks if an element exceeds the page boundaries
+- `getOverflowingElements()`: returns all elements that exceed the active page boundaries
+- `moveElementToNextPage(elementId)`: moves an element to the next page, creating it if necessary
 
 **Import/Export JSON**:
-- `exportJson()`: serializza l'intero documento in formato JSON (v2)
-- `importJson(json)`: importa un template JSON con migrazione automatica tramite `migrateLegacyDocument()`
+- `exportJson()`: serializes the entire document in JSON format (v2)
+- `importJson(json)`: imports a JSON template with automatic migration via `migrateLegacyDocument()`
 
 ### Types (`types/index.ts`)
 
-Il sistema multi-pagina introduce nuove interfacce e modifica quelle esistenti:
+The multi-page system introduces new interfaces and modifies existing ones:
 
-**Nuovo tipo `Page`**:
+**New `Page` type**:
 ```typescript
 interface Page {
-  id: string          // UUID generato da createDefaultPage()
-  name: string        // nome visualizzato (es. "Pagina 1")
-  settings: PageSettings  // dimensioni, margini, header/footer
+  id: string          // UUID generated by createDefaultPage()
+  name: string        // display name (e.g. "Page 1")
+  settings: PageSettings  // dimensions, margins, header/footer
 }
 ```
 
-**`PageSettings` aggiornato**:
+**Updated `PageSettings`**:
 ```typescript
 interface PageSettings {
   width: number
@@ -307,21 +307,21 @@ interface PageSettings {
   margins: { top: number; right: number; bottom: number; left: number }
   headerHeight: number
   footerHeight: number
-  headerSourcePageId?: string  // ID pagina sorgente per copiare header
-  footerSourcePageId?: string  // ID pagina sorgente per copiare footer
+  headerSourcePageId?: string  // Source page ID to copy header from
+  footerSourcePageId?: string  // Source page ID to copy footer from
 }
 ```
 
-**`Document` aggiornato**:
+**Updated `Document`**:
 ```typescript
 interface Document {
   version: 2
-  pages: Page[]       // Array di pagine (sostituisce page: PageSettings)
-  elements: Element[] // Tutti gli elementi, con campo pageId
+  pages: Page[]       // Array of pages (replaces page: PageSettings)
+  elements: Element[] // All elements, with pageId field
 }
 ```
 
-**`BaseElement` esteso**:
+**Extended `BaseElement`**:
 ```typescript
 interface BaseElement {
   id: string
@@ -330,25 +330,25 @@ interface BaseElement {
   y: number
   width: number
   height: number
-  pageId: string      // UUID della pagina di appartenenza
-  // ... altre proprietà
+  pageId: string      // UUID of the parent page
+  // ... other properties
 }
 ```
 
-**Nuovo tipo `GroupElement`**:
+**New `GroupElement` type**:
 ```typescript
 interface GroupElement extends BaseElement {
   type: 'group'
-  children: Element[]  // Elementi figli del gruppo (coordinate relative)
+  children: Element[]  // Child elements of the group (relative coordinates)
 }
 ```
 
-**`ElementType` aggiornato**:
+**Updated `ElementType`**:
 ```typescript
 type ElementType = 'text' | 'image' | 'list' | 'rectangle' | 'line' | 'table' | 'group' | 'ellipse' | 'divider' | 'signature' | 'container' | 'pageNumber' | 'date' | 'watermark' | 'qrcode' | 'spacer' | 'stamp' | 'quote' | 'callout' | 'codeBlock' | 'progressBar' | 'icon' | 'barcode' | 'chart' | 'pageBreak'
 ```
 
-**Nuove interfacce per i componenti (batch 2)**:
+**New component interfaces (batch 2)**:
 ```typescript
 interface SpacerElement extends BaseElement {
   type: 'spacer'
@@ -417,7 +417,7 @@ interface PageBreakElement extends BaseElement {
 }
 ```
 
-**Nuove interfacce per i componenti**:
+**New component interfaces**:
 ```typescript
 interface EllipseElement extends BaseElement {
   type: 'ellipse'
@@ -472,200 +472,200 @@ interface QrCodeElement extends BaseElement {
 }
 ```
 
-**Costanti e factory**:
-- `DEFAULT_PAGE_SETTINGS`: oggetto con le impostazioni di default per una pagina (era `DEFAULT_PAGE`)
-- `createDefaultPage()`: crea un oggetto `Page` con UUID e nome incrementale
+**Constants and factories**:
+- `DEFAULT_PAGE_SETTINGS`: object with default settings for a page (was `DEFAULT_PAGE`)
+- `createDefaultPage()`: creates a `Page` object with UUID and incremental name
 
 ### ElementWrapper (`ElementWrapper.vue`)
 
-Ogni elemento reso nel canvas è wrappato da `ElementWrapper`:
+Every element rendered in the canvas is wrapped by `ElementWrapper`:
 
-**Funzionalità overflow**:
-- Quando un elemento eccede i confini della pagina, viene mostrato un indicatore visivo (bordi rossi tratteggiati)
-- Viene mostrato un pulsante "Sposta alla pagina successiva" che invoca `moveElementToNextPage()`
-- Il controllo overflow viene eseguito a ogni spostamento/redimensionamento dell'elemento
+**Overflow features**:
+- When an element exceeds the page boundaries, a visual indicator is shown (dashed red borders)
+- A "Move to next page" button is shown that invokes `moveElementToNextPage()`
+- The overflow check is performed on every element movement/resize
 
-**Multi-selezione**:
-- `Shift+Clicca` aggiunge/rimuove un elemento dalla selezione
-- Trascinando un elemento selezionato, si spostano tutti gli elementi selezionati
-- Resize multipla: ridimensionamento proporzionale di tutti gli elementi selezionati
+**Multi-selection**:
+- `Shift+Click` adds/removes an element from the selection
+- Dragging a selected element moves all selected elements
+- Multi-resize: proportional resizing of all selected elements
 
-**Visibilità e Blocco**:
-- Gli elementi nascosti sono visualizzati con opacità ridotta (opacity: 0.3)
-- Gli elementi bloccati non possono essere selezionati o modificati (pointer-events: none)
-- Lo stato di visibilità e blocco è gestito tramite Set nello state Pinia
+**Visibility and Lock**:
+- Hidden elements are displayed with reduced opacity (opacity: 0.3)
+- Locked elements cannot be selected or modified (pointer-events: none)
+- Visibility and lock state are managed via Sets in the Pinia state
 
-**Comportamento**:
-- Drag & drop con snap to grid
-- Resize con 8 handle (4 angoli + 4 lati)
-- Selezione con highlight
-- Doppio click per editing inline (testo e liste)
-- Il cursore cambia in "not-allowed" per gli elementi bloccati
+**Behavior**:
+- Drag & drop with snap to grid
+- Resize with 8 handles (4 corners + 4 sides)
+- Selection with highlight
+- Double-click for inline editing (text and lists)
+- The cursor changes to "not-allowed" for locked elements
 
-### Righelli (inline in `EditorCanvas.vue`)
+### Rulers (inline in `EditorCanvas.vue`)
 
-I righelli sono implementati come SVG inline direttamente nel template di `EditorCanvas.vue`, non come componenti separati.
+The rulers are implemented as inline SVG directly in the `EditorCanvas.vue` template, not as separate components.
 
-**Layout CSS**:
-- Struttura `.ruler-and-page` → `.page-row` (flex orizzontale)
-- `.ruler-vertical`: 20px larghezza, `margin-top: 20px` per iniziare dall'inizio della pagina (sotto il righello orizzontale), altezza `pageHeightPx`
-- `.page-column`: contiene righello orizzontale (20px altezza) e `PageArtboard`
+**CSS Layout**:
+- Structure `.ruler-and-page` → `.page-row` (horizontal flex)
+- `.ruler-vertical`: 20px width, `margin-top: 20px` to start from the page beginning (below the horizontal ruler), height `pageHeightPx`
+- `.page-column`: contains horizontal ruler (20px height) and `PageArtboard`
 
-**Calcolo tacche**:
-- `horizontalMarks`: iterazione da 0 a `page.width` (mm), tacche ogni 5mm, maggiori ogni 10mm
-- `verticalMarks`: iterazione da 0 a `page.height` (mm), tacche ogni 5mm, maggiori ogni 10mm
-- Ogni mark: `{ px: number, mm: number, major: boolean }`
+**Tick calculation**:
+- `horizontalMarks`: iteration from 0 to `page.width` (mm), ticks every 5mm, major ticks every 10mm
+- `verticalMarks`: iteration from 0 to `page.height` (mm), ticks every 5mm, major ticks every 10mm
+- Each mark: `{ px: number, mm: number, major: boolean }`
 
-**Rendering SVG**:
-- Righello verticale: SVG 20 × pageHeightPx, tacche con x1 variabile (0 maggiori, 12 minori), x2=19
-- Righello orizzontale: SVG pageWidthPx × 20, tacche con y1 variabile (0 maggiori, 12 minori), y2=19
-- I numeri (solo maggiori) usano `writing-mode: vertical-rl` con `transform: rotate(180deg)` per il verticale
+**SVG Rendering**:
+- Vertical ruler: SVG 20 × pageHeightPx, ticks with variable x1 (0 for major, 12 for minor), x2=19
+- Horizontal ruler: SVG pageWidthPx × 20, ticks with variable y1 (0 for major, 12 for minor), y2=19
+- Numbers (major only) use `writing-mode: vertical-rl` with `transform: rotate(180deg)` for vertical
 
-**Sincronizzazione pan/zoom**:
-- I righelli sono figli di `.canvas-content` che applica la trasformazione CSS
-- Pan e zoom si applicano naturalmente senza calcoli aggiuntivi
+**Pan/zoom synchronization**:
+- The rulers are children of `.canvas-content` which applies the CSS transformation
+- Pan and zoom apply naturally without additional calculations
 
-### Sistema di Font
+### Font System
 
-**Mappatura Frontend** (`measureContent.ts`):
-- `FONT_MAP` associare i nomi CSS ai font family per la misurazione via Canvas API
-- Utilizzato per auto-sizing di testo e liste
+**Frontend Mapping** (`measureContent.ts`):
+- `FONT_MAP` associates CSS font names with font families for measurement via Canvas API
+- Used for auto-sizing of text and lists
 
-**Alias** (definiti in `FontManager.php`):
+**Aliases** (defined in `FontManager.php`):
 ```
 arial/helv/sans-serif → helvetica
 times-new-roman/serif/georgia/bookman → times
 monospace/courier-new/mono → courier
 ```
 
-**Chiave font nel PDF**: `family:weight:style` (es. `helvetica:bold:normal`)
+**Font key in PDF**: `family:weight:style` (e.g. `helvetica:bold:normal`)
 
-**Encoding caratteri** (`PdfPage::encodePdfString()`):
-- I testi UTF-8 vengono convertiti in ISO-8859-1 (Latin-1) per le font Type1 standard
-- Le font Type1 dichiarano `/Encoding /WinAnsiEncoding` nel PDF per mappare correttamente i byte ai glifi
-- Supporta caratteri accentati europei: à è é ì ò ù ñ ü ä ö ß etc.
-- I caratteri parentesi `(`, `)` e backslash `\` vengono escaped correttamente
-- Per caratteri fuori dal range Latin-1 serve una font TTF personalizzata
+**Character encoding** (`PdfPage::encodePdfString()`):
+- UTF-8 texts are converted to ISO-8859-1 (Latin-1) for standard Type1 fonts
+- Type1 fonts declare `/Encoding /WinAnsiEncoding` in the PDF to correctly map bytes to glyphs
+- Supports European accented characters: à è é ì ò ù ñ ü ä ö ß etc.
+- Parenthesis characters `(`, `)` and backslash `\` are correctly escaped
+- For characters outside the Latin-1 range, a custom TTF font is required
 
 ### Placeholder System (`PlaceholderResolver.php`)
 
-Sintassi: `{{ variabile }}` o `{{ oggetto.proprieta }}`
+Syntax: `{{ variable }}` or `{{ object.property }}`
 
-Filtri disponibili:
-- `currency`: formattazione valuta
-- `date:"d/m/Y"`: formattazione data
-- `number:N`: N cifre decimali
+Available filters:
+- `currency`: currency formatting
+- `date:"d/m/Y"`: date formatting
+- `number:N`: N decimal places
 - `uppercase`, `lowercase`, `capitalize`, `trim`, `truncate`, `default`, `if`, `sum`, `len`
 
-**Elementi con supporto placeholder**:
-| Tipo | Proprietà risolte | Note |
-|------|-------------------|------|
-| text | `text` | Supportato dalla versione iniziale |
-| list | `items[].text` | Supportato dalla versione iniziale |
-| table | `columns[].header`, `rows[].cells[].text` | Supportato dalla versione iniziale |
-| quote | `text`, `author` | Corretto bug: prima passava `[]` invece di `$data` |
-| callout | `text` | Corretto bug: prima passava `[]` invece di `$data` |
-| checklist | `items[].text` | Corretto bug: prima passava `[]` invece di `$data` |
-| radio | `items[].text` | Corretto bug: prima passava `[]` invece di `$data` |
-| watermark | `text` | Aggiunto supporto placeholder |
-| stamp | `text` | Aggiunto supporto placeholder |
-| barcode | `text` | Aggiunto supporto placeholder |
-| qrcode | `text` | Aggiunto supporto placeholder |
-| codeBlock | `text` | Aggiunto supporto placeholder |
-| signature | `label` | Aggiunto supporto placeholder |
-| progressBar | `label` | Aggiunto supporto placeholder |
+**Elements with placeholder support**:
+| Type | Resolved Properties | Notes |
+|------|---------------------|-------|
+| text | `text` | Supported from the initial version |
+| list | `items[].text` | Supported from the initial version |
+| table | `columns[].header`, `rows[].cells[].text` | Supported from the initial version |
+| quote | `text`, `author` | Bug fixed: previously passed `[]` instead of `$data` |
+| callout | `text` | Bug fixed: previously passed `[]` instead of `$data` |
+| checklist | `items[].text` | Bug fixed: previously passed `[]` instead of `$data` |
+| radio | `items[].text` | Bug fixed: previously passed `[]` instead of `$data` |
+| watermark | `text` | Placeholder support added |
+| stamp | `text` | Placeholder support added |
+| barcode | `text` | Placeholder support added |
+| qrcode | `text` | Placeholder support added |
+| codeBlock | `text` | Placeholder support added |
+| signature | `label` | Placeholder support added |
+| progressBar | `label` | Placeholder support added |
 
 ### Element Factory (`getDefaultElement.ts`)
 
-Ogni tipo di elemento ha una factory che restituisce un oggetto con valori di default. **Importante**: la factory NON include il campo `id` — lo store lo genera automaticamente via `crypto.randomUUID()`.
+Every element type has a factory that returns an object with default values. **Important**: the factory does NOT include the `id` field — the store generates it automatically via `crypto.randomUUID()`.
 
-### Tabella (`TableElement`)
+### Table (`TableElement`)
 
-**Interfaccia TypeScript**:
-- `name: string` — nome tabella, usato come placeholder per i dati dinamici (`{{ nome }}`)
-- `columns: TableColumn[]` — colonne con `width` (peso relativo), `header` (testo), `headerStyle` (TextStyle completo per intestazione)
-- `rows: TableRow[]` — righe template (di default 1 riga vuota), ogni cella è un `TableCell` con `text` e `style` (override parziale)
-- `repeatHeader: boolean` — ripete l'intestazione su ogni nuova pagina
-- `headerStyle: TextStyle` — stile di default per intestazioni
-- `cellStyle: TextStyle` — stile di default per celle dati
-- `borderColor / borderWidth` — proprietà bordi
+**TypeScript Interface**:
+- `name: string` — table name, used as a placeholder for dynamic data (`{{ name }}`)
+- `columns: TableColumn[]` — columns with `width` (relative weight), `header` (text), `headerStyle` (complete TextStyle for header)
+- `rows: TableRow[]` — template rows (default 1 empty row), each cell is a `TableCell` with `text` and `style` (partial override)
+- `repeatHeader: boolean` — repeats the header on each new page
+- `headerStyle: TextStyle` — default style for headers
+- `cellStyle: TextStyle` — default style for data cells
+- `borderColor / borderWidth` — border properties
 
-**Rendering PDF** (`PdfRenderer::renderTable()`):
-1. Se `name` è impostato e `$data[$name]` è un array, le righe vengono popolate dai dati esterni
-2. Ogni header usa il suo `headerStyle` individuale (font, peso, allineamento, colore, etc.)
-3. Ogni cella dati merge lo stile di default con l'override per-cella (`cell.style`)
-4. Supporta placeholder `{{ }}` in intestazioni e celle
-5. Le larghezze colonne sono proporzionali al peso relativo
-6. La tabella viene automaticamente spezzata su più pagine quando supera l'area utilizzabile
-7. L'intestazione viene ripetuta su ogni nuova pagina (se `repeatHeader` è true)
+**PDF Rendering** (`PdfRenderer::renderTable()`):
+1. If `name` is set and `$data[$name]` is an array, rows are populated from external data
+2. Each header uses its own individual `headerStyle` (font, weight, alignment, color, etc.)
+3. Each data cell merges the default style with the per-cell override (`cell.style`)
+4. Supports `{{ }}` placeholders in headers and cells
+5. Column widths are proportional to the relative weight
+6. The table is automatically split across multiple pages when it exceeds the usable area
+7. The header is repeated on each new page (if `repeatHeader` is true)
 
 ---
 
-## Backend - Engine PHP
+## Backend - PHP Engine
 
-### Struttura
+### Structure
 
 ```
 engine/
 ├── src/
 │   ├── PdfWriter/
-│   │   ├── PdfDocument.php      # Scrittore binario PDF (Header→Body→Xref→Trailer)
-│   │   └── PdfPage.php          # Primitive di disegno (text, rect, line, circle, polygon, image)
+│   │   ├── PdfDocument.php      # Binary PDF writer (Header→Body→Xref→Trailer)
+│   │   └── PdfPage.php          # Drawing primitives (text, rect, line, circle, polygon, image)
 │   ├── Font/
-│   │   └── FontManager.php      # Risoluzione Type1 + registrazione TTF + allocazione oggetti PDF
+│   │   └── FontManager.php      # Type1 resolution + TTF registration + PDF object allocation
 │   ├── Renderer/
-│   │   └── PdfRenderer.php      # Renderer template→PDF (gestisce tutti i tipi di elemento + multi-pagina)
+│   │   └── PdfRenderer.php      # Template→PDF renderer (handles all element types + multi-page)
 │   └── Template/
-│       ├── PlaceholderResolver.php  # Sintassi {{ }} con filtri
-│       └── TemplateLoader.php       # Caricatore file template (supporta formato v2 e legacy)
-├── composer.json                # Autoload PSR-4: EngiPDF\
-└── test_*.php                   # Script di test
+│       ├── PlaceholderResolver.php  # {{ }} syntax with filters
+│       └── TemplateLoader.php       # Template file loader (supports v2 and legacy formats)
+├── composer.json                # PSR-4 Autoload: EngiPDF\
+└── test_*.php                   # Test scripts
 ```
 
-> **Riferimento completo**: Per un esempio JSON con **tutti i 28 tipi di elemento** e **tutte le proprietà** supportate, consulta il file [`template.md`](template.md) nella root del progetto.
+> **Complete reference**: For a JSON example with **all 28 element types** and **all supported properties**, see the [`template.md`](template.md) file in the project root.
 
-### Generazione PDF (`PdfDocument.php`)
+### PDF Generation (`PdfDocument.php`)
 
-Il PDF viene scritto byte-per-byte senza librerie esterne:
+The PDF is written byte-by-byte without external libraries:
 
 1. **Header**: `%PDF-1.4`
-2. **Body**: oggetti PDF (pagine, font, stream di contenuto)
-3. **Cross-Reference Table**: offset di ogni oggetto
-4. **Trailer**: riferimento alla root e al conteggio oggetti
+2. **Body**: PDF objects (pages, fonts, content streams)
+3. **Cross-Reference Table**: offset of each object
+4. **Trailer**: reference to root and object count
 
-**Multi-Pagina**:
-- `PdfDocument::createPage($width, $height)`: ora accetta dimensioni opzionali per pagina; se non specificate, usa A4 default
-- `PdfDocument::$pageDimensions`: array associativo che memorizza le dimensioni (`[width, height]`) per ogni pagina creata, necessario per il calcolo delle coordinate Y during il rendering
+**Multi-Page**:
+- `PdfDocument::createPage($width, $height)`: now accepts optional dimensions per page; if not specified, uses default A4
+- `PdfDocument::$pageDimensions`: associative array storing dimensions (`[width, height]`) for each created page, necessary for Y coordinate calculation during rendering
 
-### Coordinate PDF vs Editor
+### PDF vs Editor Coordinates
 
-| Aspetto | Editor | PDF |
+| Aspect | Editor | PDF |
 |---|---|---|
-| Origine | Alto-sinistra | Basso-sinistra |
-| Unità | mm | punti (1/72 pollici) |
-| Conversione | `px = mm × 96/25.4` | `pt = mm × 72/25.4` |
-| Flusso Y | crescente verso il basso | crescente verso l'alto |
+| Origin | Top-left | Bottom-left |
+| Unit | mm | points (1/72 inch) |
+| Conversion | `px = mm × 96/25.4` | `pt = mm × 72/25.4` |
+| Y flow | increasing downward | increasing upward |
 
-Il `PdfRenderer` converte le coordinate Y: `y_pdf = pageHeight_pt - y_mm × MM_TO_PT - height_mm × MM_TO_PT`
+The `PdfRenderer` converts Y coordinates: `y_pdf = pageHeight_pt - y_mm × MM_TO_PT - height_mm × MM_TO_PT`
 
-### Area Utilizzabile e Paginazione
+### Usable Area and Pagination
 
-Il `PdfRenderer` calcola un'area utilizzabile per pagina basata su header e footer:
+The `PdfRenderer` calculates a usable area per page based on header and footer:
 
 ```php
-$contentTop = pageHeight - headerHeight;    // Limite superiore area contenuto
-$contentBottom = footerHeight;              // Limite inferiore area contenuto
+$contentTop = pageHeight - headerHeight;    // Upper limit of content area
+$contentBottom = footerHeight;              // Lower limit of content area
 ```
 
-- **Header**: area fissa in cima a ogni pagina (altezza specificata in `page.headerHeight`)
-- **Footer**: area fissa in fondo a ogni pagina (altezza specificata in `page.footerHeight`)
-- **Area contenuto**: spazio tra header e footer dove vengono posizionati gli elementi
-- **Paginazione**: quando un elemento (tabella) supera l'area disponibile, viene creata una nuova pagina
-- **Ripetizione intestazione**: le tabelle con `repeatHeader: true` ripetono l'intestazione su ogni nuova pagina
+- **Header**: fixed area at the top of each page (height specified in `page.headerHeight`)
+- **Footer**: fixed area at the bottom of each page (height specified in `page.footerHeight`)
+- **Content area**: space between header and footer where elements are positioned
+- **Pagination**: when an element (table) exceeds the available area, a new page is created
+- **Header repetition**: tables with `repeatHeader: true` repeat the header on each new page
 
 ### Font Manager (`FontManager.php`)
 
-Gestisce 14 font Type1 integrati + font TTF personalizzati:
+Manages 14 built-in Type1 fonts + custom TTF fonts:
 
 **Type1 (embedded)**:
 - Helvetica (normal, bold, italic, bolditalic)
@@ -673,24 +673,24 @@ Gestisce 14 font Type1 integrati + font TTF personalizzati:
 - Courier (normal, bold, italic, bolditalic)
 
 **TTF (FlateDecode)**:
-- Registrati via template JSON: `{"fonts": {"MyFont": "path/to/font.ttf"}}`
-- Embedding con compressione FlateDecode
-- Generazione tabella width basata su misurazione
+- Registered via JSON template: `{"fonts": {"MyFont": "path/to/font.ttf"}}`
+- Embedding with FlateDecode compression
+- Width table generation based on measurement
 
-### Rendering Immagini
+### Image Rendering
 
-Le immagini vengono embeddate nel PDF come XObject Image:
+Images are embedded in the PDF as XObject Images:
 
-1. **Data URL parsing**: estrazione formato e dati grezzi dal data URL base64 (`data:image/TYPE;base64,...`)
-2. **Formato supportato**:
-   - **JPEG/JPG**: dati binari direttamente embeddati con filtro `/DCTDecode`
-   - **PNG**: conversione in JPEG tramite GD library (`imagecreatefrompng` → `imagejpeg` con qualità 90%)
-3. **Registrazione**: i dati JPEG vengono registrati nel `PdfDocument` tramite `registerImage()`
-4. **XObject**: durante il render del PDF, viene creato un oggetto XObject Image con `/Filter /DCTDecode`
-5. **Risorsa pagina**: l'XObject viene aggiunto alla risorsa `/XObject` di ogni pagina
-6. **Rendering**: `$page->image($x, $y, $w, $h, $imageName)` disegna l'immagine con `cm` matrix + `Do`
+1. **Data URL parsing**: extracts format and raw data from the base64 data URL (`data:image/TYPE;base64,...`)
+2. **Supported formats**:
+   - **JPEG/JPG**: binary data embedded directly with `/DCTDecode` filter
+   - **PNG**: converted to JPEG via GD library (`imagecreatefrompng` → `imagejpeg` with 90% quality)
+3. **Registration**: JPEG data is registered in the `PdfDocument` via `registerImage()`
+4. **XObject**: during PDF rendering, an XObject Image object is created with `/Filter /DCTDecode`
+5. **Page resource**: the XObject is added to each page's `/XObject` resource
+6. **Rendering**: `$page->image($x, $y, $w, $h, $imageName)` draws the image with `cm` matrix + `Do`
 
-**Flusso PDF generato**:
+**Generated PDF flow**:
 ```
 q
 {width} 0 0 {height} {x} {y} cm
@@ -698,47 +698,47 @@ q
 Q
 ```
 
-### Rendering Multi-Pagina (`PdfRenderer.php`)
+### Multi-Page Rendering (`PdfRenderer.php`)
 
-Il renderer è stato esteso per supportare documenti con più pagine:
+The renderer has been extended to support documents with multiple pages:
 
-**Metodo `normalizePages()`**:
-- Normalizza il formato del template, supportando sia il formato v2 (`pages[]`) che il formato legacy (`page` + `elements` separati)
-- Per il formato legacy, crea un singolo array `pages` con una sola pagina e assegna `pageId` agli elementi
-- Garantisce backward compatibility con template creati prima del supporto multi-pagina
+**`normalizePages()` method**:
+- Normalizes the template format, supporting both v2 format (`pages[]`) and legacy format (`page` + separate `elements`)
+- For legacy format, creates a single `pages` array with one page and assigns `pageId` to elements
+- Ensures backward compatibility with templates created before multi-page support
 
-**Metodo `render()`**:
-- Itera su ogni pagina dell'array `pages`
-- Per ogni pagina:
-  1. Crea un nuovo `PdfPage` con le dimensioni specificate in `page.settings`
-  2. Filtra gli elementi che appartengono a quella pagina (`element.pageId === page.id`)
-  3. Renderizza header e footer se configurati
-  4. Renderizza gli elementi nell'ordine corretto (z-order)
-  5. Renderizza gli elementi con `repeatOnAllPages: true` su ogni pagina
-  6. Aggiunge la pagina al `PdfDocument`
+**`render()` method**:
+- Iterates over each page in the `pages` array
+- For each page:
+  1. Creates a new `PdfPage` with the dimensions specified in `page.settings`
+  2. Filters elements belonging to that page (`element.pageId === page.id`)
+  3. Renders header and footer if configured
+  4. Renders elements in the correct order (z-order)
+  5. Renders elements with `repeatOnAllPages: true` on every page
+  6. Adds the page to the `PdfDocument`
 
-**Elementi ripetuti su tutte le pagine** (`repeatOnAllPages`):
-- Gli elementi con `repeatOnAllPages: true` vengono renderizzati su ogni pagina del documento
-- Supportati: stamp, watermark, text, image, rectangle, line, ellipse, divider
-- Gli elementi ripetuti mantengono le stesse coordinate (x, y) su ogni pagina
-- Supportano `showIf` e `styleIf` come gli elementi normali
-- Utile per timbri, filigrane, loghi o altri elementi che devono apparire su ogni foglio
+**Elements repeated on all pages** (`repeatOnAllPages`):
+- Elements with `repeatOnAllPages: true` are rendered on every page of the document
+- Supported: stamp, watermark, text, image, rectangle, line, ellipse, divider
+- Repeated elements maintain the same coordinates (x, y) on every page
+- Support `showIf` and `styleIf` like normal elements
+- Useful for stamps, watermarks, logos or other elements that must appear on every sheet
 
-**Gestione coordinate multi-pagina**:
-- Ogni pagina ha le proprie dimensioni, memorizzate in `PdfDocument::$pageDimensions`
-- Il renderer utilizza le dimensioni della pagina corrente per il calcolo delle coordinate Y
-- La conversione Y: `y_pdf = pageHeight_pt - y_mm × MM_TO_PT - height_mm × MM_TO_PT`
+**Multi-page coordinate management**:
+- Each page has its own dimensions, stored in `PdfDocument::$pageDimensions`
+- The renderer uses the current page's dimensions for Y coordinate calculation
+- Y conversion: `y_pdf = pageHeight_pt - y_mm × MM_TO_PT - height_mm × MM_TO_PT`
 
 ### TemplateLoader (`TemplateLoader.php`)
 
-Il caricatore template supporta entrambi i formati:
+The template loader supports both formats:
 
-**Formato v2 (multi-pagina)**:
+**v2 format (multi-page)**:
 ```json
 {
   "version": 2,
   "pages": [
-    { "id": "page-uuid", "name": "Pagina 1", "settings": { "width": 210, "height": 297 } }
+    { "id": "page-uuid", "name": "Page 1", "settings": { "width": 210, "height": 297 } }
   ],
   "elements": [
     { "id": "...", "pageId": "page-uuid", "type": "text", "x": 10, "y": 10, "width": 100, "height": 20 }
@@ -746,7 +746,7 @@ Il caricatore template supporta entrambi i formati:
 }
 ```
 
-**Formato legacy (backward compatibility)**:
+**Legacy format (backward compatibility)**:
 ```json
 {
   "page": { "width": 210, "height": 297 },
@@ -756,41 +756,41 @@ Il caricatore template supporta entrambi i formati:
 }
 ```
 
-- La validazione accetta entrambi i formati
-- Il formato legacy viene convertito automaticamente in v2 dal `normalizePages()` del renderer
-- I template legacy continuano a funzionare senza modifiche
+- Validation accepts both formats
+- Legacy format is automatically converted to v2 by the renderer's `normalizePages()`
+- Legacy templates continue to work without changes
 
 ---
 
-## Sistema Multi-Pagina
+## Multi-Page System
 
-### Architettura
+### Architecture
 
-Il sistema supporta documenti con multiple pagine, ciascuna con dimensioni e impostazioni indipendenti. Gli elementi sono associati alle pagine tramite il campo `pageId`.
+The system supports documents with multiple pages, each with independent dimensions and settings. Elements are associated with pages via the `pageId` field.
 
-**Flusso dati**:
+**Data flow**:
 ```
 Template JSON (v2)
        │
        ▼
-TemplateLoader.php → normalizza → PdfRenderer::render()
+TemplateLoader.php → normalizes → PdfRenderer::render()
                                         │
                                         ▼
-                              Itera su pages[]
-                              Per ogni pagina:
-                                1. Crea PdfPage(width, height)
-                                2. Filtra elementi per pageId
-                                3. Renderizza header/footer
-                                4. Renderizza elementi
+                              Iterates over pages[]
+                              For each page:
+                                1. Creates PdfPage(width, height)
+                                2. Filters elements by pageId
+                                3. Renders header/footer
+                                4. Renders elements
                                         │
                                         ▼
-                              PdfDocument (multi-pagina)
+                              PdfDocument (multi-page)
                                         │
                                         ▼
-                              File PDF finale
+                              Final PDF file
 ```
 
-### Formato JSON v2
+### v2 JSON Format
 
 ```json
 {
@@ -798,7 +798,7 @@ TemplateLoader.php → normalizza → PdfRenderer::render()
   "pages": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440000",
-      "name": "Pagina 1",
+      "name": "Page 1",
       "settings": {
         "width": 210,
         "height": 297,
@@ -812,7 +812,7 @@ TemplateLoader.php → normalizza → PdfRenderer::render()
     },
     {
       "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "Pagina 2",
+      "name": "Page 2",
       "settings": {
         "width": 210,
         "height": 297,
@@ -834,7 +834,7 @@ TemplateLoader.php → normalizza → PdfRenderer::render()
       "y": 20,
       "width": 100,
       "height": 15,
-      "content": "Testo sulla pagina 1"
+      "content": "Text on page 1"
     },
     {
       "id": "elem-uuid-2",
@@ -844,7 +844,7 @@ TemplateLoader.php → normalizza → PdfRenderer::render()
       "y": 20,
       "width": 100,
       "height": 15,
-      "content": "Testo sulla pagina 2"
+      "content": "Text on page 2"
     }
   ]
 }
@@ -852,88 +852,88 @@ TemplateLoader.php → normalizza → PdfRenderer::render()
 
 ### Backward Compatibility
 
-Il sistema è completamente backward-compatible:
+The system is fully backward-compatible:
 
-1. **Formato legacy**: il `TemplateLoader` accetta template con `page` (singolo oggetto) + `elements` (senza `pageId`)
-2. **Conversione automatica**: `PdfRenderer::normalizePages()` converte il formato legacy in v2 durante il rendering
-3. **Editor**: `migrateLegacyDocument()` nel store converte automaticamente i documenti legacy al formato multipagina
-4. **Nessuna rottura**: i template esistenti continuano a funzionare senza modifiche
+1. **Legacy format**: the `TemplateLoader` accepts templates with `page` (single object) + `elements` (without `pageId`)
+2. **Automatic conversion**: `PdfRenderer::normalizePages()` converts legacy format to v2 during rendering
+3. **Editor**: `migrateLegacyDocument()` in the store automatically converts legacy documents to the multi-page format
+4. **No breakage**: existing templates continue to work without changes
 
-### Note di Implementazione Multi-Pagina
+### Multi-Page Implementation Notes
 
-1. **UUID per pagina**: ogni pagina ha un UUID generato da `crypto.randomUUID()` per identificazione univoca
-2. **Assegnazione automatica**: quando si aggiunge un elemento, il `pageId` viene assegnato automaticamente dalla pagina attiva
-3. **Spostamento pagina**: `moveElementToNextPage()` crea una nuova pagina se non esiste la successiva
-4. **Eliminazione pagina**: quando una pagina viene eliminata, tutti i suoi elementi vengono rimossi
-5. **Duplicazione**: duplica pagina crea copie profonde degli elementi con nuovi UUID
-6. **Ordine pagine**: l'ordine delle pagine nell'array `pages` determina l'ordine nel PDF finale
-7. **Dimensioni indipendenti**: ogni pagina può avere dimensioni diverse (es. A4 e A3 nello stesso documento)
+1. **UUID per page**: each page has a UUID generated by `crypto.randomUUID()` for unique identification
+2. **Automatic assignment**: when an element is added, `pageId` is automatically assigned from the active page
+3. **Page movement**: `moveElementToNextPage()` creates a new page if the next one doesn't exist
+4. **Page deletion**: when a page is deleted, all its elements are removed
+5. **Duplication**: page duplication creates deep copies of elements with new UUIDs
+6. **Page order**: the order of pages in the `pages` array determines the order in the final PDF
+7. **Independent dimensions**: each page can have different dimensions (e.g. A4 and A3 in the same document)
 
 ---
 
-## Convenzioni di Codice
+## Code Conventions
 
 ### TypeScript (Frontend)
-- Nessun commento nel codice (salvo esplicita richiesta)
-- Nomi in camelCase per variabili/funzioni
-- Nomi in PascalCase per componenti e interfacce
-- Tipo `RGB` come `[number, number, number]` (tuple)
-- Tutte le interfacce in `types/index.ts`
+- No comments in the code (unless explicitly requested)
+- camelCase names for variables/functions
+- PascalCase names for components and interfaces
+- `RGB` type as `[number, number, number]` (tuple)
+- All interfaces in `types/index.ts`
 
 ### PHP (Backend)
-- Namespace PSR-4: `EngiPDF\`
+- PSR-4 namespace: `EngiPDF\`
 - Autoload via Composer
-- Coding standard PSR-12
-- Nessuna dipendenza da librerie esterne per la generazione PDF
+- PSR-12 coding standard
+- No external library dependencies for PDF generation
 
 ### Windows
 - Shell: PowerShell (no `mkdir -p`)
-- Path: separatore backslash
-- Server di sviluppo: Laragon
+- Path: backslash separator
+- Development server: Laragon
 
-### CSS Variables (Temi)
+### CSS Variables (Themes)
 
-L'editor supporta temi chiaro/scuro tramite CSS variables definite in `editor/src/styles/themes.css`. Tutti i colori UI usati nei componenti devono riferirsi a variabili CSS, non a valori hardcoded. Mapping delle variabili principali:
+The editor supports light/dark themes via CSS variables defined in `editor/src/styles/themes.css`. All UI colors used in components must reference CSS variables, not hardcoded values. Mapping of main variables:
 
-| Variabile | Uso |
+| Variable | Usage |
 |---|---|
-| `--text-primary` | Testo principale |
-| `--text-secondary` | Testo secondario (es. bordi tratteggiati `#ccc`) |
-| `--text-tertiary` | Testo smorzato (etichette, testo disabilitato: `#666`, `#888`, `#999`) |
-| `--bg-accent-subtle` | Sfondo selezione accento (es. `rgba(74,144,217,0.05)`) |
-| `--bg-hover` | Sfondo hover/child (es. `rgba(255,255,255,0.1)`) |
-| `--bg-inset` | Sfondo inset (es. etichette tabelle `rgba(0,0,0,0.3)`) |
-| `--bg-danger` | Colore pericolo/errore (es. taglio pagina `#c00`) |
-| `--border-subtle` | Bordi sottili (es. bordi spacer `rgba(128,128,128,0.3)`) |
-| `--canvas-grid` | Pattern griglia canvas (es. `rgba(128,128,128,0.05)`) |
-| `--selection-color` | Bordo selezione (es. `rgba(74,144,217,0.5)`) |
+| `--text-primary` | Primary text |
+| `--text-secondary` | Secondary text (e.g. dashed borders `#ccc`) |
+| `--text-tertiary` | Muted text (labels, disabled text: `#666`, `#888`, `#999`) |
+| `--bg-accent-subtle` | Accent selection background (e.g. `rgba(74,144,217,0.05)`) |
+| `--bg-hover` | Hover/child background (e.g. `rgba(255,255,255,0.1)`) |
+| `--bg-inset` | Inset background (e.g. table labels `rgba(0,0,0,0.3)`) |
+| `--bg-danger` | Danger/error color (e.g. page break `#c00`) |
+| `--border-subtle` | Subtle borders (e.g. spacer borders `rgba(128,128,128,0.3)`) |
+| `--canvas-grid` | Canvas grid pattern (e.g. `rgba(128,128,128,0.05)`) |
+| `--selection-color` | Selection border (e.g. `rgba(74,144,217,0.5)`) |
 
-**Regola**: non usare mai colori hardcoded nei componenti Vue. Usa sempre variabili CSS per garantire la compatibilità con i temi chiaro/scuro.
+**Rule**: never use hardcoded colors in Vue components. Always use CSS variables to ensure compatibility with light/dark themes.
 
 ---
 
-## Note di Implementazione
+## Implementation Notes
 
-### Righelli - Scelte Progettuali
+### Rulers - Design Choices
 
-1. **Implementazione inline**: i righelli sono SVG direttamente in `EditorCanvas.vue`, non componenti separati
-2. **Allineamento verticale**: il righello verticale ha `margin-top: 20px` per iniziare dall'inizio della pagina
-3. **Altezza pagina**: il righello verticale ha altezza `pageHeightPx`, uguale alla pagina
-4. **Calcolo computed**: le tacche vengono ricalcolate solo al cambio di dimensioni pagina
-5. **SVG rendering**: le tacche sono linee SVG, non elementi DOM, per performance ottimali
-6. **Sincronizzazione**: pan e zoom si applicano naturalmente grazie alla struttura DOM
+1. **Inline implementation**: rulers are SVG directly in `EditorCanvas.vue`, not separate components
+2. **Vertical alignment**: the vertical ruler has `margin-top: 20px` to start from the page beginning
+3. **Page height**: the vertical ruler has height `pageHeightPx`, equal to the page
+4. **Computed calculation**: ticks are recalculated only on page dimension changes
+5. **SVG rendering**: ticks are SVG lines, not DOM elements, for optimal performance
+6. **Synchronization**: pan and zoom apply naturally thanks to the DOM structure
 
-### Auto-sizing degli Elementi
+### Auto-sizing of Elements
 
-Per testo e liste, le dimensioni iniziali vengono calcolate tramite Canvas API (`measureContent.ts`):
-1. Crea un canvas offscreen
-2. Imposta il font con le proprietà desiderate
-3. Misura il testo con `measureText()` o il bounding box della lista
-4. Restituisce width eheight in mm
+For text and lists, initial dimensions are calculated via Canvas API (`measureContent.ts`):
+1. Creates an offscreen canvas
+2. Sets the font with the desired properties
+3. Measures the text with `measureText()` or the bounding box of the list
+4. Returns width and height in mm
 
 ### Snap to Grid
 
-Il sistema di snap arrotonda le coordinate alla griglia fissa di 1 mm:
+The snap system rounds coordinates to the fixed 1 mm grid:
 ```typescript
 function snapToGrid(value: number, gridSize: number): number {
   return Math.round(value / gridSize) * gridSize
@@ -942,49 +942,49 @@ function snapToGrid(value: number, gridSize: number): number {
 
 ### TTF Font Embedding
 
-I font TTF personalizzati vengono incorporati nel PDF con:
-1. Estrazione dei dati grezzi dal file TTF
-2.Compressione FlateDecode
-3. Generazione di un font descriptor PDF
-4. Mappatura dei glifi tramite Widths array
-5. Aggiunta alla-font dictionary della pagina
+Custom TTF fonts are embedded in the PDF with:
+1. Extraction of raw data from the TTF file
+2. FlateDecode compression
+3. Generation of a PDF font descriptor
+4. Glyph mapping via Widths array
+5. Addition to the page font dictionary
 
 ---
 
-## Comandi Utili
+## Useful Commands
 
 ### Frontend
 ```bash
 cd editor
-npm install            # Installa dipendenze
-npm run dev            # Dev server su http://localhost:5173
-npm run build          # Build di produzione
+npm install            # Install dependencies
+npm run dev            # Dev server on http://localhost:5173
+npm run build          # Production build
 npx vue-tsc --noEmit   # Type check
 ```
 
 ### Backend
 ```bash
 cd engine
-composer install               # Autoload PSR-4
-php test_hello.php             # Test base PDF
-php test_template.php          # Test template fattura
-php test_fonts.php             # Test rendering font
-php test_font_resolve.php      # Test risoluzione alias font
-php test_lista.php             # Test rendering liste
-php test_lista_annidata.php    # Test liste annidate
+composer install               # PSR-4 Autoload
+php test_hello.php             # Basic PDF test
+php test_template.php          # Invoice template test
+php test_fonts.php             # Font rendering test
+php test_font_resolve.php      # Font alias resolution test
+php test_lista.php             # List rendering test
+php test_lista_annidata.php    # Nested list test
 ```
 
 ---
 
-## Programmabilità e Logica Condizionale
+## Programmability and Conditional Logic
 
-### ShowIf — Visibilità Condizionale
+### ShowIf — Conditional Visibility
 
-**Frontend**: `evaluateShowIf()` in `conditionHelpers.ts` valuta le regole `showIf` su ogni elemento. `ElementWrapper.vue` utilizza `isVisible` per nascondere gli elementi che non soddisfano la condizione. Il risultato è reactive grazie a `sampleData` nello store.
+**Frontend**: `evaluateShowIf()` in `conditionHelpers.ts` evaluates `showIf` rules on each element. `ElementWrapper.vue` uses `isVisible` to hide elements that don't satisfy the condition. The result is reactive thanks to `sampleData` in the store.
 
-**Backend**: `PdfRenderer::evaluateCondition()` valuta le stesse regole prima di renderizzare ogni elemento. Se `showIf` fallisce, l'elemento viene saltato.
+**Backend**: `PdfRenderer::evaluateCondition()` evaluates the same rules before rendering each element. If `showIf` fails, the element is skipped.
 
-**Tipologia dati**:
+**Data type**:
 ```typescript
 interface ConditionalRule {
   field: string
@@ -993,11 +993,11 @@ interface ConditionalRule {
 }
 ```
 
-### StyleIf — Stile Condizionale
+### StyleIf — Conditional Style
 
-**Frontend**: `evaluateStyleIf()` in `conditionHelpers.ts` restituisce un oggetto con le proprietà da sovrascrivere. `ElementWrapper.vue` unisce `wrapperStyle` con `conditionalStyle`.
+**Frontend**: `evaluateStyleIf()` in `conditionHelpers.ts` returns an object with the properties to override. `ElementWrapper.vue` merges `wrapperStyle` with `conditionalStyle`.
 
-**Backend**: `PdfRenderer::applyStyleOverrides()` applica le sovrascritture al frame `$el` prima del rendering. Il campo `fill` viene mappato a `style.color` per il testo.
+**Backend**: `PdfRenderer::applyStyleOverrides()` applies overrides to the `$el` frame before rendering. The `fill` field is mapped to `style.color` for text.
 
 ```typescript
 interface StyleRule extends ConditionalRule {
@@ -1005,69 +1005,69 @@ interface StyleRule extends ConditionalRule {
 }
 ```
 
-### DataRepeat — Ripetizione Dati
+### DataRepeat — Data Repetition
 
-`DataRepeatElement` è un container che itera su un array nei `sampleData` e replica i suoi figli. In PHP, `PdfRenderer` gestisce il tipo `dataRepeat` con logica simile.
+`DataRepeatElement` is a container that iterates over an array in `sampleData` and replicates its children. In PHP, `PdfRenderer` handles the `dataRepeat` type with similar logic.
 
-**Frontend**: `DataRepeatElement.vue` usa `resolveChild()` per sostituire `{{ item.campo }}` con i dati di ogni iterazione. `ElementWrapper.vue` include il componente.
+**Frontend**: `DataRepeatElement.vue` uses `resolveChild()` to replace `{{ item.field }}` with data from each iteration. `ElementWrapper.vue` includes the component.
 
-**Parametri**:
-- `repeatField`: chiave dell'array nei dati
+**Parameters**:
+- `repeatField`: key of the array in the data
 - `direction`: `vertical` | `horizontal`
-- `spacing`: distanza tra le copie (px)
-- `children`: array di elementi template
+- `spacing`: distance between copies (px)
+- `children`: array of template elements
 
-### PlaceholderResolver — Filtri Espansi
+### PlaceholderResolver — Extended Filters
 
-Il resolver supporta filtri concatenati con `|` e accesso array con sintassi `[index]`:
+The resolver supports chained filters with `|` and array access with `[index]` syntax:
 
 ```
-{{ cliente.nome | uppercase | truncate:20 }}
-{{ articoli[0].nome }}
-{{ importi | sum | currency }}
+{{ customer.name | uppercase | truncate:20 }}
+{{ items[0].name }}
+{{ amounts | sum | currency }}
 ```
 
-**Filtri supportati**: `currency`, `date`, `number`, `uppercase`, `lowercase`, `capitalize`, `trim`, `truncate`, `default`, `len`, `if`, `sum`, `eq`, `neq`, `gt`, `lt`, `contains`, `empty`, `notempty`.
+**Supported filters**: `currency`, `date`, `number`, `uppercase`, `lowercase`, `capitalize`, `trim`, `truncate`, `default`, `len`, `if`, `sum`, `eq`, `neq`, `gt`, `lt`, `contains`, `empty`, `notempty`.
 
-**Catena**: `resolveRaw()` restituisce `mixed`, `resolve()` applica `strval()` per compatibilità con output testo.
+**Chain**: `resolveRaw()` returns `mixed`, `resolve()` applies `strval()` for text output compatibility.
 
 ### sampleData
 
-Il campo `sampleData` nel documento JSON contiene dati di esempio utilizzati dall'editor per preview e valutazione condizioni:
+The `sampleData` field in the JSON document contains sample data used by the editor for preview and condition evaluation:
 
 ```json
 {
   "sampleData": {
-    "cliente": { "nome": "Mario Rossi" },
-    "articoli": [{ "nome": "Laptop", "prezzo": 899 }]
+    "customer": { "name": "Mario Rossi" },
+    "items": [{ "name": "Laptop", "price": 899 }]
   }
 }
 ```
 
-In PHP, `$data` viene passato al PlaceholderResolver e ai metodi di valutazione condizionale.
+In PHP, `$data` is passed to the PlaceholderResolver and to conditional evaluation methods.
 
-### Field Options — Dropdown intelligente
+### Field Options — Smart Dropdown
 
-`fieldOptions.ts` fornisce `flattenSampleData()` che converte il sampleData annidato in una lista piatta di opzioni per i dropdown del PropertyPanel:
+`fieldOptions.ts` provides `flattenSampleData()` which converts nested sampleData into a flat list of options for the PropertyPanel dropdowns:
 
 ```
-{ path: "cliente.nome", label: "cliente.nome", value: "Mario Rossi" }
-{ path: "articoli[0].nome", label: "articoli[0].nome", value: "Laptop" }
+{ path: "customer.name", label: "customer.name", value: "Mario Rossi" }
+{ path: "items[0].name", label: "items[0].name", value: "Laptop" }
 ```
 
-La funzione gestisce ricorsivamente oggetti annidati, array con indici e primitività. Il PropertyPanel la usa per popolare i select di `showIf.field` e `styleIf[].field`, con opzione "Personalizza..." per input libero.
+The function recursively handles nested objects, arrays with indices, and primitives. The PropertyPanel uses it to populate `showIf.field` and `styleIf[].field` selects, with a "Customize..." option for free input.
 
 ### Checklist Component
 
-`ChecklistElement` rende una lista con checkbox (□ ☑). Ogni voce ha `{ text: string, checked: boolean }`.
+`ChecklistElement` renders a list with checkboxes (□ ☑). Each item has `{ text: string, checked: boolean }`.
 
-**Frontend**: `ChecklistElement.vue` renderizza verticalmente le voci con un box SVG (□ o ☑) + testo. Lo stile `text-decoration: line-through` e `opacity: 0.5` si applicano alle voci barrate. Il PropertyPanel fornisce editor per aggiungere/rimuovere voci, toggle checkbox, regolare size/colori/gap.
+**Frontend**: `ChecklistElement.vue` renders items vertically with an SVG box (□ or ☑) + text. The `text-decoration: line-through` and `opacity: 0.5` styles are applied to checked items. The PropertyPanel provides an editor to add/remove items, toggle checkboxes, and adjust size/colors/gap.
 
-**Backend**: `PdfRenderer::renderChecklist()` itera le voci e per ciascuna chiama:
-1. `PdfPage::checkbox($x, $y, $size, $checked, $color)` — disegna □ (rettangolo) o ☑ (rettangolo + check con linee)
-2. `PdfPage::text(...)` — testo accanto alla checkbox
+**Backend**: `PdfRenderer::renderChecklist()` iterates items and for each calls:
+1. `PdfPage::checkbox($x, $y, $size, $checked, $color)` — draws □ (rectangle) or ☑ (rectangle + check with lines)
+2. `PdfPage::text(...)` — text next to the checkbox
 
-**Modello dati**:
+**Data model**:
 ```typescript
 interface ChecklistElement extends BaseElement {
   type: 'checklist'
@@ -1081,15 +1081,15 @@ interface ChecklistElement extends BaseElement {
 
 ### Radio Component
 
-`RadioElement` rende una lista con bottoni radio (○ ●). Solo un'opzione può essere selezionata alla volta. Ogni voce ha `{ text: string, selected: boolean }`.
+`RadioElement` renders a list with radio buttons (○ ●). Only one option can be selected at a time. Each item has `{ text: string, selected: boolean }`.
 
-**Frontend**: `RadioElement.vue` renderizza verticalmente le voci con un cerchio SVG (○ o ●) + testo. Il cerchio selezionato ha un pallino interno. Il PropertyPanel fornisce editor per aggiungere/rimuovere opzioni, regolare size/colori/gap.
+**Frontend**: `RadioElement.vue` renders items vertically with an SVG circle (○ or ●) + text. The selected circle has an inner dot. The PropertyPanel provides an editor to add/remove options, and adjust size/colors/gap.
 
-**Backend**: `PdfRenderer::renderRadio()` itera le voci e per ciascuna chiama:
-1. `PdfPage::radio($x, $y, $size, $selected, $color)` — disegna ○ (cerchio vuoto) o ● (cerchio con pallino)
-2. `PdfPage::text(...)` — testo accanto al radio button
+**Backend**: `PdfRenderer::renderRadio()` iterates items and for each calls:
+1. `PdfPage::radio($x, $y, $size, $selected, $color)` — draws ○ (empty circle) or ● (circle with dot)
+2. `PdfPage::text(...)` — text next to the radio button
 
-**Modello dati**:
+**Data model**:
 ```typescript
 interface RadioElement extends BaseElement {
   type: 'radio'
@@ -1103,6 +1103,6 @@ interface RadioElement extends BaseElement {
 
 ---
 
-## Documentazione Completa dei Componenti
+## Complete Component Documentation
 
-Per una documentazione dettagliata di ogni componente (proprietà, esempi JSON+PHP, programmabilità, categorie), consulta il file [`components-guide.md`](./components-guide.md).
+For detailed documentation of each component (properties, JSON+PHP examples, programmability, categories), see the [`components-guide.md`](./components-guide.md) file.

@@ -1,31 +1,31 @@
-# engiPDF — Riferimento Template JSON
+# engiPDF — JSON Template Reference
 
-Questo file mostra un template JSON completo con **tutti i componenti disponibili** e tutte le proprietà supportate.
-Può essere usato come riferimento per creare template a mano o per comprendere la struttura del formato.
+This file shows a complete JSON template with **all available components** and all supported properties.
+It can be used as a reference for creating templates manually or for understanding the format structure.
 
 ---
 
-## Struttura Generale
+## General Structure
 
-Un template JSON è composto da:
+A JSON template consists of:
 
 ```
 {
   "version": 1,
-  "name": "Nome documento",
+  "name": "Document name",
   "defaultFont": "helvetica",
-  "fonts": { ... },          // Facoltativo: font TTF personalizzati
-  "sampleData": { ... },     // Facoltativo: dati di esempio per l'editor
-  "pages": [ ... ],          // Pagine del documento
-  "elements": [ ... ]        // Tutti gli elementi (ognuno ha un pageId)
+  "fonts": { ... },          // Optional: custom TTF fonts
+  "sampleData": { ... },     // Optional: sample data for the editor
+  "pages": [ ... ],          // Document pages
+  "elements": [ ... ]        // All elements (each has a pageId)
 }
 ```
 
 ---
 
-## Font Personalizzati (opzionale)
+## Custom Fonts (optional)
 
-Per usare font TTF al posto dei 14 Type1 predefiniti:
+To use TTF fonts instead of the 14 default Type1 fonts:
 
 ```json
 "fonts": {
@@ -42,19 +42,19 @@ Per usare font TTF al posto dei 14 Type1 predefiniti:
 }
 ```
 
-**Alias supportati:**
+**Supported aliases:**
 - `arial`, `helv`, `sans-serif` → `helvetica`
 - `times-new-roman`, `serif`, `georgia`, `bookman` → `times`
 - `monospace`, `courier-new`, `mono` → `courier`
 
-**Font predefiniti:** helvetica, helvetica-bold, helvetica-oblique, helvetica-boldoblique, times, times-bold, times-italic, times-bolditalic, courier, courier-bold, courier-oblique, courier-boldoblique, symbol, zapfdingbats
+**Default fonts:** helvetica, helvetica-bold, helvetica-oblique, helvetica-boldoblique, times, times-bold, times-italic, times-bolditalic, courier, courier-bold, courier-oblique, courier-boldoblique, symbol, zapfdingbats
 
 ---
 
-## Sample Data (opzionale)
+## Sample Data (optional)
 
-Dati di esempio usati dall'editor per generare i menu a tendina dei campi.
-Non vengono usati direttamente dal renderer PHP — servono solo all'editor.
+Sample data used by the editor to generate field dropdown menus.
+They are not used directly by the PHP renderer — they are only used by the editor.
 
 ```json
 "sampleData": {
@@ -86,33 +86,33 @@ Non vengono usati direttamente dal renderer PHP — servono solo all'editor.
 
 ---
 
-## Sintassi Placeholder
+## Placeholder Syntax
 
-Gli elementi testo supportano la sintassi `{{ percorso }}` per inserire dati dinamici:
+Text elements support `{{ path }}` syntax for inserting dynamic data:
 
-| Sintassi | Descrizione |
+| Syntax | Description |
 |---|---|
-| `{{ cliente.nome }}` | Accesso a proprietà annidata |
-| `{{ fattura.totale \| currency }}` | Formattato come valuta (1.250,00) |
-| `{{ fattura.data \| date:"d/m/Y" }}` | Data formattata |
-| `{{ righe \| sum:"totale" }}` | Somma una proprietà di un array |
-| `{{ cliente.nome \| uppercase }}` | Testo in maiuscolo |
-| `{{ cliente.nome \| lowercase }}` | Testo in minuscolo |
-| `{{ cliente.nome \| capitalize }}` | Prima lettera maiuscola |
-| `{{ testo \| truncate:30 }}` | Tronca a 30 caratteri + ... |
-| `{{ valore \| default:"N/D" }}` | Valore di default se vuoto |
-| `{{ stato \| if:"emessa":"Emessa":"Annullata" }}` | Condizionale |
-| `{{ righe \| len }}` | Lunghezza array |
-| `{{ prezzo \| number:2 }}` | Numero con 2 decimali |
-| `{{ testo \| trim }}` | Rimuove spazi |
+| `{{ cliente.nome }}` | Access nested properties |
+| `{{ fattura.totale \| currency }}` | Formatted as currency (1.250,00) |
+| `{{ fattura.data \| date:"d/m/Y" }}` | Formatted date |
+| `{{ righe \| sum:"totale" }}` | Sum a property from an array |
+| `{{ cliente.nome \| uppercase }}` | Uppercase text |
+| `{{ cliente.nome \| lowercase }}` | Lowercase text |
+| `{{ cliente.nome \| capitalize }}` | Capitalize first letter |
+| `{{ testo \| truncate:30 }}` | Truncate to 30 characters + ... |
+| `{{ valore \| default:"N/D" }}` | Default value if empty |
+| `{{ stato \| if:"emessa":"Emessa":"Annullata" }}` | Conditional |
+| `{{ righe \| len }}` | Array length |
+| `{{ prezzo \| number:2 }}` | Number with 2 decimals |
+| `{{ testo \| trim }}` | Removes whitespace |
 
-I filtri si possono concatenare: `{{ nome | uppercase | truncate:20 }}`
+Filters can be chained: `{{ nome | uppercase | truncate:20 }}`
 
 ---
 
-## Formati Pagina Predefiniti
+## Default Page Formats
 
-| Formato | Larghezza (mm) | Altezza (mm) |
+| Format | Width (mm) | Height (mm) |
 |---|---|---|
 | A3 | 297 | 420 |
 | A4 | 210 | 297 |
@@ -124,12 +124,12 @@ I filtri si possono concatenare: `{{ nome | uppercase | truncate:20 }}`
 
 ---
 
-## Template JSON Completo
+## Complete JSON Template
 
 ```json
 {
   "version": 1,
-  "name": "Template Riferimento — Tutti i Componenti",
+  "name": "Reference Template — All Components",
   "defaultFont": "helvetica",
 
   "fonts": {
@@ -168,7 +168,7 @@ I filtri si possono concatenare: `{{ nome | uppercase | truncate:20 }}`
   "pages": [
     {
       "id": "page-1",
-      "name": "Pagina Principale",
+      "name": "Main Page",
       "settings": {
         "width": 210,
         "height": 297,
@@ -180,7 +180,7 @@ I filtri si possono concatenare: `{{ nome | uppercase | truncate:20 }}`
     },
     {
       "id": "page-2",
-      "name": "Pagina Secondaria",
+      "name": "Secondary Page",
       "settings": {
         "width": 210,
         "height": 297,
@@ -1024,27 +1024,27 @@ I filtri si possono concatenare: `{{ nome | uppercase | truncate:20 }}`
 
 ---
 
-## Riferimento Rapido per Tipo
+## Quick Reference by Type
 
-### Proprietà Base (tutti gli elementi)
+### Base Properties (all elements)
 
-| Proprietà | Tipo | Default | Descrizione |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `id` | string | _(richiesto)_ | UUID univoco dell'elemento |
-| `pageId` | string | _(richiesto)_ | ID della pagina di appartenenza |
-| `type` | string | _(richiesto)_ | Tipo dell'elemento |
-| `x` | number | `0` | Posizione X in mm |
-| `y` | number | `0` | Posizione Y in mm (da cima) |
-| `width` | number | `0` | Larghezza in mm |
-| `height` | number | `0` | Altezza in mm |
-| `showIf` | object | `null` | Condizione di visibilità |
-| `styleIf` | array | `null` | Regole di override stile |
-| `repeatOnAllPages` | boolean | `false` | Ripeti su ogni pagina |
+| `id` | string | _(required)_ | Unique UUID of the element |
+| `pageId` | string | _(required)_ | ID of the page it belongs to |
+| `type` | string | _(required)_ | Type of the element |
+| `x` | number | `0` | X position in mm |
+| `y` | number | `0` | Y position in mm (from top) |
+| `width` | number | `0` | Width in mm |
+| `height` | number | `0` | Height in mm |
+| `showIf` | object | `null` | Visibility condition |
+| `styleIf` | array | `null` | Style override rules |
+| `repeatOnAllPages` | boolean | `false` | Repeat on every page |
 
-### Proprietà Specifiche per Tipo
+### Type-Specific Properties
 
 #### `text`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `""` |
 | `style.font` | string | `"helvetica"` |
@@ -1057,15 +1057,15 @@ I filtri si possono concatenare: `{{ nome | uppercase | truncate:20 }}`
 | `style.lineHeight` | number | `1.4` |
 
 #### `image`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `src` | string | `""` |
 | `fit` | string | `"contain"` |
 
-Valori `fit`: `contain`, `cover`, `stretch`
+`fit` values: `contain`, `cover`, `stretch`
 
 #### `list`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `items` | array | `[]` |
 | `mode` | string | `"static"` |
@@ -1076,17 +1076,17 @@ Valori `fit`: `contain`, `cover`, `stretch`
 | `style.bulletIndent` | number | `5` |
 | `style.textIndent` | number | `15` |
 
-Valori `bullet`: `circle`, `square`, `dash`, `diamond`, `arrow`, `number`
+`bullet` values: `circle`, `square`, `dash`, `diamond`, `arrow`, `number`
 
 #### `rectangle`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `fill` | RGB | `[]` |
 | `stroke` | RGB | `[]` |
 | `strokeWidth` | number | `1` |
 
 #### `line`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `x2` | number | `null` |
 | `y2` | number | `null` |
@@ -1094,7 +1094,7 @@ Valori `bullet`: `circle`, `square`, `dash`, `diamond`, `arrow`, `number`
 | `lineWidth` | number | `1` |
 
 #### `table`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `name` | string | `""` |
 | `columns` | array | `[]` |
@@ -1108,47 +1108,47 @@ Valori `bullet`: `circle`, `square`, `dash`, `diamond`, `arrow`, `number`
 | `dynamicConfig` | object | `null` |
 
 #### `ellipse`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `fill` | RGB | `[0.9,0.9,0.9]` |
 | `stroke` | RGB | `[0,0,0]` |
 | `strokeWidth` | number | `0.5` |
 
 #### `divider`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `color` | RGB | `[0,0,0]` |
 | `lineWidth` | number | `0.5` |
 | `lineStyle` | string | `"solid"` |
 
-Valori `lineStyle`: `solid`, `dashed`, `dotted`
+`lineStyle` values: `solid`, `dashed`, `dotted`
 
 #### `signature`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `label` | string | `"Firma"` |
 | `color` | RGB | `[0,0,0]` |
 
 #### `container`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `fill` | RGB | `[1,1,1]` |
 | `borderColor` | RGB | `[0,0,0]` |
 | `borderWidth` | number | `0.5` |
 
 #### `pageNumber`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `style` | TextStyle | `{ font: "helvetica", size: 10, align: "center" }` |
 
 #### `date`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `format` | string | `"d/m/Y"` |
 | `style` | TextStyle | `{ font: "helvetica", size: 10 }` |
 
 #### `watermark`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `"BOZZA"` |
 | `fontSize` | number | `48` |
@@ -1157,21 +1157,21 @@ Valori `lineStyle`: `solid`, `dashed`, `dotted`
 | `opacity` | number | `0.3` |
 
 #### `qrcode`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `""` |
 
 #### `stamp`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `preset` | string | `"approved"` |
-| `color` | RGB | _(dal preset)_ |
-| `text` | string | _(dal preset)_ |
+| `color` | RGB | _(from preset)_ |
+| `text` | string | _(from preset)_ |
 
-Valori `preset`: `approved`, `confidential`, `draft`, `paid`, `urgent`
+`preset` values: `approved`, `confidential`, `draft`, `paid`, `urgent`
 
 #### `quote`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `""` |
 | `author` | string | `""` |
@@ -1179,7 +1179,7 @@ Valori `preset`: `approved`, `confidential`, `draft`, `paid`, `urgent`
 | `style` | TextStyle | `{ font: "times", style: "italic", size: 12 }` |
 
 #### `callout`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `""` |
 | `style` | string | `"info"` |
@@ -1187,16 +1187,16 @@ Valori `preset`: `approved`, `confidential`, `draft`, `paid`, `urgent`
 | `bgColor` | RGB | `[0.9,0.95,1]` |
 | `borderColor` | RGB | `[0.2,0.4,0.8]` |
 
-Valori `style`: `info`, `warning`, `error`, `success`
+`style` values: `info`, `warning`, `error`, `success`
 
 #### `codeBlock`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `""` |
 | `language` | string | `""` |
 
 #### `progressBar`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `value` | number | `0` |
 | `color` | RGB | `[0.2,0.6,0.9]` |
@@ -1204,33 +1204,33 @@ Valori `style`: `info`, `warning`, `error`, `success`
 | `label` | string | `""` |
 
 #### `icon`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `name` | string | `"check"` |
 | `color` | RGB | `[0,0.6,0]` |
 
-Valori `name`: `check`, `warning`, `info`, `error`, `star`, `heart`, `arrow`
+`name` values: `check`, `warning`, `info`, `error`, `star`, `heart`, `arrow`
 
 #### `barcode`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `text` | string | `""` |
 | `format` | string | `"code128"` |
 | `showText` | boolean | `true` |
 
-Valori `format`: `code128`, `code39`, `ean13`
+`format` values: `code128`, `code39`, `ean13`
 
 #### `chart`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `chartType` | string | `"bar"` |
 | `data` | array | `[]` |
 | `colors` | RGB[] | `[[0.2,0.4,0.8]]` |
 
-Valori `chartType`: `bar`, `pie`, `line`
+`chartType` values: `bar`, `pie`, `line`
 
 #### `checklist`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `items` | array | `[]` |
 | `size` | number | `11` |
@@ -1239,7 +1239,7 @@ Valori `chartType`: `bar`, `pie`, `line`
 | `gap` | number | `3` |
 
 #### `radio`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `items` | array | `[]` |
 | `size` | number | `11` |
@@ -1248,56 +1248,56 @@ Valori `chartType`: `bar`, `pie`, `line`
 | `gap` | number | `3` |
 
 #### `pageBreak` / `spacer`
-Nessuna proprietà specifica. Sono marcatori logici senza rendering visibile.
+No specific properties. They are logical markers with no visible rendering.
 
 #### `group`
-| Proprietà | Tipo | Default |
+| Property | Type | Default |
 |---|---|---|
 | `children` | array | `[]` |
 
-I children sono elementi annidati con coordinate relative al gruppo.
+Children are nested elements with coordinates relative to the group.
 
 ---
 
-## Operatori Condizionali (showIf / styleIf)
+## Conditional Operators (showIf / styleIf)
 
-| `op` | Descrizione | Tipo confronto |
+| `op` | Description | Comparison Type |
 |---|---|---|
-| `eq` | Uguale | string |
-| `neq` | Diverso | string |
-| `gt` | Maggiore | float |
-| `lt` | Minore | float |
-| `gte` | Maggiore o uguale | float |
-| `lte` | Minore o uguale | float |
-| `empty` | Vuoto/null/[] | — |
-| `notempty` | Non vuoto | — |
-| `contains` | Contiene sottostringa | string |
+| `eq` | Equal | string |
+| `neq` | Not equal | string |
+| `gt` | Greater than | float |
+| `lt` | Less than | float |
+| `gte` | Greater than or equal | float |
+| `lte` | Less than or equal | float |
+| `empty` | Empty/null/[] | — |
+| `notempty` | Not empty | — |
+| `contains` | Contains substring | string |
 
 ---
 
-## Colori RGB
+## RGB Colors
 
-Tutti i colori sono array RGB con valori float da `0` a `1`:
+All colors are RGB arrays with float values from `0` to `1`:
 
-| Colore | RGB |
+| Color | RGB |
 |---|---|
-| Nero | `[0, 0, 0]` |
-| Bianco | `[1, 1, 1]` |
-| Rosso | `[0.8, 0.1, 0.1]` |
-| Verde | `[0, 0.6, 0]` |
-| Blu | `[0.2, 0.4, 0.8]` |
-| Grigio | `[0.5, 0.5, 0.5]` |
-| Giallo | `[1, 0.8, 0]` |
+| Black | `[0, 0, 0]` |
+| White | `[1, 1, 1]` |
+| Red | `[0.8, 0.1, 0.1]` |
+| Green | `[0, 0.6, 0]` |
+| Blue | `[0.2, 0.4, 0.8]` |
+| Gray | `[0.5, 0.5, 0.5]` |
+| Yellow | `[1, 0.8, 0]` |
 
 ---
 
-## Note Importanti
+## Important Notes
 
-1. **Coordinate**: Tutte le coordinate sono in millimetri, origine in alto a sinistra
-2. **ID**: Ogni `id` deve essere un UUID univoco nell'ambito del template
-3. **pageId**: Ogni elemento deve appartenere a una pagina esistente
-4. **Font**: I nomi font sono case-insensitive; gli alias vengono risolti automaticamente
-5. **Weight**: I valori `"600"`, `"700"`, `"800"`, `"900"` vengono normalizzati in `"bold"`
-6. **Table dinamica**: Quando `name` è impostato e i dati esistono nel `data`, le rows vengono generate automaticamente
-7. **showIf/styleIf**: Se `field` non esiste nei data, la condizione restituisce `null` (falsa)
-8. **repeatOnAllPages**: Supportato da: stamp, watermark, text, image, rectangle, line, ellipse, divider
+1. **Coordinates**: All coordinates are in millimeters, origin at top left
+2. **ID**: Each `id` must be a unique UUID within the template
+3. **pageId**: Each element must belong to an existing page
+4. **Font**: Font names are case-insensitive; aliases are resolved automatically
+5. **Weight**: Values `"600"`, `"700"`, `"800"`, `"900"` are normalized to `"bold"`
+6. **Dynamic table**: When `name` is set and data exists in `data`, rows are generated automatically
+7. **showIf/styleIf**: If `field` does not exist in data, the condition returns `null` (false)
+8. **repeatOnAllPages**: Supported by: stamp, watermark, text, image, rectangle, line, ellipse, divider
