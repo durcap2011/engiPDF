@@ -73,8 +73,8 @@ npm run build
 
 Static files are generated in `editor/dist/`.
 
-Open the *HOST_SERVER*/*HOST_NAME*/vendor/durcap2011/engipdf/editor/dist/ path to open the editor.
-Modify the *HOST_SERVER*/*HOST_NAME*/vendor/durcap2011/engipdf/editor/dist/index.html file by replacing lines 10 and 11, respectively, with:
+Open the *HOST_SERVER*/*ROOT_DIR*/vendor/durcap2011/engipdf/editor/dist/ path to open the editor.
+Modify the *HOST_SERVER*/*ROOT_DIR*/vendor/durcap2011/engipdf/editor/dist/index.html file by replacing lines 10 and 11, respectively, with:
 ```html
 <script type="module" crossorigin src="./assets/index-ChsEoyqH.js"></script>
 <link rel="stylesheet" crossorigin href="./assets/index-D9zxqf0v.css" />
