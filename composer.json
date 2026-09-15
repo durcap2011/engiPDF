@@ -1,6 +1,6 @@
 {
     "name": "durcap2011/engipdf",
-    "description": "Editor web + Generatore PDF puro PHP da template JSON",
+    "description": "Web editor + pure PHP PDF generator from JSON templates",
     "type": "library",
     "license": "MIT",
     "keywords": ["pdf", "template", "editor", "generator", "php"],
